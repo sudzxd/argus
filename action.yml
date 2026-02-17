@@ -1,0 +1,53 @@
+name: "Argus PR Reviewer"
+description: "AI-powered pull request reviews that understand your codebase."
+
+inputs:
+  model:
+    description: "LLM model identifier (e.g. anthropic:claude-sonnet-4-5-20250929, openai:gpt-4o)"
+    required: false
+    default: "anthropic:claude-sonnet-4-5-20250929"
+  max_tokens:
+    description: "Maximum tokens for LLM response"
+    required: false
+    default: "128000"
+  temperature:
+    description: "LLM sampling temperature"
+    required: false
+    default: "0.0"
+  confidence_threshold:
+    description: "Minimum confidence score (0.0–1.0) for review comments"
+    required: false
+    default: "0.7"
+  ignored_paths:
+    description: "Comma-separated glob patterns to ignore (e.g. docs/**,*.md)"
+    required: false
+    default: ""
+  storage_dir:
+    description: "Directory for codebase map artifacts"
+    required: false
+    default: ".argus-artifacts"
+  enable_agentic:
+    description: "Enable agentic review mode"
+    required: false
+    default: "false"
+  anthropic_api_key:
+    description: "Anthropic API key (required for Anthropic models)"
+    required: false
+  openai_api_key:
+    description: "OpenAI API key (required for OpenAI models)"
+    required: false
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
+    INPUT_MODEL: ${{ inputs.model }}
+    INPUT_MAX_TOKENS: ${{ inputs.max_tokens }}
+    INPUT_TEMPERATURE: ${{ inputs.temperature }}
+    INPUT_CONFIDENCE_THRESHOLD: ${{ inputs.confidence_threshold }}
+    INPUT_IGNORED_PATHS: ${{ inputs.ignored_paths }}
+    INPUT_STORAGE_DIR: ${{ inputs.storage_dir }}
+    INPUT_ENABLE_AGENTIC: ${{ inputs.enable_agentic }}
+    ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
+    OPENAI_API_KEY: ${{ inputs.openai_api_key }}
