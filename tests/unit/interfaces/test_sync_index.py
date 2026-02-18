@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -65,11 +65,7 @@ def test_extract_push_shas_missing_fields(tmp_path: Path) -> None:
 # =============================================================================
 
 
-@patch("argus.interfaces.sync_index._rebuild_memory")
-def test_incremental_update_processes_changed_files(
-    mock_rebuild: MagicMock,
-    tmp_path: Path,
-) -> None:
+def test_incremental_update_processes_changed_files(tmp_path: Path) -> None:
     """Changed parseable files are fetched, parsed, and upserted."""
     client = MagicMock()
     client.compare_commits.return_value = [
@@ -90,19 +86,14 @@ def test_incremental_update_processes_changed_files(
     parser.parse.return_value = mock_entry
 
     store = FileArtifactStore(storage_dir=tmp_path)
-    memory_store = MagicMock()
-
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
     _incremental_update(
         client,
         parser,
         store,
-        memory_store,
         codebase_map,
         "owner/repo",
-        "test-model",
-        1000,
         "aaa111",
         "bbb222",
     )
@@ -120,40 +111,27 @@ def test_incremental_update_processes_changed_files(
     loaded = store.load("owner/repo")
     assert loaded is not None
 
-    # Memory rebuild triggered
-    mock_rebuild.assert_called_once()
 
-
-@patch("argus.interfaces.sync_index._rebuild_memory")
-def test_incremental_update_no_parseable_changes_skips(
-    mock_rebuild: MagicMock,
-    tmp_path: Path,
-) -> None:
+def test_incremental_update_no_parseable_changes_skips(tmp_path: Path) -> None:
     """When no parseable files changed, nothing happens."""
     client = MagicMock()
     client.compare_commits.return_value = ["README.md", "docs/guide.txt"]
 
     parser = MagicMock()
     store = FileArtifactStore(storage_dir=tmp_path)
-    memory_store = MagicMock()
-
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
     _incremental_update(
         client,
         parser,
         store,
-        memory_store,
         codebase_map,
         "owner/repo",
-        "test-model",
-        1000,
         "aaa111",
         "bbb222",
     )
 
     client.get_file_content.assert_not_called()
     parser.parse.assert_not_called()
-    mock_rebuild.assert_not_called()
     # indexed_at unchanged
     assert codebase_map.indexed_at == CommitSHA("aaa111")

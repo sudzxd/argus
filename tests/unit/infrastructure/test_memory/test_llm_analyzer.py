@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from argus.domain.llm.value_objects import ModelConfig
-from argus.domain.memory.value_objects import PatternCategory
+from argus.domain.memory.value_objects import PatternCategory, PatternEntry
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer, _PatternOutput
 from argus.shared.exceptions import ProfileAnalysisError
 from argus.shared.types import TokenCount
@@ -123,3 +123,74 @@ class TestLLMPatternAnalyzer:
 
         with pytest.raises(ProfileAnalysisError, match="Pattern analysis failed"):
             analyzer.analyze("text")
+
+    @patch("argus.infrastructure.memory.llm_analyzer.create_agent")
+    def test_analyze_incremental_uses_incremental_prompt(
+        self,
+        mock_create_agent: MagicMock,
+        model_config: ModelConfig,
+    ) -> None:
+        """Incremental analysis includes existing patterns in the prompt."""
+        output = _PatternOutput(
+            patterns=[
+                _PatternOutput.Pattern(
+                    category="testing",
+                    description="New testing pattern",
+                    confidence=0.85,
+                ),
+            ]
+        )
+        mock_agent = MagicMock()
+        mock_result = MagicMock()
+        mock_result.output = output
+        mock_agent.run_sync.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        existing = [
+            PatternEntry(
+                category=PatternCategory.STYLE,
+                description="Existing style pattern",
+                confidence=0.9,
+            ),
+        ]
+
+        analyzer = LLMPatternAnalyzer(config=model_config)
+        patterns = analyzer.analyze_incremental("outline text", existing)
+
+        assert len(patterns) == 1
+        assert patterns[0].description == "New testing pattern"
+
+        # Verify the prompt includes existing patterns
+        prompt_text = mock_agent.run_sync.call_args[0][0]
+        assert "Existing style pattern" in prompt_text
+        assert "Codebase Outline" in prompt_text
+
+    @patch("argus.infrastructure.memory.llm_analyzer.create_agent")
+    def test_analyze_incremental_empty_existing_falls_back(
+        self,
+        mock_create_agent: MagicMock,
+        model_config: ModelConfig,
+    ) -> None:
+        """With no existing patterns, incremental falls back to full analyze."""
+        output = _PatternOutput(
+            patterns=[
+                _PatternOutput.Pattern(
+                    category="style",
+                    description="A pattern",
+                    confidence=0.8,
+                ),
+            ]
+        )
+        mock_agent = MagicMock()
+        mock_result = MagicMock()
+        mock_result.output = output
+        mock_agent.run_sync.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        analyzer = LLMPatternAnalyzer(config=model_config)
+        patterns = analyzer.analyze_incremental("outline text", [])
+
+        assert len(patterns) == 1
+        # Should use the standard prompt (no "Existing Patterns" section)
+        prompt_text = mock_agent.run_sync.call_args[0][0]
+        assert "Existing Patterns" not in prompt_text

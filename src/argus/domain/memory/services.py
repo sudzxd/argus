@@ -20,6 +20,18 @@ class PatternAnalyzer(Protocol):
         """Analyze a codebase outline and return discovered patterns."""
         ...
 
+    def analyze_incremental(
+        self,
+        outline_text: str,
+        existing_patterns: list[PatternEntry],
+    ) -> list[PatternEntry]:
+        """Analyze a codebase outline, aware of existing patterns.
+
+        Should only return genuinely new or revised patterns, not
+        re-discoveries of what's already known.
+        """
+        ...
+
 
 @dataclass
 class ProfileService:
@@ -63,16 +75,16 @@ class ProfileService:
     ) -> CodebaseMemory:
         """Update an existing profile with fresh analysis.
 
-        Merges new patterns with existing ones, re-prunes and re-caps.
+        Uses incremental analysis so the LLM only reports genuinely
+        new patterns, not re-discoveries of existing ones.
         """
-        new_patterns = self.analyzer.analyze(outline_text)
+        new_patterns = self.analyzer.analyze_incremental(
+            outline_text,
+            existing.patterns,
+        )
 
-        # Merge: new patterns override existing ones with the same description.
-        existing_map = {p.description: p for p in existing.patterns}
-        for p in new_patterns:
-            existing_map[p.description] = p
-
-        merged = list(existing_map.values())
+        # Merge: keep existing, add only genuinely new ones.
+        merged = list(existing.patterns) + new_patterns
         patterns = self._prune_and_cap(merged)
 
         return CodebaseMemory(

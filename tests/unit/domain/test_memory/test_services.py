@@ -38,6 +38,13 @@ class FakeAnalyzer:
     def analyze(self, outline_text: str) -> list[PatternEntry]:
         return self._patterns
 
+    def analyze_incremental(
+        self,
+        outline_text: str,
+        existing_patterns: list[PatternEntry],
+    ) -> list[PatternEntry]:
+        return self._patterns
+
 
 class TestProfileService:
     def test_build_profile_returns_memory(self) -> None:
@@ -66,7 +73,7 @@ class TestProfileService:
 
         assert len(memory.patterns) == 30
 
-    def test_update_profile_merges_patterns(self) -> None:
+    def test_update_profile_appends_new_patterns(self) -> None:
         from argus.domain.memory.value_objects import CodebaseMemory
 
         existing_patterns = [
@@ -88,12 +95,8 @@ class TestProfileService:
             version=1,
         )
 
+        # analyze_incremental returns only genuinely new patterns
         new_patterns = [
-            PatternEntry(
-                category=PatternCategory.STYLE,
-                description="Old pattern",
-                confidence=0.9,  # updated
-            ),
             PatternEntry(
                 category=PatternCategory.ARCHITECTURE,
                 description="New arch pattern",
@@ -105,10 +108,12 @@ class TestProfileService:
         memory = service.update_profile(existing, _make_outline(), "text")
 
         assert memory.version == 2
+        # 2 existing + 1 new
         assert len(memory.patterns) == 3
-        # The old pattern should have the updated confidence
-        old_pattern = next(p for p in memory.patterns if p.description == "Old pattern")
-        assert old_pattern.confidence == 0.9
+        descs = {p.description for p in memory.patterns}
+        assert "Old pattern" in descs
+        assert "Naming pattern" in descs
+        assert "New arch pattern" in descs
 
     def test_prune_and_cap_sorts_by_confidence(self) -> None:
         patterns = [
