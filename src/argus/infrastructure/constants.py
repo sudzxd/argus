@@ -194,6 +194,9 @@ class SeverityLabel(StrEnum):
 # TOKEN ESTIMATION
 # =============================================================================
 
+DATA_BRANCH = "argus-data"
+"""Dedicated orphan branch for storing Argus artifacts."""
+
 CHARS_PER_TOKEN = 4
 """Approximate characters per LLM token (conservative estimate)."""
 

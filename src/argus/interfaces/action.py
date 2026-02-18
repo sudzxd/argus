@@ -19,6 +19,7 @@ from argus.domain.memory.services import ProfileService
 from argus.domain.retrieval.services import RetrievalOrchestrator
 from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.review.services import NoiseFilter
+from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.github.publisher import GitHubReviewPublisher
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
@@ -29,6 +30,7 @@ from argus.infrastructure.retrieval.agentic import AgenticRetrievalStrategy
 from argus.infrastructure.retrieval.lexical import LexicalRetrievalStrategy
 from argus.infrastructure.retrieval.structural import StructuralRetrievalStrategy
 from argus.infrastructure.storage.artifact_store import FileArtifactStore
+from argus.infrastructure.storage.git_branch_store import GitBranchSync
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.config import ActionConfig
 from argus.interfaces.review_generator import LLMReviewGenerator
@@ -37,7 +39,7 @@ from argus.shared.constants import (
     DEFAULT_OUTLINE_TOKEN_BUDGET,
     DEFAULT_RETRIEVAL_BUDGET_RATIO,
 )
-from argus.shared.exceptions import ArgusError, IndexingError
+from argus.shared.exceptions import ArgusError, IndexingError, PublishError
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
 logger = logging.getLogger(__name__)
@@ -72,7 +74,16 @@ def _execute_pipeline(config: ActionConfig) -> None:
     client = GitHubClient(token=config.github_token, repo=config.github_repository)
     parser = TreeSitterParser()
     chunker = Chunker()
-    store = FileArtifactStore(storage_dir=Path(config.storage_dir))
+    storage_path = Path(config.storage_dir)
+    store = FileArtifactStore(storage_dir=storage_path)
+
+    # 2b. Pull cached artifacts from argus-data branch
+    sync = GitBranchSync(client=client, branch=DATA_BRANCH, storage_dir=storage_path)
+    try:
+        sync.pull()
+    except PublishError:
+        logger.warning("Could not pull artifacts from %s, starting fresh", DATA_BRANCH)
+
     # 3. Fetch PR data
     diff = client.get_pull_request_diff(pr_number)
     publisher = GitHubReviewPublisher(client=client, diff=diff)
