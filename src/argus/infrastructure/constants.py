@@ -157,6 +157,7 @@ class SerializerField(StrEnum):
     KIND = "kind"
     LINE_START = "line_start"
     LINE_END = "line_end"
+    SIGNATURE = "signature"
     SOURCE = "source"
     TARGET = "target"
 

@@ -59,6 +59,7 @@ def _load_language(lang: SupportedLanguage) -> Language:
 
 _IDENTIFIER = "identifier"
 _NAME_FIELD = "name"
+_MAX_SIGNATURE_LEN = 120
 
 
 @dataclass
@@ -139,6 +140,7 @@ class TreeSitterParser:
                                 start=child.start_point.row + 1,
                                 end=child.end_point.row + 1,
                             ),
+                            signature=self._extract_signature(child),
                         )
                     )
             elif child.type in CLASS_NODE_TYPES:
@@ -152,12 +154,31 @@ class TreeSitterParser:
                                 start=child.start_point.row + 1,
                                 end=child.end_point.row + 1,
                             ),
+                            signature=self._extract_signature(child),
                         )
                     )
                 self._walk_for_symbols(child, symbols, in_class=True)
                 continue
 
             self._walk_for_symbols(child, symbols, in_class=in_class)
+
+    @staticmethod
+    def _extract_signature(node: Node) -> str:
+        """Extract the first line of a node up to ':' or '{', truncated."""
+        if node.text is None:
+            return ""
+        text = node.text.decode()
+        # Take up to the first ':' or '{' delimiter
+        for delim in (":", "{"):
+            idx = text.find(delim)
+            if idx >= 0:
+                text = text[:idx]
+                break
+        # Take only the first line
+        first_line = text.split("\n", 1)[0].strip()
+        if len(first_line) > _MAX_SIGNATURE_LEN:
+            return first_line[:_MAX_SIGNATURE_LEN]
+        return first_line
 
     def _extract_imports(self, root: Node) -> list[FilePath]:
         imports: list[FilePath] = []

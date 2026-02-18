@@ -43,6 +43,7 @@ class Symbol:
     name: str
     kind: SymbolKind
     line_range: LineRange
+    signature: str = ""
 
 
 @dataclass(frozen=True)

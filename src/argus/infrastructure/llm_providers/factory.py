@@ -33,4 +33,5 @@ def create_agent[T](
             "max_tokens": int(config.max_tokens),
             "temperature": config.temperature,
         },
+        retries=3,
     )

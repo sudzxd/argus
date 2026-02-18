@@ -11,6 +11,7 @@ The only layer that imports from all other layers. Wires infrastructure into app
 | `config.py` | `ActionConfig.from_env()` — reads `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_PATH` + optional `INPUT_*` env vars |
 | `review_generator.py` | `LLMReviewGenerator` — bridges `ReviewGeneratorPort` to pydantic-ai `Agent` with `ReviewOutput` structured schema |
 | `action.py` | `run()` entry point — parses GitHub event, constructs all infrastructure, wires use case, executes pipeline |
+| `bootstrap.py` | Standalone command to build codebase memory from scratch — fetches full repo tree, parses all files, builds outline + patterns |
 
 ## Data Flow
 
@@ -31,4 +32,4 @@ action.py::run()
 See `.env.example` for all variables. Key ones:
 - `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_PATH` (required)
 - `INPUT_MODEL`, `INPUT_MAX_TOKENS`, `INPUT_TEMPERATURE` (optional, with defaults)
-- `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` (provider-specific)
+- `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_API_KEY` (provider-specific)

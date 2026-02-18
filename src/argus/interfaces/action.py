@@ -15,25 +15,30 @@ from argus.application.dto import ReviewPullRequestCommand
 from argus.application.review_pull_request import ReviewPullRequest
 from argus.domain.context.services import IndexingService
 from argus.domain.llm.value_objects import ModelConfig, TokenBudget
+from argus.domain.memory.services import ProfileService
 from argus.domain.retrieval.services import RetrievalOrchestrator
 from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.review.services import NoiseFilter
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.github.publisher import GitHubReviewPublisher
+from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
+from argus.infrastructure.memory.outline_renderer import OutlineRenderer
 from argus.infrastructure.parsing.chunker import Chunker, CodeChunk
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
 from argus.infrastructure.retrieval.agentic import AgenticRetrievalStrategy
 from argus.infrastructure.retrieval.lexical import LexicalRetrievalStrategy
 from argus.infrastructure.retrieval.structural import StructuralRetrievalStrategy
 from argus.infrastructure.storage.artifact_store import FileArtifactStore
+from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.config import ActionConfig
 from argus.interfaces.review_generator import LLMReviewGenerator
 from argus.shared.constants import (
     DEFAULT_GENERATION_BUDGET_RATIO,
+    DEFAULT_OUTLINE_TOKEN_BUDGET,
     DEFAULT_RETRIEVAL_BUDGET_RATIO,
 )
 from argus.shared.exceptions import ArgusError, IndexingError
-from argus.shared.types import CommitSHA, FilePath, TokenCount
+from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
 logger = logging.getLogger(__name__)
 
@@ -68,10 +73,9 @@ def _execute_pipeline(config: ActionConfig) -> None:
     parser = TreeSitterParser()
     chunker = Chunker()
     store = FileArtifactStore(storage_dir=Path(config.storage_dir))
-    publisher = GitHubReviewPublisher(client=client)
-
     # 3. Fetch PR data
     diff = client.get_pull_request_diff(pr_number)
+    publisher = GitHubReviewPublisher(client=client, diff=diff)
     changed_files = _extract_changed_files(diff)
 
     file_contents: dict[FilePath, str] = {}
@@ -142,7 +146,24 @@ def _execute_pipeline(config: ActionConfig) -> None:
         ignored_paths=[FilePath(p) for p in config.ignored_paths],
     )
 
-    # 8. Wire use case
+    # 8. Wire memory components (based on review depth)
+    outline_renderer = None
+    memory_store = None
+    profile_service = None
+
+    if config.review_depth != ReviewDepth.QUICK:
+        outline_renderer = OutlineRenderer(
+            token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET,
+        )
+
+        if config.review_depth == ReviewDepth.DEEP:
+            memory_store = FileMemoryStore(
+                storage_dir=Path(config.storage_dir),
+            )
+            analyzer = LLMPatternAnalyzer(config=model_config)
+            profile_service = ProfileService(analyzer=analyzer)
+
+    # 9. Wire use case
     indexing_service = IndexingService(parser=parser, repository=store)
     use_case = ReviewPullRequest(
         indexing_service=indexing_service,
@@ -151,9 +172,12 @@ def _execute_pipeline(config: ActionConfig) -> None:
         review_generator=review_generator,
         noise_filter=noise_filter,
         publisher=publisher,
+        outline_renderer=outline_renderer,
+        memory_repository=memory_store,
+        profile_service=profile_service,
     )
 
-    # 9. Execute
+    # 10. Execute
     cmd = ReviewPullRequestCommand(
         repo_id=config.github_repository,
         pr_number=pr_number,
@@ -161,6 +185,7 @@ def _execute_pipeline(config: ActionConfig) -> None:
         diff=diff,
         changed_files=changed_files,
         file_contents=file_contents,
+        review_depth=config.review_depth,
     )
 
     result = use_case.execute(cmd)

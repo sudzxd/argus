@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass, field
 
 from argus.shared.exceptions import ConfigurationError
+from argus.shared.types import ReviewDepth
 
 
 def _require_env(name: str) -> str:
@@ -50,6 +51,8 @@ class ActionConfig:
     ignored_paths: list[str] = field(default_factory=list[str])
     storage_dir: str = ".argus-artifacts"
     enable_agentic: bool = False
+    review_depth: ReviewDepth = ReviewDepth.STANDARD
+    extra_extensions: list[str] = field(default_factory=list[str])
 
     @classmethod
     def from_env(cls) -> ActionConfig:
@@ -86,4 +89,21 @@ class ActionConfig:
             storage_dir=os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"),
             enable_agentic=os.environ.get("INPUT_ENABLE_AGENTIC", "false").lower()
             == "true",
+            review_depth=ReviewDepth(os.environ.get("INPUT_REVIEW_DEPTH", "standard")),
+            extra_extensions=_parse_extensions(
+                os.environ.get("INPUT_EXTRA_EXTENSIONS", "")
+            ),
         )
+
+
+def _parse_extensions(raw: str) -> list[str]:
+    """Parse comma-separated extensions, ensuring each starts with '.'."""
+    exts: list[str] = []
+    for ext in raw.split(","):
+        ext = ext.strip()
+        if not ext:
+            continue
+        if not ext.startswith("."):
+            ext = f".{ext}"
+        exts.append(ext)
+    return exts

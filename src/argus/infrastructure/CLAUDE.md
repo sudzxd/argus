@@ -16,8 +16,11 @@ Concrete implementations of domain protocols. Imports from `domain/` and `shared
 | `retrieval/agentic.py` | `RetrievalStrategy` protocol | LLM-guided iterative retrieval via pydantic-ai `Agent` |
 | `retrieval/semantic.py` | — | Placeholder for embedding-based retrieval (not yet implemented) |
 | `llm_providers/factory.py` | — | `create_agent()` builds pydantic-ai `Agent` from `ModelConfig` |
-| `github/client.py` | — | GitHub REST API: diffs, file content, PR comments |
+| `github/client.py` | — | GitHub REST API: diffs, file content, PR comments, tree API |
 | `github/publisher.py` | `ReviewPublisher` protocol | Posts `Review` as inline PR comments |
+| `memory/outline_renderer.py` | `OutlineRendererPort` | Renders codebase outlines within token budget |
+| `memory/llm_analyzer.py` | `PatternAnalyzer` protocol | LLM-based codebase pattern discovery |
+| `storage/memory_store.py` | `CodebaseMemoryRepository` protocol | JSON file persistence with file locking |
 
 ## Rules
 
@@ -27,4 +30,4 @@ Concrete implementations of domain protocols. Imports from `domain/` and `shared
 
 ## LLM Integration
 
-All LLM calls go through **pydantic-ai**. The domain defines `ModelConfig`; the factory creates `Agent` instances. Structured output uses tool-calling mode for cloud providers. Local models (LM Studio, Ollama) may need `TextOutput` mode — see `tests/smoke/` for examples.
+All LLM calls go through **pydantic-ai**. The domain defines `ModelConfig`; the factory creates `Agent` instances. Structured output uses tool-calling mode for cloud providers (Gemini, Claude, OpenAI).

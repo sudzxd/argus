@@ -30,11 +30,22 @@ inputs:
     description: "Enable agentic review mode"
     required: false
     default: "false"
+  review_depth:
+    description: "Review depth: quick (no memory), standard (outline), deep (outline + patterns)"
+    required: false
+    default: "standard"
+  extra_extensions:
+    description: "Comma-separated extra file extensions to parse (e.g. .vue,.svelte,.proto)"
+    required: false
+    default: ""
   anthropic_api_key:
     description: "Anthropic API key (required for Anthropic models)"
     required: false
   openai_api_key:
     description: "OpenAI API key (required for OpenAI models)"
+    required: false
+  google_api_key:
+    description: "Google API key (required for Gemini models)"
     required: false
 
 runs:
@@ -49,5 +60,8 @@ runs:
     INPUT_IGNORED_PATHS: ${{ inputs.ignored_paths }}
     INPUT_STORAGE_DIR: ${{ inputs.storage_dir }}
     INPUT_ENABLE_AGENTIC: ${{ inputs.enable_agentic }}
+    INPUT_REVIEW_DEPTH: ${{ inputs.review_depth }}
+    INPUT_EXTRA_EXTENSIONS: ${{ inputs.extra_extensions }}
     ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
     OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+    GOOGLE_API_KEY: ${{ inputs.google_api_key }}

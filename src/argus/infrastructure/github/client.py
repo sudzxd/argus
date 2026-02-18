@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import httpx
 
@@ -84,6 +85,39 @@ class GitHubClient:
             "comments": comments,
         }
         self._post(url, payload)
+
+    def get_repo_default_branch_sha(self) -> str:
+        """Fetch the SHA of the default branch's HEAD.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}")
+        default_branch = str(data.get("default_branch", "main"))
+        branch_data = self._get(f"/repos/{self.repo}/branches/{default_branch}")
+        commit_obj: object = branch_data.get("commit")
+        if isinstance(commit_obj, dict):
+            commit_data = cast(dict[str, object], commit_obj)
+            sha_val = commit_data.get("sha")
+            if isinstance(sha_val, str):
+                return sha_val
+        msg = "Cannot extract default branch SHA"
+        raise PublishError(msg)
+
+    def get_tree_recursive(self, sha: str) -> list[dict[str, object]]:
+        """Fetch the full file tree for a commit SHA (recursive).
+
+        Returns:
+            List of tree entries with 'path', 'type', 'size' fields.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/git/trees/{sha}?recursive=1")
+        tree = data.get("tree")
+        if isinstance(tree, list):
+            return tree  # type: ignore[return-value]
+        return []
 
     def _get(self, path: str) -> dict[str, object]:
         url = f"{GitHubAPI.BASE_URL}{path}"

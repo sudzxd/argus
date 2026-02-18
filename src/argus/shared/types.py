@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 
 # =============================================================================
 # NEWTYPES
@@ -61,6 +61,14 @@ class LineRange:
 # =============================================================================
 # ENUMS
 # =============================================================================
+
+
+class ReviewDepth(StrEnum):
+    """How much codebase memory context to include in reviews."""
+
+    QUICK = "quick"
+    STANDARD = "standard"
+    DEEP = "deep"
 
 
 class Severity(IntEnum):
