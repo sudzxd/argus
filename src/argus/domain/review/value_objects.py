@@ -30,3 +30,5 @@ class ReviewRequest:
     context: RetrievalResult
     strictness: str = "normal"
     ignored_paths: list[FilePath] = field(default_factory=list[FilePath])
+    codebase_outline_text: str | None = None
+    codebase_patterns_text: str | None = None

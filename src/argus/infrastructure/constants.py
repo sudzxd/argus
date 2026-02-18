@@ -157,6 +157,7 @@ class SerializerField(StrEnum):
     KIND = "kind"
     LINE_START = "line_start"
     LINE_END = "line_end"
+    SIGNATURE = "signature"
     SOURCE = "source"
     TARGET = "target"
 
@@ -192,6 +193,9 @@ class SeverityLabel(StrEnum):
 # =============================================================================
 # TOKEN ESTIMATION
 # =============================================================================
+
+DATA_BRANCH = "argus-data"
+"""Dedicated orphan branch for storing Argus artifacts."""
 
 CHARS_PER_TOKEN = 4
 """Approximate characters per LLM token (conservative estimate)."""

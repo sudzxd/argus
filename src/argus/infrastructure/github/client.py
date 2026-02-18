@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import httpx
 
@@ -85,6 +86,205 @@ class GitHubClient:
         }
         self._post(url, payload)
 
+    def get_repo_default_branch_sha(self) -> str:
+        """Fetch the SHA of the default branch's HEAD.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}")
+        default_branch = str(data.get("default_branch", "main"))
+        branch_data = self._get(f"/repos/{self.repo}/branches/{default_branch}")
+        commit_obj: object = branch_data.get("commit")
+        if isinstance(commit_obj, dict):
+            commit_data = cast(dict[str, object], commit_obj)
+            sha_val = commit_data.get("sha")
+            if isinstance(sha_val, str):
+                return sha_val
+        msg = "Cannot extract default branch SHA"
+        raise PublishError(msg)
+
+    def get_tree_recursive(self, sha: str) -> list[dict[str, object]]:
+        """Fetch the full file tree for a commit SHA (recursive).
+
+        Returns:
+            List of tree entries with 'path', 'type', 'size' fields.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/git/trees/{sha}?recursive=1")
+        tree = data.get("tree")
+        if isinstance(tree, list):
+            return tree  # type: ignore[return-value]
+        return []
+
+    # =================================================================
+    # Git Data API — low-level tree / blob / commit manipulation
+    # =================================================================
+
+    def get_ref_sha(self, branch: str) -> str | None:
+        """Get the commit SHA that a branch ref points to.
+
+        Returns:
+            The commit SHA, or None if the branch does not exist.
+        """
+        url = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/git/ref/heads/{branch}"
+        try:
+            response = self._request(url, self._headers())
+        except PublishError:
+            return None
+        data: dict[str, object] = response.json()
+        obj = data.get("object")
+        if isinstance(obj, dict):
+            obj_data = cast(dict[str, object], obj)
+            sha: object = obj_data.get("sha")
+            if isinstance(sha, str):
+                return sha
+        return None
+
+    def get_commit_tree_sha(self, commit_sha: str) -> str:
+        """Get the tree SHA for a commit.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/git/commits/{commit_sha}")
+        tree = data.get("tree")
+        if isinstance(tree, dict):
+            tree_data = cast(dict[str, object], tree)
+            sha: object = tree_data.get("sha")
+            if isinstance(sha, str):
+                return sha
+        msg = f"Cannot extract tree SHA from commit {commit_sha}"
+        raise PublishError(msg)
+
+    def get_tree_entries_flat(self, tree_sha: str) -> list[dict[str, object]]:
+        """Get entries for a tree (non-recursive).
+
+        Returns:
+            List of tree entry dicts with 'path', 'sha', 'type', etc.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/git/trees/{tree_sha}")
+        tree = data.get("tree")
+        if isinstance(tree, list):
+            return tree  # type: ignore[return-value]
+        return []
+
+    def get_blob_content(self, blob_sha: str) -> bytes:
+        """Download a blob's content (base64-decoded).
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        import base64
+
+        data = self._get(f"/repos/{self.repo}/git/blobs/{blob_sha}")
+        content = data.get("content")
+        if isinstance(content, str):
+            return base64.b64decode(content)
+        msg = f"Cannot extract content from blob {blob_sha}"
+        raise PublishError(msg)
+
+    def create_blob(self, content_b64: str) -> str:
+        """Create a blob from base64-encoded content.
+
+        Returns:
+            The SHA of the created blob.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._post_json(
+            f"/repos/{self.repo}/git/blobs",
+            {"content": content_b64, "encoding": "base64"},
+        )
+        sha = data.get("sha")
+        if isinstance(sha, str):
+            return sha
+        msg = "Cannot extract SHA from created blob"
+        raise PublishError(msg)
+
+    def create_tree(
+        self,
+        entries: list[dict[str, str]],
+        base_tree: str | None = None,
+    ) -> str:
+        """Create a tree object.
+
+        Args:
+            entries: List of tree entry dicts with path, mode, type, sha.
+            base_tree: Optional base tree SHA for incremental updates.
+
+        Returns:
+            The SHA of the created tree.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        payload: dict[str, object] = {"tree": entries}
+        if base_tree is not None:
+            payload["base_tree"] = base_tree
+        data = self._post_json(f"/repos/{self.repo}/git/trees", payload)
+        sha = data.get("sha")
+        if isinstance(sha, str):
+            return sha
+        msg = "Cannot extract SHA from created tree"
+        raise PublishError(msg)
+
+    def create_commit(
+        self,
+        message: str,
+        tree_sha: str,
+        parents: list[str],
+    ) -> str:
+        """Create a commit object.
+
+        Returns:
+            The SHA of the created commit.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._post_json(
+            f"/repos/{self.repo}/git/commits",
+            {"message": message, "tree": tree_sha, "parents": parents},
+        )
+        sha = data.get("sha")
+        if isinstance(sha, str):
+            return sha
+        msg = "Cannot extract SHA from created commit"
+        raise PublishError(msg)
+
+    def create_ref(self, ref: str, sha: str) -> None:
+        """Create a new Git ref (e.g. refs/heads/branch-name).
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        self._post_json(
+            f"/repos/{self.repo}/git/refs",
+            {"ref": ref, "sha": sha},
+        )
+
+    def update_ref(self, ref: str, sha: str) -> None:
+        """Update an existing Git ref.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        self._patch(
+            f"/repos/{self.repo}/git/refs/{ref}",
+            {"sha": sha, "force": True},
+        )
+
+    # =================================================================
+    # HTTP helpers
+    # =================================================================
+
     def _get(self, path: str) -> dict[str, object]:
         url = f"{GitHubAPI.BASE_URL}{path}"
         response = self._request(url, self._headers())
@@ -94,6 +294,35 @@ class GitHubClient:
         try:
             with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
                 response = client.post(url, json=payload, headers=self._headers())
+        except httpx.HTTPError as e:
+            raise PublishError(f"GitHub API error: {e}") from e
+
+        if response.status_code > _STATUS_OK_MAX:
+            raise PublishError(
+                f"GitHub API HTTP {response.status_code}: {response.text}"
+            )
+
+    def _post_json(self, path: str, payload: dict[str, object]) -> dict[str, object]:
+        """POST and return the response JSON body."""
+        url = f"{GitHubAPI.BASE_URL}{path}"
+        try:
+            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
+                response = client.post(url, json=payload, headers=self._headers())
+        except httpx.HTTPError as e:
+            raise PublishError(f"GitHub API error: {e}") from e
+
+        if response.status_code > _STATUS_OK_MAX:
+            raise PublishError(
+                f"GitHub API HTTP {response.status_code}: {response.text}"
+            )
+        return response.json()  # type: ignore[no-any-return]
+
+    def _patch(self, path: str, payload: dict[str, object]) -> None:
+        """PATCH request."""
+        url = f"{GitHubAPI.BASE_URL}{path}"
+        try:
+            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
+                response = client.patch(url, json=payload, headers=self._headers())
         except httpx.HTTPError as e:
             raise PublishError(f"GitHub API error: {e}") from e
 

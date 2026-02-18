@@ -1,0 +1,39 @@
+name: Argus Index
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  index:
+    name: Build Codebase Index
+    runs-on: ubuntu-latest
+    environment: develop
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --no-dev
+
+      - name: Run bootstrap
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          INPUT_MODEL: "google-gla:gemini-2.5-flash"
+          INPUT_MAX_TOKENS: "1000000"
+          INPUT_STORAGE_DIR: ".argus-artifacts"
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run python -m argus.interfaces.bootstrap
+
+      - name: Push artifacts to argus-data branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          INPUT_STORAGE_DIR: ".argus-artifacts"
+        run: uv run python -m argus.interfaces.sync_push

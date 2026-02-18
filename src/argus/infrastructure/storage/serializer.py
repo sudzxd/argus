@@ -49,12 +49,15 @@ def _serialize_entry(entry: FileEntry) -> dict[str, object]:
 
 
 def _serialize_symbol(symbol: Symbol) -> dict[str, object]:
-    return {
+    data: dict[str, object] = {
         F.NAME: symbol.name,
         F.KIND: symbol.kind.value,
         F.LINE_START: symbol.line_range.start,
         F.LINE_END: symbol.line_range.end,
     }
+    if symbol.signature:
+        data[F.SIGNATURE] = symbol.signature
+    return data
 
 
 def _serialize_edge(edge: Edge) -> dict[str, str]:
@@ -119,6 +122,7 @@ def _deserialize_symbol(data: dict[str, object]) -> Symbol:
             start=int(data[F.LINE_START]),  # type: ignore[arg-type]
             end=int(data[F.LINE_END]),  # type: ignore[arg-type]
         ),
+        signature=str(data.get(F.SIGNATURE, "")),
     )
 
 

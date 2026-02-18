@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from argus.domain.context.value_objects import Checkpoint
 from argus.domain.review.entities import Review
-from argus.shared.types import CommitSHA, FilePath, TokenCount
+from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
 # =============================================================================
 # INDEX CODEBASE
@@ -45,6 +45,7 @@ class ReviewPullRequestCommand:
     diff: str
     changed_files: list[FilePath]
     file_contents: dict[FilePath, str]
+    review_depth: ReviewDepth = ReviewDepth.STANDARD
 
 
 @dataclass(frozen=True)

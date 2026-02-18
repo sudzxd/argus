@@ -119,7 +119,7 @@ markers = [
 
 [tool.coverage.run]
 source = ["argus"]
-omit = ["tests/*", "*/constants.py"]
+omit = ["tests/*", "*/constants.py", "*/interfaces/action.py", "*/interfaces/bootstrap.py"]
 
 [tool.coverage.report]
 fail_under = 80

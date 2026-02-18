@@ -124,7 +124,8 @@ class TestFullPipeline:
         parser = TreeSitterParser()
         store = FileArtifactStore(storage_dir=tmp_path / "artifacts")
         mock_client = MagicMock()
-        publisher = GitHubReviewPublisher(client=mock_client)
+        cmd = _make_command()
+        publisher = GitHubReviewPublisher(client=mock_client, diff=cmd.diff)
 
         orchestrator = RetrievalOrchestrator(
             strategies=[LexicalRetrievalStrategy(chunks=[])],
@@ -147,7 +148,6 @@ class TestFullPipeline:
             publisher=publisher,
         )
 
-        cmd = _make_command()
         result = use_case.execute(cmd)
 
         # Review was generated
@@ -222,6 +222,7 @@ class TestFullPipeline:
 
         store = FileArtifactStore(storage_dir=tmp_path / "artifacts")
         parser = TreeSitterParser()
+        cmd = _make_command()
 
         # First run — builds the map
         orchestrator = RetrievalOrchestrator(
@@ -240,11 +241,10 @@ class TestFullPipeline:
             orchestrator=orchestrator,
             review_generator=review_generator,
             noise_filter=NoiseFilter(confidence_threshold=0.7),
-            publisher=GitHubReviewPublisher(client=MagicMock()),
+            publisher=GitHubReviewPublisher(client=MagicMock(), diff=cmd.diff),
         )
 
-        cmd1 = _make_command()
-        use_case.execute(cmd1)
+        use_case.execute(cmd)
 
         # Second run — existing map should be loaded
         mock_publisher = MagicMock()
@@ -254,11 +254,10 @@ class TestFullPipeline:
             orchestrator=orchestrator,
             review_generator=review_generator,
             noise_filter=NoiseFilter(confidence_threshold=0.7),
-            publisher=GitHubReviewPublisher(client=mock_publisher),
+            publisher=GitHubReviewPublisher(client=mock_publisher, diff=cmd.diff),
         )
 
-        cmd2 = _make_command()
-        result = use_case2.execute(cmd2)
+        result = use_case2.execute(cmd)
         assert result.review is not None
         mock_publisher.post_review.assert_called_once()
 
