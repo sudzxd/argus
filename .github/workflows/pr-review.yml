@@ -25,6 +25,7 @@ jobs:
       - name: Run Argus review
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          INPUT_MODE: "review"
           INPUT_MODEL: "google-gla:gemini-2.5-flash"
           INPUT_MAX_TOKENS: "1000000"
           INPUT_TEMPERATURE: "0.0"
@@ -33,4 +34,4 @@ jobs:
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ENABLE_AGENTIC: "false"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: uv run python -m argus.interfaces.action
+        run: uv run python -m argus.interfaces.main

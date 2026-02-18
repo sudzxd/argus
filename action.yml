@@ -2,6 +2,10 @@ name: "Argus PR Reviewer"
 description: "AI-powered pull request reviews that understand your codebase."
 
 inputs:
+  mode:
+    description: "Operating mode: review (PR review), index (incremental update), bootstrap (full re-index)"
+    required: false
+    default: "review"
   model:
     description: "LLM model identifier (e.g. anthropic:claude-sonnet-4-5-20250929, openai:gpt-4o)"
     required: false
@@ -53,6 +57,7 @@ runs:
   image: "Dockerfile"
   env:
     GITHUB_TOKEN: ${{ github.token }}
+    INPUT_MODE: ${{ inputs.mode }}
     INPUT_MODEL: ${{ inputs.model }}
     INPUT_MAX_TOKENS: ${{ inputs.max_tokens }}
     INPUT_TEMPERATURE: ${{ inputs.temperature }}

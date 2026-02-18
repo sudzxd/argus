@@ -32,7 +32,7 @@ from argus.shared.types import CommitSHA, FilePath, TokenCount
 logger = logging.getLogger(__name__)
 
 # Default extensions we can parse.
-_DEFAULT_EXTENSIONS = frozenset(
+PARSEABLE_EXTENSIONS = frozenset(
     {
         ".py",
         ".js",
@@ -56,7 +56,7 @@ _DEFAULT_EXTENSIONS = frozenset(
 )
 
 
-def _get_parseable_extensions() -> frozenset[str]:
+def get_parseable_extensions() -> frozenset[str]:
     """Build the set of parseable extensions, including user extras."""
     raw = os.environ.get("INPUT_EXTRA_EXTENSIONS", "")
     extras: set[str] = set()
@@ -67,7 +67,7 @@ def _get_parseable_extensions() -> frozenset[str]:
         if not ext.startswith("."):
             ext = f".{ext}"
         extras.add(ext)
-    return _DEFAULT_EXTENSIONS | frozenset(extras)
+    return PARSEABLE_EXTENSIONS | frozenset(extras)
 
 
 def _require_env(name: str) -> str:
@@ -112,7 +112,7 @@ def _execute_bootstrap() -> None:
     tree_entries = client.get_tree_recursive(head_sha)
 
     # 2. Filter to parseable source files.
-    parseable = _get_parseable_extensions()
+    parseable = get_parseable_extensions()
     source_paths: list[str] = []
     for entry in tree_entries:
         if entry.get("type") != "blob":

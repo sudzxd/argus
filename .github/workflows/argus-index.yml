@@ -7,7 +7,7 @@ on:
 
 jobs:
   index:
-    name: Build Codebase Index
+    name: Update Codebase Index
     runs-on: ubuntu-latest
     environment: develop
     permissions:
@@ -21,19 +21,30 @@ jobs:
 
       - run: uv sync --no-dev
 
-      - name: Run bootstrap
+      # On push: incremental update (only changed files).
+      # Falls back to full bootstrap if no existing artifacts.
+      - name: Incremental index
+        if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          INPUT_MODE: "index"
           INPUT_MODEL: "google-gla:gemini-2.5-flash"
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: uv run python -m argus.interfaces.bootstrap
+        run: uv run python -m argus.interfaces.main
 
-      - name: Push artifacts to argus-data branch
+      # On manual dispatch: full re-index from scratch.
+      - name: Full bootstrap
+        if: github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          INPUT_MODE: "bootstrap"
+          INPUT_MODEL: "google-gla:gemini-2.5-flash"
+          INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
-        run: uv run python -m argus.interfaces.sync_push
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run python -m argus.interfaces.main

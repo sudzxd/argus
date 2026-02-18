@@ -119,6 +119,31 @@ class GitHubClient:
             return tree  # type: ignore[return-value]
         return []
 
+    def compare_commits(self, base: str, head: str) -> list[str]:
+        """Get the list of changed file paths between two commits.
+
+        Args:
+            base: Base commit SHA or branch name.
+            head: Head commit SHA or branch name.
+
+        Returns:
+            List of file paths that were added, modified, or removed.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/compare/{base}...{head}")
+        files = data.get("files")
+        if not isinstance(files, list):
+            return []
+        file_list = cast(list[dict[str, object]], files)
+        paths: list[str] = []
+        for file_entry in file_list:
+            filename: object = file_entry.get("filename")
+            if isinstance(filename, str):
+                paths.append(filename)
+        return paths
+
     # =================================================================
     # Git Data API — low-level tree / blob / commit manipulation
     # =================================================================
