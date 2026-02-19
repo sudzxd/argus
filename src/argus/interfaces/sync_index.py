@@ -29,8 +29,8 @@ from argus.domain.context.entities import CodebaseMap
 from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
-from argus.infrastructure.storage.artifact_store import FileArtifactStore
-from argus.infrastructure.storage.git_branch_store import GitBranchSync
+from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
+from argus.infrastructure.storage.git_branch_store import SelectiveGitBranchSync
 from argus.interfaces.bootstrap import get_parseable_extensions
 from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
 from argus.shared.types import CommitSHA, FilePath
@@ -92,27 +92,71 @@ def _execute() -> None:
 
     client = GitHubClient(token=token, repo=repo)
     parser = TreeSitterParser()
-    store = FileArtifactStore(storage_dir=storage_dir)
-    sync = GitBranchSync(client=client, branch=DATA_BRANCH, storage_dir=storage_dir)
+    sharded_store = ShardedArtifactStore(storage_dir=storage_dir)
+    sync = SelectiveGitBranchSync(
+        client=client,
+        branch=DATA_BRANCH,
+        storage_dir=storage_dir,
+    )
 
-    # 1. Pull existing artifacts.
-    sync.pull()
-    existing_map = store.load(repo)
+    # 1. Pull manifest to check for existing artifacts.
+    has_manifest = sync.pull_manifest()
+    manifest = sharded_store.load_manifest(repo) if has_manifest else None
 
-    if existing_map is None:
-        # No existing artifacts — delegate to full bootstrap.
-        logger.info("No existing codebase map, falling back to full bootstrap")
-        from argus.interfaces.bootstrap import run as bootstrap_run
+    if manifest is None:
+        # Try legacy format via full pull.
+        sync.pull_all()
+        existing_map = sharded_store.load_or_migrate(repo)
+        if existing_map is None:
+            logger.info("No existing codebase map, falling back to full bootstrap")
+            from argus.interfaces.bootstrap import run as bootstrap_run
 
-        bootstrap_run()
-    else:
-        # Incremental update — only process changed files.
+            bootstrap_run()
+            return
+
+        # Incremental update on migrated legacy map.
         before_sha, after_sha = _extract_push_shas(event_path)
-        _incremental_update(
+        _incremental_update_sharded(
             client,
             parser,
-            store,
+            sharded_store,
             existing_map,
+            repo,
+            before_sha,
+            after_sha,
+        )
+    else:
+        # Sharded path: pull only dirty shards.
+        before_sha, after_sha = _extract_push_shas(event_path)
+        changed_paths = client.compare_commits(before_sha, after_sha)
+        parseable = get_parseable_extensions()
+        source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
+
+        if not source_paths:
+            logger.info("No parseable files changed, skipping update")
+            sync.push()
+            return
+
+        # Determine dirty shards and pull them.
+        dirty_shard_ids = manifest.dirty_shards(
+            [FilePath(p) for p in source_paths],
+        )
+        blob_names = {
+            manifest.shards[sid].blob_name
+            for sid in dirty_shard_ids
+            if sid in manifest.shards
+        }
+        # Also pull memory file and any other blobs we need.
+        sync.pull_blobs(blob_names)
+
+        # Load partial map from dirty shards.
+        partial_map = sharded_store.load_shards(repo, dirty_shard_ids)
+
+        _incremental_update_sharded(
+            client,
+            parser,
+            sharded_store,
+            partial_map,
             repo,
             before_sha,
             after_sha,
@@ -122,16 +166,16 @@ def _execute() -> None:
     sync.push()
 
 
-def _incremental_update(
+def _incremental_update_sharded(
     client: GitHubClient,
     parser: TreeSitterParser,
-    store: FileArtifactStore,
+    store: ShardedArtifactStore,
     codebase_map: CodebaseMap,
     repo: str,
     before_sha: str,
     after_sha: str,
 ) -> None:
-    """Update the codebase map with only the files changed between two commits."""
+    """Update the codebase map and re-shard only dirty directories."""
     changed_paths = client.compare_commits(before_sha, after_sha)
     parseable = get_parseable_extensions()
     source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
@@ -157,11 +201,13 @@ def _incremental_update(
         except (ArgusError, IndexingError, httpx.HTTPError) as e:
             logger.debug("Skipping %s: %s", path_str, e)
 
-    # Update the indexed_at SHA (CodebaseMap is not frozen).
     codebase_map.indexed_at = CommitSHA(after_sha)
-
     logger.info("Updated %d files in codebase map", updated)
-    store.save(repo, codebase_map)
+
+    # Re-shard and save. For incremental updates on a partial map,
+    # we save the full partial map as shards — the push will merge
+    # with existing blobs on the branch.
+    store.save_full(repo, codebase_map)
 
 
 if __name__ == "__main__":

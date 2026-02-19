@@ -64,9 +64,11 @@ classDiagram
 
 **Core Concepts:**
 
-- **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA.
+- **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA. A partial map assembled from selected shards is indistinguishable from a full map with fewer files.
 - **FileEntry** — An entity representing a single source file. Holds its AST-derived structure (functions, classes, exports) and its relationships to other files.
 - **DependencyGraph** — A value object representing the directed graph of relationships between symbols: imports, calls, extends, implements. Built entirely from AST parsing — no LLM required.
+- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
+- **ShardId** — A `NewType` over `str`, derived deterministically as the POSIX parent directory of a file path.
 - **Checkpoint** — A value object that snapshots the CodebaseMap at a specific version.
 
 **Behaviors:**
@@ -219,7 +221,30 @@ All LLM calls go through pydantic-ai. The system supports any provider pydantic-
 
 ### Storage
 
-The CodebaseMap is persisted between runs as a JSON artifact. The domain defines a `CodebaseMapRepository` protocol; infrastructure provides `FileArtifactStore`. Codebase memory (outlines + patterns) is persisted separately via `CodebaseMemoryRepository` / `FileMemoryStore` with file locking for concurrent access.
+The CodebaseMap is persisted between runs using **sharded DAG storage**. The domain defines `CodebaseMapRepository` and `ShardedMapRepository` protocols; infrastructure provides `ShardedArtifactStore` (primary) and `FileArtifactStore` (legacy fallback).
+
+**Sharded format** (on the `argus-data` branch):
+
+```
+argus-data branch:
+  manifest.json              # DAG index: shard descriptors + cross-shard edges
+  shard_<content_hash>.json  # One per leaf directory
+  <hash>_memory.json         # Patterns + outline (unchanged)
+```
+
+- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name) and tracks cross-shard dependency edges.
+- **Shard files** — Each contains the serialized `FileEntry` objects and internal edges for files in one directory.
+- **Shard ID** — Derived deterministically from `PurePosixPath(file_path).parent`.
+
+**Selective loading:**
+
+- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards.
+- **Bootstrap** builds the full map, splits into shards, and saves everything.
+
+`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
+
+Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access.
 
 ### Parsing
 
@@ -274,7 +299,10 @@ sequenceDiagram
 
     GH->>ACT: PR webhook event
     ACT->>GH: Fetch diff + file contents
-    ACT->>CTX: Parse files, build/update CodebaseMap
+    ACT->>GH: Pull manifest.json from argus-data
+    ACT->>ACT: Compute needed shards (changed files + 1-hop neighbors)
+    ACT->>GH: Pull only needed shard blobs + memory
+    ACT->>CTX: Parse changed files, build/update partial CodebaseMap
     CTX-->>ACT: CodebaseMap + Chunks
     ACT->>RET: Retrieve context (structural → lexical → agentic)
     RET-->>ACT: Ranked ContextItems
@@ -306,7 +334,7 @@ src/argus/
 │   ├── retrieval/                   # Structural, lexical, agentic strategies
 │   ├── memory/                      # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/              # pydantic-ai Agent factory
-│   ├── storage/                     # Codebase map + memory JSON persistence
+│   ├── storage/                     # Sharded codebase map + memory persistence
 │   └── github/                      # GitHub API client + review publisher
 └── interfaces/                      # Entry points — action, bootstrap, config
 ```

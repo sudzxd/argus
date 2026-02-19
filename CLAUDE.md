@@ -25,7 +25,7 @@ src/argus/
 │   ├── parsing/      # Tree-sitter AST parser + code chunker
 │   ├── retrieval/    # Structural, lexical (BM25), agentic strategies
 │   ├── llm_providers/# pydantic-ai Agent factory
-│   ├── storage/      # Codebase map JSON persistence
+│   ├── storage/      # Sharded codebase map + memory JSON persistence
 │   └── github/       # GitHub API client + review publisher
 └── interfaces/       # Entry point: config, composition root, action handler
 ```

@@ -22,11 +22,11 @@ Reviews are posted directly on the pull request as inline comments: a summary of
 
 Argus operates in three modes:
 
-- **bootstrap** — Parses every file, builds a full codebase map and memory profile (patterns, conventions), and stores artifacts on a dedicated `argus-data` branch.
-- **index** — Runs on each push to your default branch. Incrementally updates the codebase map for changed files only — no LLM calls.
-- **review** — Runs on pull requests. Pulls the stored codebase map and memory, retrieves relevant context for the diff, generates a structured review via LLM, and posts inline PR comments.
+- **bootstrap** — Parses every file, builds a full codebase map and memory profile (patterns, conventions), shards the map per directory, and stores artifacts on a dedicated `argus-data` branch.
+- **index** — Runs on each push to your default branch. Pulls only the manifest and dirty shards, incrementally updates the codebase map for changed files only — no LLM calls.
+- **review** — Runs on pull requests. Pulls the manifest, loads only the shards relevant to the changed files (plus 1-hop dependency neighbors), retrieves context, generates a structured review via LLM, and posts inline PR comments.
 
-Artifacts are persisted on an orphan `argus-data` branch using the Git Data API — no databases, no external storage.
+Artifacts are persisted on an orphan `argus-data` branch using the Git Data API — no databases, no external storage. The codebase map is sharded per directory so that large monorepos only load the slices they need.
 
 ## Key Capabilities
 
@@ -34,6 +34,7 @@ Artifacts are persisted on an orphan `argus-data` branch using the Git Data API 
 - **Smart retrieval** — Hybrid retrieval combining structural analysis (dependency graph), lexical search (BM25), and optional LLM-driven agentic search.
 - **Codebase memory** — Learns your project's patterns, conventions, and architectural decisions. Reviews enforce what it knows about your codebase.
 - **Multi-provider LLM support** — Bring your own model. Supports Anthropic (Claude), OpenAI, Google (Gemini), and any OpenAI-compatible endpoint.
+- **Sharded storage** — The codebase map is split into per-directory shards with a DAG manifest tracking cross-shard dependencies. Reviews and index updates load only the shards they need.
 - **Incremental indexing** — The codebase map updates incrementally on each push. Bootstrap only runs once (or on demand).
 - **Zero infrastructure** — No databases, no servers, no external services beyond the LLM API. Everything runs inside GitHub Actions.
 
@@ -51,7 +52,7 @@ Artifacts are persisted on an orphan `argus-data` branch using the Git Data API 
 
 ## Status
 
-301 tests passing, 85% coverage. All layers implemented and running in CI.
+313 tests passing, 81% coverage. All layers implemented and running in CI.
 
 ---
 

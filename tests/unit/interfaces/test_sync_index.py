@@ -10,10 +10,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from argus.domain.context.entities import CodebaseMap, FileEntry
-from argus.infrastructure.storage.artifact_store import FileArtifactStore
+from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.interfaces.sync_index import (
     _extract_push_shas,
-    _incremental_update,
+    _incremental_update_sharded,
     _is_parseable,
 )
 from argus.shared.exceptions import ConfigurationError
@@ -61,11 +61,13 @@ def test_extract_push_shas_missing_fields(tmp_path: Path) -> None:
 
 
 # =============================================================================
-# _incremental_update tests
+# _incremental_update_sharded tests
 # =============================================================================
 
 
-def test_incremental_update_processes_changed_files(tmp_path: Path) -> None:
+def test_incremental_update_sharded_processes_changed_files(
+    tmp_path: Path,
+) -> None:
     """Changed parseable files are fetched, parsed, and upserted."""
     client = MagicMock()
     client.compare_commits.return_value = [
@@ -85,10 +87,10 @@ def test_incremental_update_processes_changed_files(tmp_path: Path) -> None:
     )
     parser.parse.return_value = mock_entry
 
-    store = FileArtifactStore(storage_dir=tmp_path)
+    store = ShardedArtifactStore(storage_dir=tmp_path)
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
-    _incremental_update(
+    _incremental_update_sharded(
         client,
         parser,
         store,
@@ -107,21 +109,23 @@ def test_incremental_update_processes_changed_files(tmp_path: Path) -> None:
     # indexed_at updated
     assert codebase_map.indexed_at == CommitSHA("bbb222")
 
-    # Store saved
-    loaded = store.load("owner/repo")
+    # Store saved sharded artifacts
+    loaded = store.load_full("owner/repo")
     assert loaded is not None
 
 
-def test_incremental_update_no_parseable_changes_skips(tmp_path: Path) -> None:
+def test_incremental_update_sharded_no_parseable_changes_skips(
+    tmp_path: Path,
+) -> None:
     """When no parseable files changed, nothing happens."""
     client = MagicMock()
     client.compare_commits.return_value = ["README.md", "docs/guide.txt"]
 
     parser = MagicMock()
-    store = FileArtifactStore(storage_dir=tmp_path)
+    store = ShardedArtifactStore(storage_dir=tmp_path)
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
-    _incremental_update(
+    _incremental_update_sharded(
         client,
         parser,
         store,

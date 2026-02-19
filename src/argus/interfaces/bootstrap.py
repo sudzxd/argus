@@ -24,7 +24,7 @@ from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
 from argus.infrastructure.memory.outline_renderer import OutlineRenderer
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
-from argus.infrastructure.storage.artifact_store import FileArtifactStore
+from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET, MAX_FILE_SIZE_BYTES
 from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
@@ -104,7 +104,7 @@ def _execute_bootstrap() -> None:
 
     client = GitHubClient(token=token, repo=repo)
     parser = TreeSitterParser()
-    store = FileArtifactStore(storage_dir=storage_dir)
+    sharded_store = ShardedArtifactStore(storage_dir=storage_dir)
     memory_store = FileMemoryStore(storage_dir=storage_dir)
 
     # 1. Get the default branch SHA and full tree.
@@ -148,11 +148,11 @@ def _execute_bootstrap() -> None:
 
     # 4. Load existing artifacts before overwriting.
     existing_memory = memory_store.load(repo)
-    existing_map = store.load(repo)
+    existing_map = sharded_store.load_or_migrate(repo)
 
-    # 5. Save the new codebase map.
-    store.save(repo, codebase_map)
-    logger.info("Saved codebase map artifact")
+    # 5. Save the new codebase map (sharded format).
+    sharded_store.save_full(repo, codebase_map)
+    logger.info("Saved codebase map artifact (sharded)")
 
     # 6. Render outline and build memory profile.
     outline_renderer = OutlineRenderer(token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET)

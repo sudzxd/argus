@@ -13,6 +13,7 @@ import httpx
 
 from argus.application.dto import ReviewPullRequestCommand
 from argus.application.review_pull_request import ReviewPullRequest
+from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.services import IndexingService
 from argus.domain.llm.value_objects import ModelConfig, TokenBudget
 from argus.domain.memory.services import ProfileService
@@ -29,8 +30,11 @@ from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
 from argus.infrastructure.retrieval.agentic import AgenticRetrievalStrategy
 from argus.infrastructure.retrieval.lexical import LexicalRetrievalStrategy
 from argus.infrastructure.retrieval.structural import StructuralRetrievalStrategy
-from argus.infrastructure.storage.artifact_store import FileArtifactStore
-from argus.infrastructure.storage.git_branch_store import GitBranchSync
+from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
+from argus.infrastructure.storage.git_branch_store import (
+    GitBranchSync,
+    SelectiveGitBranchSync,
+)
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.config import ActionConfig
 from argus.interfaces.review_generator import LLMReviewGenerator
@@ -75,14 +79,14 @@ def _execute_pipeline(config: ActionConfig) -> None:
     parser = TreeSitterParser()
     chunker = Chunker()
     storage_path = Path(config.storage_dir)
-    store = FileArtifactStore(storage_dir=storage_path)
+    sharded_store = ShardedArtifactStore(storage_dir=storage_path)
 
-    # 2b. Pull cached artifacts from argus-data branch
-    sync = GitBranchSync(client=client, branch=DATA_BRANCH, storage_dir=storage_path)
-    try:
-        sync.pull()
-    except PublishError:
-        logger.warning("Could not pull artifacts from %s, starting fresh", DATA_BRANCH)
+    # 2b. Pull cached artifacts — try selective sharded pull first
+    selective_sync = SelectiveGitBranchSync(
+        client=client,
+        branch=DATA_BRANCH,
+        storage_dir=storage_path,
+    )
 
     # 3. Fetch PR data
     diff = client.get_pull_request_diff(pr_number)
@@ -97,14 +101,57 @@ def _execute_pipeline(config: ActionConfig) -> None:
         except (ArgusError, httpx.HTTPError) as e:
             logger.warning("Could not fetch %s, skipping: %s", path, e)
 
-    # 4. Build codebase map for structural retrieval
-    existing_map = store.load(config.github_repository)
-    if existing_map is not None:
-        codebase_map = existing_map
-    else:
-        from argus.domain.context.entities import CodebaseMap
+    # 4. Build codebase map — selective shard loading
+    codebase_map: CodebaseMap | None = None
+    try:
+        has_manifest = selective_sync.pull_manifest()
+        if has_manifest:
+            manifest = sharded_store.load_manifest(config.github_repository)
+            if manifest is not None:
+                # Compute which shards we need: changed files + 1-hop neighbors.
+                needed = manifest.shards_for_files(changed_files)
+                adjacent = manifest.adjacent_shards(needed, hops=1)
+                all_needed = needed | adjacent
+                blob_names = {
+                    manifest.shards[sid].blob_name
+                    for sid in all_needed
+                    if sid in manifest.shards
+                }
+                # Also pull memory files (discovered from cached tree).
+                memory_blobs = selective_sync.memory_blob_names()
+                selective_sync.pull_blobs(blob_names | memory_blobs)
+                codebase_map = sharded_store.load_shards(
+                    config.github_repository,
+                    all_needed,
+                )
+                logger.info(
+                    "Loaded %d shards (%d needed + %d adjacent)",
+                    len(all_needed),
+                    len(needed),
+                    len(adjacent),
+                )
+    except PublishError:
+        logger.warning("Could not pull sharded artifacts, trying legacy")
 
-        codebase_map = CodebaseMap(indexed_at=head_sha)
+    if codebase_map is None:
+        # Fallback to legacy full pull.
+        legacy_sync = GitBranchSync(
+            client=client,
+            branch=DATA_BRANCH,
+            storage_dir=storage_path,
+        )
+        try:
+            legacy_sync.pull()
+        except PublishError:
+            logger.warning(
+                "Could not pull artifacts from %s, starting fresh",
+                DATA_BRANCH,
+            )
+        existing_map = sharded_store.load_or_migrate(config.github_repository)
+        if existing_map is not None:
+            codebase_map = existing_map
+        else:
+            codebase_map = CodebaseMap(indexed_at=head_sha)
 
     for path, content in file_contents.items():
         try:
@@ -175,10 +222,10 @@ def _execute_pipeline(config: ActionConfig) -> None:
             profile_service = ProfileService(analyzer=analyzer)
 
     # 9. Wire use case
-    indexing_service = IndexingService(parser=parser, repository=store)
+    indexing_service = IndexingService(parser=parser, repository=sharded_store)
     use_case = ReviewPullRequest(
         indexing_service=indexing_service,
-        repository=store,
+        repository=sharded_store,
         orchestrator=orchestrator,
         review_generator=review_generator,
         noise_filter=noise_filter,
