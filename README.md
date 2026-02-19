@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/coverage-80%25-brightgreen" alt="Coverage">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
   <a href="https://sudzxd.github.io/argus/"><img src="https://img.shields.io/badge/docs-website-e8a838" alt="Website"></a>
+  <a href="https://github.com/marketplace/actions/argus-pr-reviewer"><img src="https://img.shields.io/badge/marketplace-GitHub%20Actions-2088FF" alt="Marketplace"></a>
 </p>
 
 ---
