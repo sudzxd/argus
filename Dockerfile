@@ -10,12 +10,12 @@ COPY --from=uv /uv /usr/local/bin/uv
 
 WORKDIR /app
 
-# Cache dependency layer
+# Cache dependency layer — install deps only (no project yet)
 COPY pyproject.toml uv.lock .python-version README.md ./
+RUN uv sync --no-dev --frozen --no-install-project
 
-RUN uv sync --no-dev --frozen
-
-# Copy source last for best layer caching
+# Copy source and install the project itself
 COPY src/ src/
+RUN uv sync --no-dev --frozen
 
 ENTRYPOINT ["uv", "run", "python", "-m", "argus.interfaces.main"]
