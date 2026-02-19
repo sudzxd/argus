@@ -180,22 +180,24 @@ def _execute_bootstrap() -> None:
             len(existing_memory.patterns),
             len(changed_files),
         )
+        # Always render the full outline for storage.
+        _full_text, full_outline = outline_renderer.render_full(codebase_map)
         if changed_files:
-            outline_text, outline = outline_renderer.render(
+            # Scoped outline text for LLM analysis; full outline for storage.
+            outline_text, _scoped = outline_renderer.render(
                 codebase_map,
                 changed_files,
             )
             memory = profile_service.update_profile(
                 existing_memory,
-                outline,
+                full_outline,
                 outline_text,
             )
         else:
             logger.info("No files changed, keeping existing patterns")
-            outline_text, outline = outline_renderer.render_full(codebase_map)
             memory = CodebaseMemory(
                 repo_id=existing_memory.repo_id,
-                outline=outline,
+                outline=full_outline,
                 patterns=existing_memory.patterns,
                 version=existing_memory.version,
             )

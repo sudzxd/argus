@@ -278,7 +278,10 @@ def _maybe_analyze_patterns(
     )
 
     outline_renderer = OutlineRenderer(token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET)
-    outline_text, outline = outline_renderer.render(codebase_map, changed_files)
+    outline_text, _scoped_outline = outline_renderer.render(
+        codebase_map,
+        changed_files,
+    )
 
     model_config = ModelConfig(
         model=model,
@@ -288,7 +291,13 @@ def _maybe_analyze_patterns(
     analyzer = LLMPatternAnalyzer(config=model_config)
     profile_service = ProfileService(analyzer=analyzer)
 
-    memory = profile_service.update_profile(existing_memory, outline, outline_text)
+    # Pass existing outline to preserve all entries — the scoped outline
+    # is only used for LLM analysis text, not as the new stored outline.
+    memory = profile_service.update_profile(
+        existing_memory,
+        existing_memory.outline,
+        outline_text,
+    )
     memory = CodebaseMemory(
         repo_id=memory.repo_id,
         outline=memory.outline,
