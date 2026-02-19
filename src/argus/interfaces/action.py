@@ -244,6 +244,7 @@ def _execute_pipeline(config: ActionConfig) -> None:
         changed_files=changed_files,
         file_contents=file_contents,
         review_depth=config.review_depth,
+        preloaded_map=codebase_map,
     )
 
     result = use_case.execute(cmd)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.value_objects import Checkpoint
 from argus.domain.review.entities import Review
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
@@ -46,6 +47,7 @@ class ReviewPullRequestCommand:
     changed_files: list[FilePath]
     file_contents: dict[FilePath, str]
     review_depth: ReviewDepth = ReviewDepth.STANDARD
+    preloaded_map: CodebaseMap | None = None
 
 
 @dataclass(frozen=True)

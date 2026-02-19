@@ -151,8 +151,13 @@ class ReviewPullRequest:
         )
 
     def _index_changes(self, cmd: ReviewPullRequestCommand) -> CodebaseMap:
-        """Index changed files into a codebase map."""
-        existing_map = self.repository.load(cmd.repo_id)
+        """Index changed files into a codebase map.
+
+        If ``cmd.preloaded_map`` is set, uses it directly instead of
+        loading from the repository (avoids loading shards that were
+        never pulled to disk in selective mode).
+        """
+        existing_map = cmd.preloaded_map or self.repository.load(cmd.repo_id)
 
         if existing_map is None:
             codebase_map = self.indexing_service.full_index(
@@ -166,7 +171,6 @@ class ReviewPullRequest:
                 commit_sha=cmd.commit_sha,
                 file_contents=cmd.file_contents,
             )
-            self.repository.save(cmd.repo_id, codebase_map)
 
         return codebase_map
 
