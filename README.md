@@ -10,13 +10,10 @@
 
 <p align="center">
   <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI"></a>
-  <a href="https://github.com/sudzxd/argus/actions/workflows/website.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/website.yml/badge.svg" alt="Website"></a>
   <img src="https://img.shields.io/badge/python-3.12+-blue" alt="Python 3.12+">
+  <img src="https://img.shields.io/badge/coverage-80%25-brightgreen" alt="Coverage">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-</p>
-
-<p align="center">
-  <a href="https://sudzxd.github.io/argus/">Website</a> · <a href="https://sudzxd.github.io/argus/docs/getting-started">Getting Started</a> · <a href="https://sudzxd.github.io/argus/docs/configuration">Configuration</a> · <a href="https://sudzxd.github.io/argus/docs/architecture">Architecture</a>
+  <a href="https://sudzxd.github.io/argus/"><img src="https://img.shields.io/badge/docs-website-e8a838" alt="Website"></a>
 </p>
 
 ---
@@ -55,10 +52,6 @@ See the [getting started guide](https://sudzxd.github.io/argus/docs/getting-star
 - **Pattern memory** — Learns conventions and anti-patterns through incremental analysis
 - **Multi-provider** — Anthropic, OpenAI, Google Gemini, or any OpenAI-compatible endpoint
 - **Zero infrastructure** — Runs entirely in GitHub Actions with artifacts on an orphan branch
-
-## Documentation
-
-Full docs at **[sudzxd.github.io/argus](https://sudzxd.github.io/argus/)**
 
 ---
 
