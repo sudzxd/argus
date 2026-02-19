@@ -1,6 +1,10 @@
 name: "Argus PR Reviewer"
 description: "AI-powered pull request reviews that understand your codebase."
 
+branding:
+  icon: "eye"
+  color: "orange"
+
 inputs:
   mode:
     description: "Operating mode: review (PR review), index (incremental update), bootstrap (full re-index)"
