@@ -163,12 +163,29 @@ def _execute_pipeline(config: ActionConfig) -> None:
         except (IndexingError, ArgusError) as e:
             logger.debug("Skipping unparseable file for retrieval: %s (%s)", path, e)
 
-    # 5. Build chunks for lexical retrieval
+    # 5. Build chunks for lexical retrieval from context files (non-changed)
+    changed_set = set(changed_files)
+    context_contents: dict[FilePath, str] = {}
+    for path in codebase_map.files():
+        if path in changed_set:
+            continue
+        try:
+            content = client.get_file_content(path, ref=head_sha)
+            context_contents[path] = content
+        except (ArgusError, httpx.HTTPError) as e:
+            logger.debug("Could not fetch context file %s: %s", path, e)
+
     chunks: list[CodeChunk] = []
-    for path, content in file_contents.items():
+    for path, content in context_contents.items():
         if path in codebase_map:
             entry = codebase_map.get(path)
             chunks.extend(chunker.chunk(path, content, entry.symbols))
+
+    logger.info(
+        "Built %d chunks from %d context files for lexical retrieval",
+        len(chunks),
+        len(context_contents),
+    )
 
     # 6. Build retrieval strategies
     model_config = ModelConfig(
