@@ -100,7 +100,7 @@ Scopes: `domain`, `infra`, `app`, `interfaces`, `shared`, `tests`, `ci`
 ## Running the Action
 
 ```yaml
-- uses: your-org/argus-pr-reviewer@main
+- uses: sudzxd/argus@develop
   with:
     model: anthropic:claude-sonnet-4-5-20250929
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
