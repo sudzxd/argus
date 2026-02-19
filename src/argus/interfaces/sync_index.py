@@ -112,6 +112,7 @@ def _execute() -> None:
             from argus.interfaces.bootstrap import run as bootstrap_run
 
             bootstrap_run()
+            sync.push()
             return
 
         # Incremental update on migrated legacy map.
