@@ -16,20 +16,42 @@ Argus is a GitHub Action that reviews pull requests with deep understanding of y
 
 It builds and maintains a semantic map of your repository — the structure, the dependencies, the patterns, the intent behind the code. When a pull request is opened, Argus doesn't just read the diff. It understands what changed, why it matters, and what it affects.
 
-Reviews are posted directly on the pull request as bot comments: a summary of findings, inline annotations on specific lines, and actionable suggestions — not noise.
+Reviews are posted directly on the pull request as inline comments: a summary of findings, annotations on specific lines, and actionable suggestions — not noise.
+
+## How It Works
+
+Argus operates in three modes:
+
+- **bootstrap** — Parses every file, builds a full codebase map and memory profile (patterns, conventions), and stores artifacts on a dedicated `argus-data` branch.
+- **index** — Runs on each push to your default branch. Incrementally updates the codebase map for changed files only — no LLM calls.
+- **review** — Runs on pull requests. Pulls the stored codebase map and memory, retrieves relevant context for the diff, generates a structured review via LLM, and posts inline PR comments.
+
+Artifacts are persisted on an orphan `argus-data` branch using the Git Data API — no databases, no external storage.
 
 ## Key Capabilities
 
 - **Codebase-aware reviews** — Every review is grounded in the full context of your repository, not just the changed lines.
-- **Smart retrieval** — A hybrid retrieval system that combines structural analysis, sparse search, and LLM-driven reasoning to find exactly the right context for each review.
-- **Multi-provider LLM support** — Bring your own model. Supports Claude, OpenAI, Ollama, and any OpenAI-compatible API endpoint.
-- **Incremental context** — The codebase map updates incrementally with each pull request. No expensive full re-indexing on every run.
-- **Checkpointed context** — Codebase understanding is versioned and stored as GitHub Actions artifacts. Context builds on itself over time.
+- **Smart retrieval** — Hybrid retrieval combining structural analysis (dependency graph), lexical search (BM25), and optional LLM-driven agentic search.
+- **Codebase memory** — Learns your project's patterns, conventions, and architectural decisions. Reviews enforce what it knows about your codebase.
+- **Multi-provider LLM support** — Bring your own model. Supports Anthropic (Claude), OpenAI, Google (Gemini), and any OpenAI-compatible endpoint.
+- **Incremental indexing** — The codebase map updates incrementally on each push. Bootstrap only runs once (or on demand).
 - **Zero infrastructure** — No databases, no servers, no external services beyond the LLM API. Everything runs inside GitHub Actions.
+
+## Configuration
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `mode` | `review` | Operating mode: `review`, `index`, or `bootstrap` |
+| `model` | `anthropic:claude-sonnet-4-5-20250929` | LLM model identifier |
+| `confidence_threshold` | `0.7` | Minimum confidence for review comments |
+| `review_depth` | `standard` | `quick` (no memory), `standard` (outline), `deep` (outline + patterns) |
+| `ignored_paths` | `""` | Comma-separated glob patterns to ignore |
+| `enable_agentic` | `false` | Enable LLM-driven agentic retrieval |
+| `extra_extensions` | `""` | Extra file extensions to parse (e.g. `.vue,.svelte`) |
 
 ## Status
 
-Core pipeline complete — 233 tests passing, 91% coverage. All layers (shared, domain, infrastructure, application, interfaces) are implemented. Pending final quality sign-off.
+301 tests passing, 85% coverage. All layers implemented and running in CI.
 
 ---
 
