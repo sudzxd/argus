@@ -32,7 +32,7 @@ class ContextRanker:
         best: dict[str, ContextItem] = {}
         for item in items:
             key = str(item.source)
-            if key not in best or item.relevance_score > best[key].relevance_score:
+            if key not in best or item.relevance_score < best[key].relevance_score:
                 best[key] = item
         return list(best.values())
 
@@ -44,7 +44,7 @@ class ContextRanker:
         remaining = int(budget)
 
         for item in items:
-            if int(item.token_cost) <= remaining:
+            if int(item.token_cost) < remaining:
                 selected.append(item)
                 remaining -= int(item.token_cost)
 

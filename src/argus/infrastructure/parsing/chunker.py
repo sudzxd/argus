@@ -56,7 +56,7 @@ class Chunker:
         chunks: list[CodeChunk] = []
 
         for symbol in symbols:
-            start = symbol.line_range.start - 1  # 0-indexed
+            start = symbol.line_range.start
             end = symbol.line_range.end  # exclusive
             chunk_lines = lines[start:end]
             chunk_content = "".join(chunk_lines)
