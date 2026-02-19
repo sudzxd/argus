@@ -15,7 +15,7 @@ from argus.application.dto import ReviewPullRequestCommand
 from argus.application.review_pull_request import ReviewPullRequest
 from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.services import IndexingService
-from argus.domain.llm.value_objects import ModelConfig, TokenBudget
+from argus.domain.llm.value_objects import LLMUsage, ModelConfig, TokenBudget
 from argus.domain.memory.services import ProfileService
 from argus.domain.retrieval.services import RetrievalOrchestrator
 from argus.domain.retrieval.strategies import RetrievalStrategy
@@ -39,9 +39,12 @@ from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.config import ActionConfig
 from argus.interfaces.review_generator import LLMReviewGenerator
 from argus.shared.constants import (
+    AGENTIC_BUDGET_RATIO,
     DEFAULT_GENERATION_BUDGET_RATIO,
     DEFAULT_OUTLINE_TOKEN_BUDGET,
     DEFAULT_RETRIEVAL_BUDGET_RATIO,
+    LEXICAL_BUDGET_RATIO,
+    STRUCTURAL_BUDGET_RATIO,
 )
 from argus.shared.exceptions import ArgusError, IndexingError, PublishError
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
@@ -184,6 +187,12 @@ def _execute_pipeline(config: ActionConfig) -> None:
         LexicalRetrievalStrategy(chunks=chunks),
     ]
 
+    retrieval_budget = token_budget.retrieval_tokens
+    strategy_budgets: list[TokenCount] = [
+        TokenCount(int(retrieval_budget * STRUCTURAL_BUDGET_RATIO)),
+        TokenCount(int(retrieval_budget * LEXICAL_BUDGET_RATIO)),
+    ]
+
     if config.enable_agentic:
         strategies.append(
             AgenticRetrievalStrategy(
@@ -191,10 +200,14 @@ def _execute_pipeline(config: ActionConfig) -> None:
                 fallback_strategies=[strategies[1]],  # lexical as fallback
             )
         )
+        strategy_budgets.append(
+            TokenCount(int(retrieval_budget * AGENTIC_BUDGET_RATIO)),
+        )
 
     orchestrator = RetrievalOrchestrator(
         strategies=strategies,
-        budget=token_budget.retrieval_tokens,
+        budget=retrieval_budget,
+        strategy_budgets=strategy_budgets,
     )
 
     # 7. Wire review generator + noise filter
@@ -248,12 +261,46 @@ def _execute_pipeline(config: ActionConfig) -> None:
     )
 
     result = use_case.execute(cmd)
+
+    # Aggregate LLM usage: generation + agentic retrieval
+    generation_usage = result.llm_usage
+    agentic_usage = LLMUsage()
+    agentic_strategy: AgenticRetrievalStrategy | None = None
+    for strategy in strategies:
+        if isinstance(strategy, AgenticRetrievalStrategy):
+            agentic_strategy = strategy
+            break
+    if agentic_strategy is not None:
+        agentic_usage = agentic_strategy.last_llm_usage
+    total_usage = generation_usage + agentic_usage
+
     logger.info(
-        "Review complete: %d comments, %d context items, %d tokens used",
+        "Review complete: %d comments, %d context items",
         len(result.review),
         result.context_items_used,
+    )
+    logger.info(
+        "  Retrieval: %d context tokens",
         result.tokens_used,
     )
+    logger.info(
+        "  LLM API: %d tokens (%d input + %d output) across %d requests",
+        total_usage.total_tokens,
+        total_usage.input_tokens,
+        total_usage.output_tokens,
+        total_usage.requests,
+    )
+    logger.info(
+        "    Generation: %d tokens (%d requests)",
+        generation_usage.total_tokens,
+        generation_usage.requests,
+    )
+    if agentic_usage.requests > 0:
+        logger.info(
+            "    Agentic retrieval: %d tokens (%d requests)",
+            agentic_usage.total_tokens,
+            agentic_usage.requests,
+        )
 
 
 def _load_event(event_path: str) -> dict[str, object]:

@@ -9,6 +9,7 @@ import pytest
 from argus.application.dto import ReviewPullRequestCommand, ReviewPullRequestResult
 from argus.application.review_pull_request import ReviewPullRequest
 from argus.domain.context.entities import FileEntry
+from argus.domain.llm.value_objects import LLMUsage
 from argus.domain.retrieval.value_objects import (
     ContextItem,
     RetrievalQuery,
@@ -114,10 +115,22 @@ def mock_llm() -> MagicMock:
     return llm
 
 
+def _make_llm_usage(
+    input_tokens: int = 1000,
+    output_tokens: int = 200,
+    requests: int = 1,
+) -> LLMUsage:
+    return LLMUsage(
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        requests=requests,
+    )
+
+
 @pytest.fixture
 def mock_review_generator() -> MagicMock:
     gen = MagicMock()
-    gen.generate.return_value = _make_review(1)
+    gen.generate.return_value = (_make_review(1), _make_llm_usage())
     return gen
 
 
@@ -179,6 +192,9 @@ def test_execute_returns_result(use_case: ReviewPullRequest) -> None:
     assert result.review.summary.description == "Review"
     assert result.context_items_used == 1
     assert result.tokens_used == TokenCount(10)
+    assert result.llm_usage.input_tokens == 1000
+    assert result.llm_usage.output_tokens == 200
+    assert result.llm_usage.requests == 1
 
 
 def test_execute_indexes_changed_files(
@@ -246,7 +262,7 @@ def test_filtered_comments_appear_in_published_review(
     mock_review_generator: MagicMock,
 ) -> None:
     review_with_noise = _make_review(3)
-    mock_review_generator.generate.return_value = review_with_noise
+    mock_review_generator.generate.return_value = (review_with_noise, _make_llm_usage())
     mock_noise_filter.filter.side_effect = None
     mock_noise_filter.filter.return_value = review_with_noise.comments[:1]
 

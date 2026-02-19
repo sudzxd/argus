@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from argus.domain.llm.value_objects import ModelConfig
+from argus.domain.llm.value_objects import LLMUsage, ModelConfig
 from argus.domain.retrieval.value_objects import ContextItem, RetrievalResult
 from argus.domain.review.value_objects import ReviewRequest
 from argus.interfaces.review_generator import (
@@ -74,7 +74,7 @@ class TestLLMReviewGenerator:
     """Test the LLM review generator bridge."""
 
     @patch("argus.interfaces.review_generator.create_agent")
-    def test_generate_returns_review(
+    def test_generate_returns_review_and_usage(
         self,
         mock_create_agent: MagicMock,
         model_config: ModelConfig,
@@ -84,11 +84,16 @@ class TestLLMReviewGenerator:
         mock_agent = MagicMock()
         mock_result = MagicMock()
         mock_result.output = sample_review_output
+        mock_usage = MagicMock()
+        mock_usage.input_tokens = 1000
+        mock_usage.output_tokens = 200
+        mock_usage.requests = 1
+        mock_result.usage.return_value = mock_usage
         mock_agent.run_sync.return_value = mock_result
         mock_create_agent.return_value = mock_agent
 
         generator = LLMReviewGenerator(config=model_config)
-        review = generator.generate(review_request)
+        review, usage = generator.generate(review_request)
 
         assert review.summary.description == "Good changes overall."
         assert review.summary.risks == ["Unused import"]
@@ -104,6 +109,11 @@ class TestLLMReviewGenerator:
         assert comment.body == "Unused import 'os'"
         assert comment.confidence == 0.85
         assert comment.suggestion == "Remove the unused import."
+
+        assert isinstance(usage, LLMUsage)
+        assert usage.input_tokens == 1000
+        assert usage.output_tokens == 200
+        assert usage.requests == 1
 
     @patch("argus.interfaces.review_generator.create_agent")
     def test_generate_with_no_comments(
@@ -126,7 +136,7 @@ class TestLLMReviewGenerator:
         mock_create_agent.return_value = mock_agent
 
         generator = LLMReviewGenerator(config=model_config)
-        review = generator.generate(review_request)
+        review, _usage = generator.generate(review_request)
 
         assert len(review.comments) == 0
         assert review.summary.verdict == "Approve"
@@ -165,7 +175,7 @@ class TestLLMReviewGenerator:
         mock_create_agent.return_value = mock_agent
 
         generator = LLMReviewGenerator(config=model_config)
-        review = generator.generate(review_request)
+        review, _usage = generator.generate(review_request)
 
         severities = [c.severity for c in review.comments]
         assert severities == [

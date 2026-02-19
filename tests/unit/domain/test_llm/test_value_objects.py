@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from argus.domain.llm.value_objects import ModelConfig, TokenBudget
+from argus.domain.llm.value_objects import LLMUsage, ModelConfig, TokenBudget
 from argus.shared.types import TokenCount
 
 # =============================================================================
@@ -68,3 +68,42 @@ def test_token_budget_ratios_must_not_exceed_one() -> None:
 def test_token_budget_is_immutable(token_budget: TokenBudget) -> None:
     with pytest.raises(AttributeError):
         token_budget.total = TokenCount(0)  # type: ignore[misc]
+
+
+# =============================================================================
+# LLMUsage
+# =============================================================================
+
+
+def test_llm_usage_defaults_to_zero() -> None:
+    usage = LLMUsage()
+    assert usage.input_tokens == 0
+    assert usage.output_tokens == 0
+    assert usage.requests == 0
+
+
+def test_llm_usage_total_tokens() -> None:
+    usage = LLMUsage(input_tokens=100, output_tokens=50, requests=1)
+    assert usage.total_tokens == 150
+
+
+def test_llm_usage_addition() -> None:
+    a = LLMUsage(input_tokens=100, output_tokens=50, requests=1)
+    b = LLMUsage(input_tokens=200, output_tokens=80, requests=2)
+    result = a + b
+    assert result.input_tokens == 300
+    assert result.output_tokens == 130
+    assert result.requests == 3
+    assert result.total_tokens == 430
+
+
+def test_llm_usage_addition_with_zero() -> None:
+    a = LLMUsage(input_tokens=100, output_tokens=50, requests=1)
+    result = a + LLMUsage()
+    assert result == a
+
+
+def test_llm_usage_is_immutable() -> None:
+    usage = LLMUsage(input_tokens=100, output_tokens=50, requests=1)
+    with pytest.raises(AttributeError):
+        usage.input_tokens = 0  # type: ignore[misc]

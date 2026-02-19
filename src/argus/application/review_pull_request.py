@@ -11,6 +11,7 @@ from argus.application.dto import ReviewPullRequestCommand, ReviewPullRequestRes
 from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.repositories import CodebaseMapRepository
 from argus.domain.context.services import IndexingService
+from argus.domain.llm.value_objects import LLMUsage
 from argus.domain.memory.value_objects import (
     CodebaseMemory,
     CodebaseOutline,
@@ -40,7 +41,7 @@ class RetrievalOrchestratorPort(Protocol):
 class ReviewGeneratorPort(Protocol):
     """Port for generating a review from diff and context."""
 
-    def generate(self, request: ReviewRequest) -> Review: ...
+    def generate(self, request: ReviewRequest) -> tuple[Review, LLMUsage]: ...
 
 
 class OutlineRendererPort(Protocol):
@@ -132,7 +133,7 @@ class ReviewPullRequest:
             codebase_outline_text=outline_text,
             codebase_patterns_text=patterns_text,
         )
-        review = self.review_generator.generate(request)
+        review, generation_usage = self.review_generator.generate(request)
 
         # 6. Filter noise
         filtered_comments = self.noise_filter.filter(review.comments)
@@ -148,6 +149,7 @@ class ReviewPullRequest:
             review=review,
             context_items_used=len(retrieval_result.items),
             tokens_used=retrieval_result.total_tokens,
+            llm_usage=generation_usage,
         )
 
     def _index_changes(self, cmd: ReviewPullRequestCommand) -> CodebaseMap:

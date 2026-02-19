@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.value_objects import Checkpoint
+from argus.domain.llm.value_objects import LLMUsage
 from argus.domain.review.entities import Review
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
@@ -57,3 +58,4 @@ class ReviewPullRequestResult:
     review: Review
     context_items_used: int
     tokens_used: TokenCount
+    llm_usage: LLMUsage = field(default_factory=LLMUsage)

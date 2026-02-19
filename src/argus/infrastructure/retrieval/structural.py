@@ -31,7 +31,9 @@ class StructuralRetrievalStrategy:
 
     codebase_map: CodebaseMap
 
-    def retrieve(self, query: RetrievalQuery) -> list[ContextItem]:
+    def retrieve(
+        self, query: RetrievalQuery, budget: TokenCount | None = None
+    ) -> list[ContextItem]:
         """Retrieve context items from the dependency graph."""
         related: dict[FilePath, float] = {}
         changed = set(query.changed_files)
@@ -45,13 +47,23 @@ class StructuralRetrievalStrategy:
                 if dep not in changed:
                     related[dep] = max(related.get(dep, 0.0), _DEPENDENCY_SCORE)
 
+        # Sort by score descending so highest-relevance items are kept first.
+        sorted_related = sorted(related.items(), key=lambda x: x[1], reverse=True)
+
         items: list[ContextItem] = []
-        for path, score in related.items():
+        accumulated_tokens = 0
+        for path, score in sorted_related:
             if path not in self.codebase_map:
                 continue
             entry = self.codebase_map.get(path)
             content = self._build_content(entry.path, entry.exports)
             token_cost = TokenCount(max(1, len(content) // CHARS_PER_TOKEN))
+
+            if budget is not None and accumulated_tokens + int(token_cost) > int(
+                budget
+            ):
+                break
+
             items.append(
                 ContextItem(
                     source=path,
@@ -60,6 +72,7 @@ class StructuralRetrievalStrategy:
                     token_cost=token_cost,
                 )
             )
+            accumulated_tokens += int(token_cost)
 
         return items
 

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from pydantic import BaseModel
 
-from argus.domain.llm.value_objects import ModelConfig
+from argus.domain.llm.value_objects import LLMUsage, ModelConfig
 from argus.domain.review.entities import Review, ReviewComment
 from argus.domain.review.value_objects import ReviewRequest, ReviewSummary
 from argus.infrastructure.constants import CHARS_PER_TOKEN
@@ -91,13 +91,13 @@ class LLMReviewGenerator:
 
     config: ModelConfig
 
-    def generate(self, request: ReviewRequest) -> Review:
+    def generate(self, request: ReviewRequest) -> tuple[Review, LLMUsage]:
         """Generate a review from diff and context via LLM."""
         prompt = self._build_prompt(request)
-        output = self._generate_tool_mode(prompt)
-        return self._to_review(output)
+        output, usage = self._generate_tool_mode(prompt)
+        return self._to_review(output), usage
 
-    def _generate_tool_mode(self, prompt: str) -> ReviewOutput:
+    def _generate_tool_mode(self, prompt: str) -> tuple[ReviewOutput, LLMUsage]:
         """Use pydantic-ai tool calling for structured output."""
         agent = create_agent(
             config=self.config,
@@ -105,7 +105,13 @@ class LLMReviewGenerator:
             system_prompt=SYSTEM_PROMPT,
         )
         result = agent.run_sync(prompt)
-        return result.output
+        run_usage = result.usage()
+        usage = LLMUsage(
+            input_tokens=run_usage.input_tokens or 0,
+            output_tokens=run_usage.output_tokens or 0,
+            requests=run_usage.requests,
+        )
+        return result.output, usage
 
     def _build_prompt(self, request: ReviewRequest) -> str:
         """Assemble the user prompt with budget-aware section inclusion.

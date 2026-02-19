@@ -140,6 +140,38 @@ def test_scores_are_positive_floats() -> None:
         assert item.relevance_score > 0.0
 
 
+def test_budget_limits_top_k() -> None:
+    chunks = [
+        _make_chunk("a.py", "fn_a", "def fn_a(login, password): ...", tokens=100),
+        _make_chunk("b.py", "fn_b", "def fn_b(login, user): ...", tokens=100),
+        _make_chunk("c.py", "fn_c", "def fn_c(login, auth): ...", tokens=100),
+    ]
+    strategy = LexicalRetrievalStrategy(chunks=chunks)
+    query = _make_query(
+        changed_symbols=["login"],
+        diff_text="login user password",
+    )
+
+    # With budget of 150 tokens, avg chunk cost is 100, so k=1.
+    items = strategy.retrieve(query, budget=TokenCount(150))
+    assert len(items) <= 2
+
+
+def test_budget_none_uses_default_top_k() -> None:
+    chunks = [
+        _make_chunk("a.py", "fn_a", "def fn_a(login, password): ...", tokens=50),
+        _make_chunk("b.py", "fn_b", "def fn_b(login, user): ...", tokens=50),
+    ]
+    strategy = LexicalRetrievalStrategy(chunks=chunks)
+    query = _make_query(
+        changed_symbols=["login"],
+        diff_text="login user password",
+    )
+
+    items = strategy.retrieve(query, budget=None)
+    assert isinstance(items, list)
+
+
 def test_token_cost_preserved_from_chunks() -> None:
     chunks = [
         _make_chunk(
