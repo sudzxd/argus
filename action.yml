@@ -62,7 +62,7 @@ inputs:
 
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: "docker://ghcr.io/sudzxd/argus:latest"
   env:
     GITHUB_TOKEN: ${{ github.token }}
     INPUT_MODE: ${{ inputs.mode }}
