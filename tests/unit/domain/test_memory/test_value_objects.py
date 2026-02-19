@@ -11,7 +11,7 @@ from argus.domain.memory.value_objects import (
     PatternCategory,
     PatternEntry,
 )
-from argus.shared.types import FilePath
+from argus.shared.types import CommitSHA, FilePath
 
 # =============================================================================
 # PatternCategory
@@ -141,3 +141,21 @@ def test_codebase_memory_default_version() -> None:
     )
     assert memory.version == 0
     assert memory.patterns == []
+
+
+def test_codebase_memory_analyzed_at_default_none() -> None:
+    memory = CodebaseMemory(
+        repo_id="org/repo",
+        outline=CodebaseOutline(entries=[]),
+    )
+    assert memory.analyzed_at is None
+
+
+def test_codebase_memory_analyzed_at_stores_sha() -> None:
+    sha = CommitSHA("abc123")
+    memory = CodebaseMemory(
+        repo_id="org/repo",
+        outline=CodebaseOutline(entries=[]),
+        analyzed_at=sha,
+    )
+    assert memory.analyzed_at == sha

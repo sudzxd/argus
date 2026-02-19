@@ -168,7 +168,9 @@ def _execute_bootstrap() -> None:
     logger.info("Analyzing codebase patterns...")
     if existing_memory is not None and existing_map is not None:
         # Incremental: only analyze changed files for new patterns.
-        prev_sha = existing_map.indexed_at
+        # Use analyzed_at (last pattern analysis SHA) if available,
+        # falling back to indexed_at for backwards compatibility.
+        prev_sha = existing_memory.analyzed_at or existing_map.indexed_at
         changed_paths = client.compare_commits(prev_sha, head_sha)
         changed_files = [FilePath(p) for p in changed_paths]
         logger.info(
@@ -201,6 +203,15 @@ def _execute_bootstrap() -> None:
         # Fresh: analyze the full codebase.
         outline_text, outline = outline_renderer.render_full(codebase_map)
         memory = profile_service.build_profile(repo, outline, outline_text)
+
+    # Stamp analyzed_at so index mode knows where to diff from.
+    memory = CodebaseMemory(
+        repo_id=memory.repo_id,
+        outline=memory.outline,
+        patterns=memory.patterns,
+        version=memory.version,
+        analyzed_at=CommitSHA(head_sha),
+    )
     memory_store.save(memory)
 
     logger.info(

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from argus.shared.types import FilePath
+from argus.shared.types import CommitSHA, FilePath
 
 
 class PatternCategory(StrEnum):
@@ -62,3 +62,4 @@ class CodebaseMemory:
     outline: CodebaseOutline
     patterns: list[PatternEntry] = field(default_factory=list[PatternEntry])
     version: int = 0
+    analyzed_at: CommitSHA | None = None

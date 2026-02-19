@@ -14,7 +14,7 @@ from argus.domain.memory.value_objects import (
     PatternEntry,
 )
 from argus.infrastructure.storage.memory_store import FileMemoryStore
-from argus.shared.types import FilePath
+from argus.shared.types import CommitSHA, FilePath
 
 
 @pytest.fixture
@@ -92,6 +92,33 @@ class TestFileMemoryStore:
 
         result = store.load("org/repo")
         assert result is None
+
+    def test_save_and_load_round_trip_with_analyzed_at(
+        self, store: FileMemoryStore
+    ) -> None:
+        memory = CodebaseMemory(
+            repo_id="org/repo",
+            outline=CodebaseOutline(entries=[]),
+            version=1,
+            analyzed_at=CommitSHA("abc123def456"),
+        )
+        store.save(memory)
+
+        loaded = store.load("org/repo")
+
+        assert loaded is not None
+        assert loaded.analyzed_at == CommitSHA("abc123def456")
+
+    def test_save_and_load_round_trip_without_analyzed_at(
+        self, store: FileMemoryStore
+    ) -> None:
+        memory = _make_memory()
+        store.save(memory)
+
+        loaded = store.load("org/repo")
+
+        assert loaded is not None
+        assert loaded.analyzed_at is None
 
     def test_different_repos_get_different_files(self, store: FileMemoryStore) -> None:
         mem1 = _make_memory("org/repo1")

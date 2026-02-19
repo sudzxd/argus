@@ -18,7 +18,7 @@ from argus.domain.memory.value_objects import (
     PatternCategory,
     PatternEntry,
 )
-from argus.shared.types import FilePath
+from argus.shared.types import CommitSHA, FilePath
 
 logger = logging.getLogger(__name__)
 
@@ -76,12 +76,15 @@ class FileMemoryStore:
 
 
 def _serialize(memory: CodebaseMemory) -> dict[str, object]:
-    return {
+    data: dict[str, object] = {
         "repo_id": memory.repo_id,
         "version": memory.version,
         "outline": _serialize_outline(memory.outline),
         "patterns": [_serialize_pattern(p) for p in memory.patterns],
     }
+    if memory.analyzed_at is not None:
+        data["analyzed_at"] = str(memory.analyzed_at)
+    return data
 
 
 def _serialize_outline(outline: CodebaseOutline) -> dict[str, object]:
@@ -155,11 +158,16 @@ def _deserialize(data: dict[str, object]) -> CodebaseMemory:
             )
 
     raw_ver = data.get("version", 0)
+    raw_analyzed_at = data.get("analyzed_at")
+    analyzed_at = (
+        CommitSHA(str(raw_analyzed_at)) if isinstance(raw_analyzed_at, str) else None
+    )
     return CodebaseMemory(
         repo_id=str(data["repo_id"]),
         outline=outline,
         patterns=patterns,
         version=int(raw_ver) if isinstance(raw_ver, (int, float)) else 0,
+        analyzed_at=analyzed_at,
     )
 
 

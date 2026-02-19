@@ -33,6 +33,7 @@ jobs:
           INPUT_MODEL: "google-gla:gemini-2.5-flash"
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
+          INPUT_ANALYZE_PATTERNS: "true"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
 
