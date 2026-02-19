@@ -222,3 +222,50 @@ class ShardedArtifactStore:
         if legacy_path.exists():
             legacy_path.unlink()
             logger.info("Removed legacy artifact %s", legacy_path.name)
+
+    def save_incremental(
+        self,
+        existing_manifest: ShardedManifest,
+        partial_map: CodebaseMap,
+    ) -> None:
+        """Re-shard a partial map and merge into the existing manifest.
+
+        Only the shards present in ``partial_map`` are re-serialized and
+        written to disk.  The existing manifest's shard descriptors are
+        preserved for directories not in the partial map, and the updated
+        descriptors replace the old ones for dirty directories.
+        """
+        new_manifest, shard_data = shard_serializer.split_into_shards(partial_map)
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+        # Merge: start from existing, override with new.
+        merged_shards = dict(existing_manifest.shards)
+        for sid, desc in new_manifest.shards.items():
+            merged_shards[sid] = desc
+
+        # Merge cross-shard edges: keep existing, add new.
+        existing_edge_set = {
+            (e.source_file, e.target_file, e.kind)
+            for e in existing_manifest.cross_shard_edges
+        }
+        merged_edges = list(existing_manifest.cross_shard_edges)
+        for edge in new_manifest.cross_shard_edges:
+            key = (edge.source_file, edge.target_file, edge.kind)
+            if key not in existing_edge_set:
+                merged_edges.append(edge)
+
+        merged = ShardedManifest(
+            indexed_at=partial_map.indexed_at,
+            shards=merged_shards,
+            cross_shard_edges=merged_edges,
+        )
+
+        # Write only the changed shard files.
+        for sid, json_str in shard_data.items():
+            desc = new_manifest.shards[sid]
+            blob_path = self.storage_dir / desc.blob_name
+            blob_path.write_text(json_str, encoding="utf-8")
+
+        # Write merged manifest.
+        manifest_path = self.storage_dir / MANIFEST_FILENAME
+        manifest_path.write_text(merged.to_json(), encoding="utf-8")

@@ -28,6 +28,7 @@ from pathlib import Path
 import httpx
 
 from argus.domain.context.entities import CodebaseMap
+from argus.domain.context.value_objects import ShardedManifest
 from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
@@ -168,6 +169,7 @@ def _execute() -> None:
             repo,
             base_sha,
             after_sha,
+            existing_manifest=manifest,
         )
 
     # 2. Push updated artifacts (merges with existing via base_tree).
@@ -182,6 +184,7 @@ def _incremental_update_sharded(
     repo: str,
     before_sha: str,
     after_sha: str,
+    existing_manifest: ShardedManifest | None = None,
 ) -> None:
     """Update the codebase map and re-shard only dirty directories."""
     changed_paths = client.compare_commits(before_sha, after_sha)
@@ -212,10 +215,12 @@ def _incremental_update_sharded(
     codebase_map.indexed_at = CommitSHA(after_sha)
     logger.info("Updated %d files in codebase map", updated)
 
-    # Re-shard and save. For incremental updates on a partial map,
-    # we save the full partial map as shards — the push will merge
-    # with existing blobs on the branch.
-    store.save_full(repo, codebase_map)
+    if existing_manifest is not None:
+        # Incremental save: merge new shard descriptors into existing manifest.
+        store.save_incremental(existing_manifest, codebase_map)
+    else:
+        # Full save (legacy migration path).
+        store.save_full(repo, codebase_map)
 
 
 if __name__ == "__main__":
