@@ -12,7 +12,7 @@
   <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.12+-blue" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/coverage-80%25-brightgreen" alt="Coverage">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
   <a href="https://sudzxd.github.io/argus/"><img src="https://img.shields.io/badge/docs-website-e8a838" alt="Website"></a>
 </p>
 
