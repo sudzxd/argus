@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Tag & Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep -m1 '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f1-2)
+          echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+          echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION (v$MAJOR, v$MINOR)"
+
+      - name: Check if tag exists
+        id: check
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag v${{ steps.version.outputs.version }} already exists — skipping"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract changelog
+        if: steps.check.outputs.exists == 'false'
+        id: changelog
+        run: |
+          # Extract section between this version header and the next version header
+          VERSION="${{ steps.version.outputs.version }}"
+          BODY=$(awk "/^## \\[$VERSION\\]/{found=1; next} /^## \\[/{if(found) exit} found{print}" CHANGELOG.md)
+          # Write to file for the release body (avoids quoting issues)
+          echo "$BODY" > /tmp/release-body.md
+          echo "Changelog extracted for v$VERSION"
+
+      - name: Create tag and release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="v${{ steps.version.outputs.version }}"
+          git tag "$VERSION"
+          git push origin "$VERSION"
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file /tmp/release-body.md
+
+      - name: Update floating tags
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          MAJOR="v${{ steps.version.outputs.major }}"
+          MINOR="v${{ steps.version.outputs.minor }}"
+
+          # Update or create major tag (e.g. v0)
+          git tag -f "$MAJOR"
+          git push -f origin "$MAJOR"
+
+          # Update or create minor tag (e.g. v0.2)
+          git tag -f "$MINOR"
+          git push -f origin "$MINOR"

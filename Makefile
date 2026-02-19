@@ -35,8 +35,16 @@ lint-fix: ## Run linter with auto-fix
 typecheck: ## Run type checker
 	uv run pyright
 
+.PHONY: security
+security: ## Run security scan (bandit)
+	uv run bandit -r src/argus -c bandit.yaml
+
+.PHONY: audit
+audit: ## Run dependency audit (pip-audit)
+	uv run pip-audit --ignore-vuln CVE-2025-69872
+
 .PHONY: check
-check: lint typecheck ## Run all quality checks
+check: lint typecheck security audit ## Run all quality checks
 
 # =============================================================================
 # Testing
