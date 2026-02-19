@@ -1,0 +1,73 @@
+---
+title: Configuration
+description: All available inputs and configuration options for the Argus GitHub Action.
+order: 2
+---
+
+## Action Inputs
+
+Configure Argus through the `with` block in your workflow file.
+
+### Core Settings
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `mode` | `review` | Operating mode: `review`, `index`, or `bootstrap` |
+| `model` | `anthropic:claude-sonnet-4-5-20250929` | LLM model identifier |
+| `max_tokens` | `128000` | Maximum tokens for LLM response |
+| `temperature` | `0.0` | LLM sampling temperature |
+
+### Review Settings
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `confidence_threshold` | `0.7` | Minimum confidence (0.0–1.0) for posting a comment |
+| `review_depth` | `standard` | Review depth: `quick`, `standard`, or `deep` |
+| `enable_agentic` | `false` | Enable agentic review mode for deeper analysis |
+| `ignored_paths` | `""` | Comma-separated glob patterns to skip (e.g. `docs/**,*.md`) |
+| `extra_extensions` | `""` | Extra file extensions to parse (e.g. `.vue,.svelte,.proto`) |
+
+### Storage
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `storage_dir` | `.argus-artifacts` | Directory name for codebase map artifacts |
+
+Artifacts are stored on an orphan branch (`argus-data`) in your repository using the Git Data API. No external storage required.
+
+### API Keys
+
+Provide the key for your chosen model provider:
+
+| Input | Description |
+|-------|-------------|
+| `anthropic_api_key` | Required for `anthropic:*` models |
+| `openai_api_key` | Required for `openai:*` models |
+| `google_api_key` | Required for `google-gla:*` models |
+
+## Model Identifiers
+
+Models use the format `provider:model-name`:
+
+```
+anthropic:claude-sonnet-4-5-20250929
+openai:gpt-4o
+google-gla:gemini-2.5-flash
+```
+
+## Review Depth
+
+- **quick** — Fast review with no memory context. Good for small, obvious changes.
+- **standard** — Includes codebase outline for structural awareness. Default.
+- **deep** — Includes outline plus learned codebase patterns. Most thorough.
+
+## Operating Modes
+
+### review (default)
+Pulls the latest codebase artifacts, retrieves context for each changed file, generates reviews via LLM, and posts inline PR comments.
+
+### index
+Incrementally updates the codebase map for files changed since the last indexed commit. No LLM calls — purely structural analysis.
+
+### bootstrap
+Full rebuild of the codebase map and pattern memory. Run this once when first setting up Argus, or after major refactors.
