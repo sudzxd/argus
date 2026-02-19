@@ -1,0 +1,82 @@
+---
+title: Getting Started
+description: Set up Argus to review your pull requests in under five minutes.
+order: 1
+---
+
+## Prerequisites
+
+- A GitHub repository
+- An API key from one of the supported LLM providers (Anthropic, OpenAI, or Google)
+
+## Step 1: Add the Review Workflow
+
+Create `.github/workflows/argus-review.yml` in your repository:
+
+```yaml
+name: Argus PR Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sudzxd/argus@develop
+        with:
+          model: anthropic:claude-sonnet-4-5-20250929
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+## Step 2: Add Your API Key
+
+Go to **Settings > Secrets and variables > Actions** in your repository and add your LLM provider's API key:
+
+- `ANTHROPIC_API_KEY` for Claude models
+- `OPENAI_API_KEY` for GPT models
+- `GOOGLE_API_KEY` for Gemini models
+
+## Step 3: Bootstrap the Index (Optional)
+
+For the best review quality, bootstrap the codebase index before your first review. Add this workflow or run it manually:
+
+```yaml
+name: Argus Index
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "bootstrap or index"
+        default: "bootstrap"
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: sudzxd/argus@develop
+        with:
+          mode: ${{ github.event.inputs.mode || 'index' }}
+          model: anthropic:claude-sonnet-4-5-20250929
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          analyze_patterns: "true"
+```
+
+Trigger it manually once with `mode: bootstrap` to build the full codebase map and pattern memory. After that, incremental indexing runs automatically on every push to main, with `analyze_patterns` enabled to keep pattern memory up to date.
+
+## Step 4: Open a Pull Request
+
+That's it. Open a PR and Argus will post inline review comments within a few minutes.
+
+## Next Steps
+
+- [Configuration](/argus/docs/configuration) — customize review behavior, thresholds, and ignored paths
+- [Architecture](/argus/docs/architecture) — understand how Argus works under the hood

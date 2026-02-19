@@ -1,0 +1,91 @@
+---
+title: Architecture
+description: How Argus is structured internally — bounded contexts, data flow, and module layout.
+order: 3
+---
+
+## High-Level Design
+
+Argus follows a clean architecture with strict layer dependency rules:
+
+```
+interfaces → application → domain ← infrastructure
+                             ↓
+                           shared
+```
+
+- **shared** — Foundation types, exceptions, constants. Zero internal imports.
+- **domain** — Pure domain logic with protocol definitions. Imports only from shared.
+- **application** — Use-case orchestrators. Imports from domain and shared.
+- **infrastructure** — Concrete implementations of domain protocols. Imports from domain and shared.
+- **interfaces** — Entry point and composition root. Wires everything together.
+
+## Module Structure
+
+```
+src/argus/
+├── shared/           # Types, exceptions, constants
+├── domain/
+│   ├── context/      # Codebase map: entities, indexing, parsing protocols
+│   ├── retrieval/    # Context retrieval: strategies, ranker, orchestrator
+│   ├── review/       # Review: entities, noise filter, publisher protocol
+│   ├── memory/       # Codebase memory: outline, patterns, ProfileService
+│   └── llm/          # LLM config: ModelConfig, TokenBudget
+├── application/      # Use-case orchestrators
+├── infrastructure/
+│   ├── parsing/      # Tree-sitter AST parser + code chunker
+│   ├── retrieval/    # Structural, lexical (BM25), agentic strategies
+│   ├── memory/       # Outline renderer + LLM pattern analyzer
+│   ├── llm_providers/# pydantic-ai Agent factory
+│   ├── storage/      # Sharded codebase map + memory JSON persistence
+│   └── github/       # GitHub API client + review publisher
+└── interfaces/       # Config, composition root, action handler
+```
+
+## Data Flow: PR Review
+
+1. **PR event** triggers the GitHub Action
+2. **Interfaces** layer reads config from environment, builds the dependency graph
+3. **Application** orchestrator pulls codebase artifacts from the `argus-data` branch
+4. For each changed file in the PR diff:
+   - **Retrieval** strategies find relevant context (structural neighbors, BM25 matches)
+   - **Ranker** scores and selects the top context chunks
+5. The diff + context bundle goes to the **LLM provider** for review
+6. **Noise filter** drops low-confidence or redundant comments
+7. **Publisher** posts surviving comments as inline PR review annotations
+
+## Artifact Storage
+
+Argus stores its codebase map and pattern memory on an orphan branch (`argus-data`) in your repository using the Git Data API. This avoids polluting your main branch history and requires no external database or storage service.
+
+The codebase map is **sharded per directory** for efficient incremental updates:
+
+- **manifest.json** — DAG index with shard descriptors, cross-shard edges, and `indexed_at` commit SHA
+- **shard_\<hash\>.json** — One per leaf directory, containing parsed entries and internal edges
+- **\<hash\>_memory.json** — Pattern memory per shard with learned conventions, outline, and `analyzed_at` commit SHA
+
+During review, only the shards relevant to the changed files (plus their 1-hop neighbors) are loaded, keeping memory usage proportional to the diff size.
+
+## Pattern Memory
+
+Argus learns your codebase's conventions and anti-patterns over time through **incremental pattern analysis**:
+
+- **Bootstrap** runs a full LLM-powered analysis of the codebase, generating an outline and identifying patterns
+- **Index mode** (with `analyze_patterns: true`) runs incremental analysis on changed files, discovering new patterns without re-analyzing the entire codebase
+- **Review mode** references the stored patterns and outline to give context-aware feedback
+
+The `analyzed_at` SHA tracks when patterns were last analyzed, independent of the `indexed_at` SHA used for structural indexing.
+
+## Indexing
+
+### Bootstrap Mode
+Parses every file in the repository, builds the full sharded codebase map, runs pattern analysis via LLM, and pushes all artifacts to the data branch.
+
+### Incremental Index Mode
+Uses `compare_commits` to detect changed files since the last indexed commit. Only re-parses those files and updates the relevant shards. Optionally runs incremental pattern analysis when `analyze_patterns` is enabled.
+
+## Retrieval Strategies
+
+- **Structural** — Follows import/export relationships and call graphs from the codebase map
+- **Lexical (BM25)** — Token-based search across the indexed codebase for relevant terms
+- **Agentic** (optional) — LLM-guided exploration when structural and lexical retrieval isn't sufficient

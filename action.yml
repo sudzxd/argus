@@ -42,6 +42,10 @@ inputs:
     description: "Comma-separated extra file extensions to parse (e.g. .vue,.svelte,.proto)"
     required: false
     default: ""
+  analyze_patterns:
+    description: "Enable incremental pattern analysis during index mode"
+    required: false
+    default: "false"
   anthropic_api_key:
     description: "Anthropic API key (required for Anthropic models)"
     required: false
@@ -67,6 +71,7 @@ runs:
     INPUT_ENABLE_AGENTIC: ${{ inputs.enable_agentic }}
     INPUT_REVIEW_DEPTH: ${{ inputs.review_depth }}
     INPUT_EXTRA_EXTENSIONS: ${{ inputs.extra_extensions }}
+    INPUT_ANALYZE_PATTERNS: ${{ inputs.analyze_patterns }}
     ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
     OPENAI_API_KEY: ${{ inputs.openai_api_key }}
     GOOGLE_API_KEY: ${{ inputs.google_api_key }}
