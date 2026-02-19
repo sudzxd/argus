@@ -126,22 +126,8 @@ def _execute() -> None:
             after_sha,
         )
     else:
-        # Sharded path: we need the stored indexed_at SHA from the map.
-        # Pull all shard blobs to load the full map and get indexed_at.
-        # First, try a lightweight approach: compare from indexed_at.
-        # We need at least one shard to read indexed_at — pull a small one.
-        all_blob_names = {desc.blob_name for desc in manifest.shards.values()}
-        sync.pull_blobs(all_blob_names)
-        full_map = sharded_store.load_full(repo)
-        if full_map is None:
-            logger.warning("Could not load sharded map, falling back to bootstrap")
-            from argus.interfaces.bootstrap import run as bootstrap_run
-
-            bootstrap_run()
-            sync.push()
-            return
-
-        base_sha = str(full_map.indexed_at)
+        # Read indexed_at from the manifest — no shard pull needed.
+        base_sha = str(manifest.indexed_at)
         logger.info(
             "Comparing from indexed_at=%s to HEAD=%s",
             base_sha[:8],
@@ -150,20 +136,41 @@ def _execute() -> None:
 
         if base_sha == after_sha:
             logger.info("Already up to date at %s", after_sha[:8])
-            sync.push()
             return
+
+        # Find changed files, then pull only the dirty shards.
+        changed_paths = client.compare_commits(base_sha, after_sha)
+        parseable = get_parseable_extensions()
+        source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
+
+        if not source_paths:
+            logger.info("No parseable files changed, skipping update")
+            return
+
+        dirty_shard_ids = manifest.dirty_shards(
+            [FilePath(p) for p in source_paths],
+        )
+        blob_names = {
+            manifest.shards[sid].blob_name
+            for sid in dirty_shard_ids
+            if sid in manifest.shards
+        }
+        sync.pull_blobs(blob_names)
+
+        # Load partial map from dirty shards only.
+        partial_map = sharded_store.load_shards(repo, dirty_shard_ids)
 
         _incremental_update_sharded(
             client,
             parser,
             sharded_store,
-            full_map,
+            partial_map,
             repo,
             base_sha,
             after_sha,
         )
 
-    # 2. Push updated artifacts.
+    # 2. Push updated artifacts (merges with existing via base_tree).
     sync.push()
 
 

@@ -284,9 +284,13 @@ class SelectiveGitBranchSync:
         return count
 
     def push(self) -> None:
-        """Upload all JSON artifacts from storage_dir to the branch.
+        """Upload JSON artifacts from storage_dir to the branch.
 
-        Uses full tree replacement (no base_tree) for simplicity.
+        Uses ``base_tree`` when the branch already exists so that
+        blobs not present locally (e.g. shards from other directories)
+        are preserved on the branch.  Only local files are added or
+        overwritten; nothing is deleted.
+
         Clears the cached tree since branch state has changed.
         """
         files = sorted(self.storage_dir.glob("*.json"))
@@ -307,9 +311,14 @@ class SelectiveGitBranchSync:
                 }
             )
 
-        tree_sha = self.client.create_tree(tree_entries)
-
+        # Use base_tree to merge with existing branch content.
         ref_sha = self.client.get_ref_sha(self.branch)
+        base_tree: str | None = None
+        if ref_sha is not None:
+            base_tree = self.client.get_commit_tree_sha(ref_sha)
+
+        tree_sha = self.client.create_tree(tree_entries, base_tree=base_tree)
+
         parents: list[str] = [ref_sha] if ref_sha else []
 
         commit_sha = self.client.create_commit(
