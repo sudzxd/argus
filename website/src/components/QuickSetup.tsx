@@ -16,7 +16,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: sudzxd/argus@develop
+      - uses: sudzxd/argus@v0
         with:
           model: >-
             anthropic:claude-sonnet-4-5-20250929

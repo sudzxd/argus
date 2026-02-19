@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI"></a>
+  <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.12+-blue" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/coverage-80%25-brightgreen" alt="Coverage">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
@@ -37,7 +37,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: sudzxd/argus@develop
+      - uses: sudzxd/argus@v0
         with:
           model: anthropic:claude-sonnet-4-5-20250929
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

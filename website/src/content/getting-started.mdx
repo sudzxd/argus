@@ -27,7 +27,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: sudzxd/argus@develop
+      - uses: sudzxd/argus@v0
         with:
           model: anthropic:claude-sonnet-4-5-20250929
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -62,7 +62,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: sudzxd/argus@develop
+      - uses: sudzxd/argus@v0
         with:
           mode: ${{ github.event.inputs.mode || 'index' }}
           model: anthropic:claude-sonnet-4-5-20250929
