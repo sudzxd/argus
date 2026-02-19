@@ -19,6 +19,7 @@ import httpx
 from argus.domain.context.entities import CodebaseMap
 from argus.domain.llm.value_objects import ModelConfig
 from argus.domain.memory.services import ProfileService
+from argus.domain.memory.value_objects import CodebaseMemory
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
 from argus.infrastructure.memory.outline_renderer import OutlineRenderer
@@ -145,13 +146,16 @@ def _execute_bootstrap() -> None:
 
     logger.info("Parsed %d files into codebase map", fetched)
 
-    # 4. Save codebase map.
+    # 4. Load existing artifacts before overwriting.
+    existing_memory = memory_store.load(repo)
+    existing_map = store.load(repo)
+
+    # 5. Save the new codebase map.
     store.save(repo, codebase_map)
     logger.info("Saved codebase map artifact")
 
-    # 5. Render outline and build memory profile.
+    # 6. Render outline and build memory profile.
     outline_renderer = OutlineRenderer(token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET)
-    outline_text, outline = outline_renderer.render_full(codebase_map)
 
     model_config = ModelConfig(
         model=model,
@@ -162,7 +166,41 @@ def _execute_bootstrap() -> None:
     profile_service = ProfileService(analyzer=analyzer)
 
     logger.info("Analyzing codebase patterns...")
-    memory = profile_service.build_profile(repo, outline, outline_text)
+    if existing_memory is not None and existing_map is not None:
+        # Incremental: only analyze changed files for new patterns.
+        prev_sha = existing_map.indexed_at
+        changed_paths = client.compare_commits(prev_sha, head_sha)
+        changed_files = [FilePath(p) for p in changed_paths]
+        logger.info(
+            "Found existing memory (version %d, %d patterns), "
+            "analyzing %d changed files incrementally",
+            existing_memory.version,
+            len(existing_memory.patterns),
+            len(changed_files),
+        )
+        if changed_files:
+            outline_text, outline = outline_renderer.render(
+                codebase_map,
+                changed_files,
+            )
+            memory = profile_service.update_profile(
+                existing_memory,
+                outline,
+                outline_text,
+            )
+        else:
+            logger.info("No files changed, keeping existing patterns")
+            outline_text, outline = outline_renderer.render_full(codebase_map)
+            memory = CodebaseMemory(
+                repo_id=existing_memory.repo_id,
+                outline=outline,
+                patterns=existing_memory.patterns,
+                version=existing_memory.version,
+            )
+    else:
+        # Fresh: analyze the full codebase.
+        outline_text, outline = outline_renderer.render_full(codebase_map)
+        memory = profile_service.build_profile(repo, outline, outline_text)
     memory_store.save(memory)
 
     logger.info(
