@@ -2,8 +2,8 @@ name: Argus PR Review
 
 on:
   workflow_dispatch: # manually trigger only — uncomment below to auto-run on PRs
-  # pull_request:
-  #   branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   review:
