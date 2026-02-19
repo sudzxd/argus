@@ -1,7 +1,7 @@
 name: Argus PR Review
 
 on:
-  workflow_dispatch: # manually trigger only — uncomment below to auto-run on PRs
+  workflow_dispatch:
   pull_request:
     branches: [main, develop]
 
@@ -16,22 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - run: uv sync --no-dev
-
       - name: Run Argus review
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          INPUT_MODE: "review"
-          INPUT_MODEL: "google-gla:gemini-2.5-flash"
-          INPUT_MAX_TOKENS: "1000000"
-          INPUT_TEMPERATURE: "0.0"
-          INPUT_CONFIDENCE_THRESHOLD: "0.7"
-          INPUT_IGNORED_PATHS: ""
-          INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_ENABLE_AGENTIC: "false"
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: uv run python -m argus.interfaces.main
+        uses: ./
+        with:
+          model: "google-gla:gemini-2.5-flash"
+          max_tokens: "1000000"
+          google_api_key: ${{ secrets.GOOGLE_API_KEY }}
