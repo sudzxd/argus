@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Argus - AI-Powered PR Reviews",
+  title: "Argus - Code Reviews That See Everything",
   description:
-    "Code reviews that understand your entire codebase. Argus indexes your repository, retrieves relevant context, and delivers precise inline feedback.",
+    "Argus indexes your entire codebase, retrieves relevant context for every diff, and delivers precise inline review comments on your pull requests.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -25,11 +25,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="noise-overlay min-h-screen antialiased">
+      <body className="min-h-screen antialiased">
         {children}
       </body>
     </html>

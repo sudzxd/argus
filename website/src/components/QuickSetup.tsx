@@ -20,6 +20,7 @@ jobs:
         with:
           model: >-
             anthropic:claude-sonnet-4-5-20250929
+          review_depth: standard
           anthropic_api_key: >-
             \${{ secrets.ANTHROPIC_API_KEY }}`;
 
@@ -41,13 +42,13 @@ export default function QuickSetup() {
               Up and running in{" "}
               <span className="gradient-text">two minutes</span>
             </h2>
-            <p className="text-text-muted mb-6 leading-relaxed">
+            <p className="text-cream-muted mb-8 leading-relaxed">
               Add a single workflow file to your repository and Argus starts
               reviewing every pull request. No servers, no databases, no
               configuration files.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {[
                 "Add the workflow YAML to .github/workflows/",
                 "Set your LLM API key in repository secrets",
@@ -62,11 +63,12 @@ export default function QuickSetup() {
                   className="flex items-start gap-3"
                 >
                   <span
-                    className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-violet to-cyan flex items-center justify-center text-xs font-bold text-white"
+                    className="flex-shrink-0 w-7 h-7 rounded-full bg-amber/15 border border-amber/30 flex items-center justify-center text-xs font-semibold text-amber"
+                    style={{ fontFamily: "var(--font-mono)" }}
                   >
                     {i + 1}
                   </span>
-                  <span className="text-text-muted text-sm pt-0.5">
+                  <span className="text-cream-muted text-sm pt-1">
                     {step}
                   </span>
                 </motion.div>

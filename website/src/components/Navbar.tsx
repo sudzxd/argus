@@ -11,6 +11,31 @@ const navLinks = [
   { href: "/docs/getting-started", label: "Docs" },
 ];
 
+function ArgusEye({ size = 28 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer eye shape */}
+      <path
+        d="M2 16C2 16 8 6 16 6C24 6 30 16 30 16C30 16 24 26 16 26C8 26 2 16 2 16Z"
+        stroke="#e8a838"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        fill="rgba(232,168,56,0.06)"
+      />
+      {/* Iris */}
+      <circle cx="16" cy="16" r="6" stroke="#e8a838" strokeWidth="1.5" fill="rgba(232,168,56,0.1)" />
+      {/* Pupil */}
+      <circle cx="16" cy="16" r="2.5" fill="#e8a838" />
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,21 +53,15 @@ export default function Navbar() {
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "bg-void/80 backdrop-blur-xl border-b border-border"
+          ? "bg-obsidian/90 backdrop-blur-xl border-b border-border"
           : "bg-transparent"
       }`}
     >
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-8 h-8">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet to-cyan opacity-80 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute inset-[3px] rounded-full bg-void" />
-            <div className="absolute inset-[6px] rounded-full bg-gradient-to-br from-violet to-cyan opacity-60" />
-            <div className="absolute inset-[9px] rounded-full bg-void" />
-            <div className="absolute inset-[11px] rounded-full bg-cyan/80" />
-          </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <ArgusEye />
           <span
-            className="text-lg font-bold tracking-tight"
+            className="text-xl text-cream tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Argus
@@ -55,7 +74,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-text-muted hover:text-text transition-colors"
+              className="text-sm text-cream-muted hover:text-amber transition-colors"
               style={{ fontFamily: "var(--font-body)" }}
             >
               {link.label}
@@ -65,7 +84,7 @@ export default function Navbar() {
             href="https://github.com/sudzxd/argus"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-text-muted hover:text-text transition-colors"
+            className="text-cream-muted hover:text-amber transition-colors"
           >
             <svg
               className="w-5 h-5"
@@ -84,7 +103,7 @@ export default function Navbar() {
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden text-text-muted"
+          className="md:hidden text-cream-muted"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,7 +123,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-void/95 backdrop-blur-xl border-b border-border"
+            className="md:hidden bg-obsidian/95 backdrop-blur-xl border-b border-border"
           >
             <div className="px-6 py-4 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -112,7 +131,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="text-sm text-text-muted hover:text-text transition-colors"
+                  className="text-sm text-cream-muted hover:text-amber transition-colors"
                 >
                   {link.label}
                 </Link>

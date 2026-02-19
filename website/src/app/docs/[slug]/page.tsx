@@ -30,7 +30,7 @@ export default async function DocPage({ params }: PageProps) {
     <article className="docs-prose max-w-3xl">
       <h1>{meta.title}</h1>
       {meta.description && (
-        <p className="text-lg text-text-muted mt-2 mb-8">{meta.description}</p>
+        <p className="text-lg text-cream-muted mt-2 mb-8">{meta.description}</p>
       )}
       <MDXRemote source={content} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
     </article>

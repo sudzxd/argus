@@ -18,7 +18,7 @@ export default function DocsLayout({
           <aside className="hidden md:block w-56 shrink-0">
             <div className="sticky top-24">
               <h3
-                className="text-xs uppercase tracking-widest text-text-dim mb-4"
+                className="text-xs uppercase tracking-widest text-cream-dim mb-4"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 Documentation
@@ -28,7 +28,7 @@ export default function DocsLayout({
                   <Link
                     key={doc.slug}
                     href={`/docs/${doc.slug}`}
-                    className="text-sm text-text-muted hover:text-text px-3 py-1.5 rounded-md hover:bg-surface/50 transition-all"
+                    className="text-sm text-cream-muted hover:text-amber px-3 py-1.5 rounded-md hover:bg-surface/50 transition-all"
                   >
                     {doc.title}
                   </Link>

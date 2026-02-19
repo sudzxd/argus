@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
 const diffLines = [
@@ -26,38 +26,42 @@ const inlineComment = {
 };
 
 function PRReviewDemo() {
-  const [phase, setPhase] = useState(0); // 0: diff only, 1: show comment
+  const [phase, setPhase] = useState(0);
 
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 2500),
-      setTimeout(() => {
-        setPhase(0);
-        // restart cycle
-        setTimeout(() => setPhase(1), 2500);
-      }, 10000),
-    ];
-    return () => timers.forEach(clearTimeout);
+  const startCycle = useCallback(() => {
+    setPhase(0);
+    const t1 = setTimeout(() => setPhase(1), 2500);
+    const t2 = setTimeout(() => {
+      setPhase(0);
+      const t3 = setTimeout(() => setPhase(1), 2500);
+      return () => clearTimeout(t3);
+    }, 10000);
+    return [t1, t2];
   }, []);
 
+  useEffect(() => {
+    const timers = startCycle();
+    return () => timers.forEach(clearTimeout);
+  }, [startCycle]);
+
   return (
-    <div className="rounded-xl overflow-hidden border border-border glow-violet">
+    <div className="rounded-xl overflow-hidden border border-border glow-amber">
       {/* PR header bar */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-surface/50 border-b border-border">
-        <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex items-center gap-3 px-4 py-3 bg-surface/60 border-b border-border">
+        <svg className="w-4 h-4 text-jade" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
-        <span className="text-xs text-text-muted" style={{ fontFamily: "var(--font-mono)" }}>
+        <span className="text-xs text-cream-muted" style={{ fontFamily: "var(--font-mono)" }}>
           PR #142
         </span>
-        <span className="text-xs text-text-dim">feat: add payment error handling</span>
-        <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+        <span className="text-xs text-cream-dim">feat: add payment error handling</span>
+        <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-jade/10 text-jade border border-jade/20">
           +2 -1
         </span>
       </div>
 
       {/* Diff view */}
-      <div className="bg-void text-xs overflow-x-auto" style={{ fontFamily: "var(--font-mono)" }}>
+      <div className="bg-obsidian text-xs overflow-x-auto" style={{ fontFamily: "var(--font-mono)" }}>
         {diffLines.map((line, i) => (
           <motion.div
             key={i}
@@ -66,18 +70,18 @@ function PRReviewDemo() {
             transition={{ duration: 0.15, delay: i * 0.08 }}
             className={`px-4 py-0.5 flex ${
               line.type === "header"
-                ? "bg-surface/80 text-cyan py-1.5 font-semibold border-b border-border"
+                ? "bg-surface/80 text-amber py-1.5 font-semibold border-b border-border"
                 : line.type === "hunk"
-                  ? "bg-violet/5 text-violet-light py-1"
+                  ? "bg-amber/5 text-amber-dim py-1"
                   : line.type === "removed"
-                    ? "bg-red-500/8 text-red-300"
+                    ? "bg-rose/8 text-rose"
                     : line.type === "added"
-                      ? "bg-green-500/8 text-green-300"
-                      : "text-text-dim"
+                      ? "bg-jade/8 text-jade"
+                      : "text-cream-dim"
             }`}
           >
             {line.num && (
-              <span className="w-8 text-right mr-3 text-text-dim/50 select-none shrink-0">
+              <span className="w-8 text-right mr-3 text-cream-dim/50 select-none shrink-0">
                 {line.num}
               </span>
             )}
@@ -98,30 +102,33 @@ function PRReviewDemo() {
             className="mx-3 my-2 rounded-lg border border-amber/20 bg-amber/5 overflow-hidden"
           >
             <div className="flex items-center gap-2 px-3 py-2 border-b border-amber/10">
-              {/* Argus avatar */}
-              <div className="relative w-5 h-5 shrink-0">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet to-cyan" />
-                <div className="absolute inset-[1.5px] rounded-full bg-void" />
-                <div className="absolute inset-[3px] rounded-full bg-gradient-to-br from-violet to-cyan opacity-50" />
-                <div className="absolute inset-[4.5px] rounded-full bg-void" />
-                <div className="absolute inset-[5.5px] rounded-full bg-cyan/70" />
-              </div>
-              <span className="text-[11px] font-semibold text-text">argus</span>
+              {/* Argus avatar — eye icon */}
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="none" className="shrink-0">
+                <path
+                  d="M2 16C2 16 8 6 16 6C24 6 30 16 30 16C30 16 24 26 16 26C8 26 2 16 2 16Z"
+                  stroke="#e8a838"
+                  strokeWidth="1.5"
+                  fill="rgba(232,168,56,0.1)"
+                />
+                <circle cx="16" cy="16" r="5" stroke="#e8a838" strokeWidth="1.5" fill="rgba(232,168,56,0.15)" />
+                <circle cx="16" cy="16" r="2" fill="#e8a838" />
+              </svg>
+              <span className="text-[11px] font-semibold text-cream">argus</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber/15 text-amber border border-amber/20">
                 {inlineComment.severity}
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-text-dim border border-border">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-cream-dim border border-border">
                 {inlineComment.category}
               </span>
-              <span className="ml-auto text-[10px] text-text-dim">line 45</span>
+              <span className="ml-auto text-[10px] text-cream-dim">line 45</span>
             </div>
             <div className="px-3 py-2">
-              <p className="text-[11px] text-text-muted leading-relaxed">
+              <p className="text-[11px] text-cream-muted leading-relaxed">
                 {inlineComment.body}
               </p>
-              <div className="mt-2 rounded bg-green-500/5 border border-green-500/15 px-2 py-1.5">
-                <span className="text-[10px] text-green-400/70 block mb-1">Suggested change:</span>
-                <pre className="text-[10px] text-green-300 whitespace-pre leading-relaxed">
+              <div className="mt-2 rounded bg-jade/5 border border-jade/15 px-2 py-1.5">
+                <span className="text-[10px] text-jade/70 block mb-1">Suggested change:</span>
+                <pre className="text-[10px] text-jade whitespace-pre leading-relaxed">
                   {inlineComment.suggestion}
                 </pre>
               </div>
@@ -135,36 +142,34 @@ function PRReviewDemo() {
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center pt-28 pb-20 overflow-hidden">
       {/* Background effects */}
-      <div className="absolute inset-0 grid-bg" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-violet/5 blur-[120px]" />
-      <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-cyan/5 blur-[100px]" />
+      <div className="absolute inset-0 dot-grid" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-amber/4 blur-[150px]" />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left: Copy */}
-        <div>
+      <div className="relative z-10 mx-auto max-w-5xl px-6 w-full">
+        {/* Top: centered copy */}
+        <div className="text-center mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border text-xs text-text-muted mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/20 text-xs text-cream-muted mb-8"
             style={{ fontFamily: "var(--font-mono)" }}
           >
-            <span className="w-2 h-2 rounded-full bg-cyan animate-pulse" />
-            v0.1.0 &mdash; now in beta
+            <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
+            v0.2.0 &mdash; incremental pattern analysis
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight mb-6"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Code reviews
+            Code reviews that
             <br />
-            that{" "}
             <span className="gradient-text">see everything</span>
           </motion.h1>
 
@@ -172,7 +177,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg text-text-muted max-w-md mb-8 leading-relaxed"
+            className="text-lg text-cream-muted font-medium max-w-xl mx-auto mb-10 leading-relaxed"
           >
             Argus indexes your entire codebase, retrieves relevant context for
             every diff, and delivers precise inline review comments on your pull
@@ -183,11 +188,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-wrap gap-4"
+            className="flex flex-wrap justify-center gap-4"
           >
             <Link
               href="/docs/getting-started"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-violet to-cyan text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber text-obsidian font-semibold text-sm hover:bg-amber-light transition-colors"
             >
               Get Started
               <svg
@@ -208,7 +213,7 @@ export default function Hero() {
               href="https://github.com/sudzxd/argus"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-border text-text-muted hover:text-text hover:border-border-light transition-all text-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-cream-dim/30 text-cream-muted hover:text-cream hover:border-cream-dim/60 transition-all text-sm"
             >
               <svg
                 className="w-4 h-4"
@@ -226,18 +231,19 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Right: Terminal demo */}
+        {/* PR Review Demo — full width, center stage */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="max-w-3xl mx-auto"
         >
           <PRReviewDemo />
         </motion.div>
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-void to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-obsidian to-transparent" />
     </section>
   );
 }

@@ -26,6 +26,7 @@ Configure Argus through the `with` block in your workflow file.
 | `enable_agentic` | `false` | Enable agentic review mode for deeper analysis |
 | `ignored_paths` | `""` | Comma-separated glob patterns to skip (e.g. `docs/**,*.md`) |
 | `extra_extensions` | `""` | Extra file extensions to parse (e.g. `.vue,.svelte,.proto`) |
+| `analyze_patterns` | `false` | Enable incremental pattern analysis during index mode |
 
 ### Storage
 
@@ -67,7 +68,7 @@ google-gla:gemini-2.5-flash
 Pulls the latest codebase artifacts, retrieves context for each changed file, generates reviews via LLM, and posts inline PR comments.
 
 ### index
-Incrementally updates the codebase map for files changed since the last indexed commit. No LLM calls — purely structural analysis.
+Incrementally updates the codebase map for files changed since the last indexed commit. Purely structural analysis by default. With `analyze_patterns: true`, also runs incremental pattern analysis via LLM to keep pattern memory current.
 
 ### bootstrap
 Full rebuild of the codebase map and pattern memory. Run this once when first setting up Argus, or after major refactors.

@@ -48,6 +48,8 @@ For the best review quality, bootstrap the codebase index before your first revi
 ```yaml
 name: Argus Index
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       mode:
@@ -62,12 +64,13 @@ jobs:
     steps:
       - uses: sudzxd/argus@develop
         with:
-          mode: ${{ inputs.mode }}
+          mode: ${{ github.event.inputs.mode || 'index' }}
           model: anthropic:claude-sonnet-4-5-20250929
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          analyze_patterns: "true"
 ```
 
-Trigger it once with `mode: bootstrap` to build the full codebase map. After that, incremental indexing runs automatically on every push.
+Trigger it manually once with `mode: bootstrap` to build the full codebase map and pattern memory. After that, incremental indexing runs automatically on every push to main, with `analyze_patterns` enabled to keep pattern memory up to date.
 
 ## Step 4: Open a Pull Request
 

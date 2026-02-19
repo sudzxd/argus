@@ -8,25 +8,29 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="relative w-6 h-6">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet to-cyan opacity-60" />
-              <div className="absolute inset-[2px] rounded-full bg-void" />
-              <div className="absolute inset-[5px] rounded-full bg-gradient-to-br from-violet to-cyan opacity-40" />
-              <div className="absolute inset-[7px] rounded-full bg-void" />
-              <div className="absolute inset-[8px] rounded-full bg-cyan/60" />
-            </div>
+            {/* Eye logo */}
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+              <path
+                d="M2 16C2 16 8 6 16 6C24 6 30 16 30 16C30 16 24 26 16 26C8 26 2 16 2 16Z"
+                stroke="#e8a838"
+                strokeWidth="1.5"
+                fill="rgba(232,168,56,0.06)"
+              />
+              <circle cx="16" cy="16" r="5" stroke="#e8a838" strokeWidth="1.5" fill="rgba(232,168,56,0.1)" />
+              <circle cx="16" cy="16" r="2" fill="#e8a838" />
+            </svg>
             <span
-              className="text-sm font-semibold text-text-muted"
+              className="text-sm text-cream-muted"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Argus
             </span>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-text-dim">
+          <div className="flex items-center gap-6 text-sm text-cream-dim">
             <Link
               href="/docs/getting-started"
-              className="hover:text-text-muted transition-colors"
+              className="hover:text-amber transition-colors"
             >
               Docs
             </Link>
@@ -34,15 +38,17 @@ export default function Footer() {
               href="https://github.com/sudzxd/argus"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-text-muted transition-colors"
+              className="hover:text-amber transition-colors"
             >
               GitHub
             </a>
-
           </div>
 
-          <p className="text-xs text-text-dim">
-            Built with purpose. Open source.
+          <p
+            className="text-xs text-cream-dim italic"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Named after Argus Panoptes &mdash; the many-eyed giant.
           </p>
         </div>
       </div>
