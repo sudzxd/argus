@@ -52,7 +52,7 @@ Artifacts are persisted on an orphan `argus-data` branch using the Git Data API 
 
 ## Status
 
-313 tests passing, 81% coverage. All layers implemented and running in CI.
+339 tests passing, 81% coverage. All layers implemented and running in CI.
 
 ---
 
