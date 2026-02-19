@@ -12,7 +12,7 @@ import pytest
 from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.interfaces.sync_index import (
-    _extract_push_shas,
+    _extract_after_sha,
     _incremental_update_sharded,
     _is_parseable,
 )
@@ -37,27 +37,26 @@ def test_is_parseable_no_extension() -> None:
 
 
 # =============================================================================
-# _extract_push_shas tests
+# _extract_after_sha tests
 # =============================================================================
 
 
-def test_extract_push_shas_valid(tmp_path: Path) -> None:
+def test_extract_after_sha_valid(tmp_path: Path) -> None:
     event = {"before": "aaa111", "after": "bbb222"}
     event_path = tmp_path / "event.json"
     event_path.write_text(json.dumps(event))
 
-    before, after = _extract_push_shas(str(event_path))
-    assert before == "aaa111"
+    after = _extract_after_sha(str(event_path))
     assert after == "bbb222"
 
 
-def test_extract_push_shas_missing_fields(tmp_path: Path) -> None:
+def test_extract_after_sha_missing_field(tmp_path: Path) -> None:
     event = {"ref": "refs/heads/main"}
     event_path = tmp_path / "event.json"
     event_path.write_text(json.dumps(event))
 
-    with pytest.raises(ConfigurationError, match="before/after"):
-        _extract_push_shas(str(event_path))
+    with pytest.raises(ConfigurationError, match="after"):
+        _extract_after_sha(str(event_path))
 
 
 # =============================================================================

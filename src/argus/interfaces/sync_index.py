@@ -2,7 +2,9 @@
 
 On push to main/develop, this entry point:
 1. Pulls existing artifacts from the argus-data branch
-2. Determines which files changed in the push (via compare API)
+2. Compares the stored ``indexed_at`` SHA against the push HEAD to find
+   all files that changed since the last successful index — even if
+   previous workflow runs were skipped
 3. Incrementally updates the codebase map (no LLM calls)
 4. Pushes updated artifacts back to argus-data
 
@@ -51,20 +53,15 @@ def _is_parseable(path: str, extensions: frozenset[str]) -> bool:
     return ext in extensions
 
 
-def _extract_push_shas(event_path: str) -> tuple[str, str]:
-    """Extract before/after SHAs from a push event payload.
-
-    Returns:
-        (before_sha, after_sha) tuple.
-    """
+def _extract_after_sha(event_path: str) -> str:
+    """Extract the HEAD (after) SHA from a push event payload."""
     with Path(event_path).open() as f:
         event: dict[str, object] = json.load(f)
-    before = event.get("before")
     after = event.get("after")
-    if not isinstance(before, str) or not isinstance(after, str):
-        msg = "Cannot extract before/after SHAs from push event"
+    if not isinstance(after, str):
+        msg = "Cannot extract 'after' SHA from push event"
         raise ConfigurationError(msg)
-    return before, after
+    return after
 
 
 def run() -> None:
@@ -103,6 +100,8 @@ def _execute() -> None:
     has_manifest = sync.pull_manifest()
     manifest = sharded_store.load_manifest(repo) if has_manifest else None
 
+    after_sha = _extract_after_sha(event_path)
+
     if manifest is None:
         # Try legacy format via full pull.
         sync.pull_all()
@@ -115,51 +114,52 @@ def _execute() -> None:
             sync.push()
             return
 
-        # Incremental update on migrated legacy map.
-        before_sha, after_sha = _extract_push_shas(event_path)
+        # Use stored indexed_at as the base SHA for comparison.
+        base_sha = str(existing_map.indexed_at)
         _incremental_update_sharded(
             client,
             parser,
             sharded_store,
             existing_map,
             repo,
-            before_sha,
+            base_sha,
             after_sha,
         )
     else:
-        # Sharded path: pull only dirty shards.
-        before_sha, after_sha = _extract_push_shas(event_path)
-        changed_paths = client.compare_commits(before_sha, after_sha)
-        parseable = get_parseable_extensions()
-        source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
+        # Sharded path: we need the stored indexed_at SHA from the map.
+        # Pull all shard blobs to load the full map and get indexed_at.
+        # First, try a lightweight approach: compare from indexed_at.
+        # We need at least one shard to read indexed_at — pull a small one.
+        all_blob_names = {desc.blob_name for desc in manifest.shards.values()}
+        sync.pull_blobs(all_blob_names)
+        full_map = sharded_store.load_full(repo)
+        if full_map is None:
+            logger.warning("Could not load sharded map, falling back to bootstrap")
+            from argus.interfaces.bootstrap import run as bootstrap_run
 
-        if not source_paths:
-            logger.info("No parseable files changed, skipping update")
+            bootstrap_run()
             sync.push()
             return
 
-        # Determine dirty shards and pull them.
-        dirty_shard_ids = manifest.dirty_shards(
-            [FilePath(p) for p in source_paths],
+        base_sha = str(full_map.indexed_at)
+        logger.info(
+            "Comparing from indexed_at=%s to HEAD=%s",
+            base_sha[:8],
+            after_sha[:8],
         )
-        blob_names = {
-            manifest.shards[sid].blob_name
-            for sid in dirty_shard_ids
-            if sid in manifest.shards
-        }
-        # Also pull memory file and any other blobs we need.
-        sync.pull_blobs(blob_names)
 
-        # Load partial map from dirty shards.
-        partial_map = sharded_store.load_shards(repo, dirty_shard_ids)
+        if base_sha == after_sha:
+            logger.info("Already up to date at %s", after_sha[:8])
+            sync.push()
+            return
 
         _incremental_update_sharded(
             client,
             parser,
             sharded_store,
-            partial_map,
+            full_map,
             repo,
-            before_sha,
+            base_sha,
             after_sha,
         )
 
