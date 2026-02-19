@@ -12,6 +12,26 @@ from argus.shared.types import TokenCount
 
 
 @dataclass(frozen=True)
+class LLMUsage:
+    """Aggregated token usage from LLM API calls."""
+
+    input_tokens: int = 0
+    output_tokens: int = 0
+    requests: int = 0
+
+    @property
+    def total_tokens(self) -> int:
+        return self.input_tokens + self.output_tokens
+
+    def __add__(self, other: LLMUsage) -> LLMUsage:
+        return LLMUsage(
+            input_tokens=self.input_tokens + other.input_tokens,
+            output_tokens=self.output_tokens + other.output_tokens,
+            requests=self.requests + other.requests,
+        )
+
+
+@dataclass(frozen=True)
 class ModelConfig:
     """Configuration for an LLM model via pydantic-ai.
 

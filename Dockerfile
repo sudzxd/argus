@@ -18,4 +18,4 @@ RUN uv sync --no-dev --frozen
 # Copy source last for best layer caching
 COPY src/ src/
 
-ENTRYPOINT ["uv", "run", "python", "-m", "argus.interfaces.action"]
+ENTRYPOINT ["uv", "run", "python", "-m", "argus.interfaces.main"]

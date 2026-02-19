@@ -23,7 +23,9 @@ def test_retrieval_strategy_protocol_accepts_conforming_class(
 ) -> None:
     @dataclass
     class FakeStrategy:
-        def retrieve(self, query: RetrievalQuery) -> list[ContextItem]:
+        def retrieve(
+            self, query: RetrievalQuery, budget: TokenCount | None = None
+        ) -> list[ContextItem]:
             return [
                 ContextItem(
                     source=FilePath("fake.py"),
@@ -48,7 +50,9 @@ def test_retrieval_strategy_protocol_accepts_conforming_class(
 def _make_strategy(source: str, score: float, tokens: int) -> RetrievalStrategy:
     @dataclass
     class _Strategy:
-        def retrieve(self, query: RetrievalQuery) -> list[ContextItem]:
+        def retrieve(
+            self, query: RetrievalQuery, budget: TokenCount | None = None
+        ) -> list[ContextItem]:
             return [
                 ContextItem(
                     source=FilePath(source),
@@ -120,3 +124,59 @@ def test_orchestrator_returns_retrieval_result(
     result = orchestrator.retrieve(simple_query)
 
     assert isinstance(result, RetrievalResult)
+
+
+def test_orchestrator_passes_strategy_budgets(
+    simple_query: RetrievalQuery,
+) -> None:
+    """Verify that per-strategy budgets are forwarded to each strategy."""
+    received_budgets: list[TokenCount | None] = []
+
+    @dataclass
+    class _BudgetCapturing:
+        def retrieve(
+            self, query: RetrievalQuery, budget: TokenCount | None = None
+        ) -> list[ContextItem]:
+            received_budgets.append(budget)
+            return [
+                ContextItem(
+                    source=FilePath("cap.py"),
+                    content="captured",
+                    relevance_score=0.5,
+                    token_cost=TokenCount(10),
+                ),
+            ]
+
+    orchestrator = RetrievalOrchestrator(
+        strategies=[_BudgetCapturing(), _BudgetCapturing()],
+        budget=TokenCount(500),
+        strategy_budgets=[TokenCount(200), TokenCount(300)],
+    )
+
+    orchestrator.retrieve(simple_query)
+
+    assert received_budgets == [TokenCount(200), TokenCount(300)]
+
+
+def test_orchestrator_passes_none_without_strategy_budgets(
+    simple_query: RetrievalQuery,
+) -> None:
+    """Without strategy_budgets, strategies receive None."""
+    received_budgets: list[TokenCount | None] = []
+
+    @dataclass
+    class _BudgetCapturing:
+        def retrieve(
+            self, query: RetrievalQuery, budget: TokenCount | None = None
+        ) -> list[ContextItem]:
+            received_budgets.append(budget)
+            return []
+
+    orchestrator = RetrievalOrchestrator(
+        strategies=[_BudgetCapturing()],
+        budget=TokenCount(500),
+    )
+
+    orchestrator.retrieve(simple_query)
+
+    assert received_budgets == [None]

@@ -2,21 +2,25 @@
 
 ## Overview
 
-Argus is designed as a pipeline with four bounded contexts: **Context**, **Retrieval**, **Review**, and **LLM**. Each context owns its domain logic, exposes well-defined interfaces, and knows nothing about the others' internals.
+Argus is designed as a pipeline with five bounded contexts: **Context**, **Retrieval**, **Memory**, **Review**, and **LLM**. Each context owns its domain logic, exposes well-defined interfaces, and knows nothing about the others' internals.
 
 ```mermaid
 flowchart TD
     A[PR Event] --> B[Context Engine]
     B -->|CodebaseMap + Chunks| C[Retrieval]
-    C -->|Ranked ContextItems| D[Review]
+    B -->|CodebaseMap| M[Memory]
+    M -->|Outline + Patterns| D[Review]
+    C -->|Ranked ContextItems| D
     D -->|Filtered Review| E[Publisher]
 
     B -.- B1(Builds and maintains the codebase semantic map)
     C -.- C1(Finds relevant context for the given diff)
+    M -.- M1(Manages codebase outline and learned patterns)
     D -.- D1(Generates structured review from context + diff)
     E -.- E1(Posts inline comments on the pull request)
 
     style A fill:#f9f,stroke:#333
+    style M fill:#fcb,stroke:#333
     style E fill:#9f9,stroke:#333
 ```
 
@@ -60,9 +64,11 @@ classDiagram
 
 **Core Concepts:**
 
-- **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA.
+- **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA. A partial map assembled from selected shards is indistinguishable from a full map with fewer files.
 - **FileEntry** — An entity representing a single source file. Holds its AST-derived structure (functions, classes, exports) and its relationships to other files.
 - **DependencyGraph** — A value object representing the directed graph of relationships between symbols: imports, calls, extends, implements. Built entirely from AST parsing — no LLM required.
+- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
+- **ShardId** — A `NewType` over `str`, derived deterministically as the POSIX parent directory of a file path.
 - **Checkpoint** — A value object that snapshots the CodebaseMap at a specific version.
 
 **Behaviors:**
@@ -161,7 +167,46 @@ flowchart LR
 
 ---
 
-### 4. LLM
+### 4. Memory
+
+Responsible for maintaining persistent codebase understanding across reviews. Provides structural outlines and learned coding patterns that enrich the review context.
+
+**Core Concepts:**
+
+- **CodebaseMemory** — The aggregate root. Bundles a codebase outline with learned patterns, versioned for staleness tracking. Tracks `analyzed_at` (the commit SHA where patterns were last analyzed) independently of `indexed_at` to prevent history divergence between index and bootstrap modes.
+- **CodebaseOutline** — An AST-derived structural summary of the codebase, scoped to changed files and their blast radius (dependents + dependencies).
+- **PatternEntry** — A single learned coding pattern with category (style, naming, architecture, etc.), description, confidence score, and examples.
+- **ProfileService** — Orchestrates building and updating memory profiles. Prunes low-confidence patterns and caps total entries.
+- **PatternAnalyzer** — A protocol for LLM-based pattern discovery from codebase outlines.
+
+**Review Depth Levels:**
+
+Memory inclusion is controlled by review depth:
+- **quick** — No memory context. Fastest, lowest cost.
+- **standard** — Codebase outline included. Gives the LLM structural awareness.
+- **deep** — Outline + learned patterns. Full codebase understanding with convention enforcement.
+
+**Budget-Aware Prompt Assembly:**
+
+The review generator prioritizes sections within the token budget: diff (always) > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
+
+**Pattern Analysis:**
+
+Patterns can be analyzed in two ways:
+- **Bootstrap** (`bootstrap.py`) — Full rebuild: fetches the entire repository tree, parses all source files, renders a complete outline, and runs LLM pattern analysis. Sets `analyzed_at` to the current HEAD SHA.
+- **Index** (`sync_index.py`) — Incremental: when `INPUT_ANALYZE_PATTERNS` is `"true"`, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
+
+Bootstrap uses `analyzed_at` (falling back to `indexed_at`) as the diff base for incremental analysis, ensuring no changes are missed even when index mode has advanced `indexed_at`.
+
+**Invariants:**
+
+- Patterns below the minimum confidence threshold (0.3) are pruned.
+- Total patterns are capped at 30 entries, sorted by confidence.
+- Outline rendering respects a character budget derived from the token budget.
+
+---
+
+### 5. LLM
 
 Responsible for abstracting all interactions with language models behind a uniform interface.
 
@@ -180,7 +225,30 @@ All LLM calls go through pydantic-ai. The system supports any provider pydantic-
 
 ### Storage
 
-The CodebaseMap is persisted between runs as a JSON artifact. The domain defines a `CodebaseMapRepository` protocol; infrastructure provides `FileArtifactStore`.
+The CodebaseMap is persisted between runs using **sharded DAG storage**. The domain defines `CodebaseMapRepository` and `ShardedMapRepository` protocols; infrastructure provides `ShardedArtifactStore` (primary) and `FileArtifactStore` (legacy fallback).
+
+**Sharded format** (on the `argus-data` branch):
+
+```
+argus-data branch:
+  manifest.json              # DAG index: shard descriptors + cross-shard edges
+  shard_<content_hash>.json  # One per leaf directory
+  <hash>_memory.json         # Patterns + outline (unchanged)
+```
+
+- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name) and tracks cross-shard dependency edges.
+- **Shard files** — Each contains the serialized `FileEntry` objects and internal edges for files in one directory.
+- **Shard ID** — Derived deterministically from `PurePosixPath(file_path).parent`.
+
+**Selective loading:**
+
+- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled.
+- **Bootstrap** builds the full map, splits into shards, and saves everything.
+
+`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
+
+Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
 
 ### Parsing
 
@@ -229,19 +297,25 @@ sequenceDiagram
     participant ACT as action.py
     participant CTX as Context Engine
     participant RET as Retrieval
+    participant MEM as Memory
     participant LLM as LLM Agent
     participant PUB as Publisher
 
     GH->>ACT: PR webhook event
     ACT->>GH: Fetch diff + file contents
-    ACT->>CTX: Parse files, build/update CodebaseMap
+    ACT->>GH: Pull manifest.json from argus-data
+    ACT->>ACT: Compute needed shards (changed files + 1-hop neighbors)
+    ACT->>GH: Pull only needed shard blobs + memory
+    ACT->>CTX: Parse changed files, build/update partial CodebaseMap
     CTX-->>ACT: CodebaseMap + Chunks
     ACT->>RET: Retrieve context (structural → lexical → agentic)
     RET-->>ACT: Ranked ContextItems
-    ACT->>LLM: Generate review (diff + context)
+    ACT->>MEM: Render outline + load/build patterns (based on review depth)
+    MEM-->>ACT: Outline text + Patterns text
+    ACT->>LLM: Generate review (diff + context + outline + patterns)
     LLM-->>ACT: Structured ReviewOutput
     ACT->>ACT: Noise filter (confidence + ignored paths)
-    ACT->>PUB: Post inline comments
+    ACT->>PUB: Post inline comments (diff-position mapped)
     PUB->>GH: PR review comments
 ```
 
@@ -255,16 +329,18 @@ src/argus/
 ├── domain/                          # Pure domain logic — depends only on shared/
 │   ├── context/                     # Context Engine bounded context
 │   ├── retrieval/                   # Retrieval bounded context
+│   ├── memory/                      # Memory bounded context (outline + patterns)
 │   ├── review/                      # Review bounded context
 │   └── llm/                         # LLM bounded context
 ├── application/                     # Use cases — orchestrates domain services
 ├── infrastructure/                  # Concrete implementations of domain protocols
 │   ├── parsing/                     # Tree-sitter AST parser + code chunker
 │   ├── retrieval/                   # Structural, lexical, agentic strategies
+│   ├── memory/                      # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/              # pydantic-ai Agent factory
-│   ├── storage/                     # Codebase map JSON persistence
+│   ├── storage/                     # Sharded codebase map + memory persistence
 │   └── github/                      # GitHub API client + review publisher
-└── interfaces/                      # Entry point — config, composition root, action handler
+└── interfaces/                      # Entry points — action, bootstrap, config
 ```
 
 ---

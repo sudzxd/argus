@@ -9,6 +9,7 @@ import pytest
 from argus.application.dto import ReviewPullRequestCommand, ReviewPullRequestResult
 from argus.application.review_pull_request import ReviewPullRequest
 from argus.domain.context.entities import FileEntry
+from argus.domain.llm.value_objects import LLMUsage
 from argus.domain.retrieval.value_objects import (
     ContextItem,
     RetrievalQuery,
@@ -21,6 +22,7 @@ from argus.shared.types import (
     CommitSHA,
     FilePath,
     LineRange,
+    ReviewDepth,
     Severity,
     TokenCount,
 )
@@ -113,10 +115,22 @@ def mock_llm() -> MagicMock:
     return llm
 
 
+def _make_llm_usage(
+    input_tokens: int = 1000,
+    output_tokens: int = 200,
+    requests: int = 1,
+) -> LLMUsage:
+    return LLMUsage(
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        requests=requests,
+    )
+
+
 @pytest.fixture
 def mock_review_generator() -> MagicMock:
     gen = MagicMock()
-    gen.generate.return_value = _make_review(1)
+    gen.generate.return_value = (_make_review(1), _make_llm_usage())
     return gen
 
 
@@ -178,6 +192,9 @@ def test_execute_returns_result(use_case: ReviewPullRequest) -> None:
     assert result.review.summary.description == "Review"
     assert result.context_items_used == 1
     assert result.tokens_used == TokenCount(10)
+    assert result.llm_usage.input_tokens == 1000
+    assert result.llm_usage.output_tokens == 200
+    assert result.llm_usage.requests == 1
 
 
 def test_execute_indexes_changed_files(
@@ -245,7 +262,7 @@ def test_filtered_comments_appear_in_published_review(
     mock_review_generator: MagicMock,
 ) -> None:
     review_with_noise = _make_review(3)
-    mock_review_generator.generate.return_value = review_with_noise
+    mock_review_generator.generate.return_value = (review_with_noise, _make_llm_usage())
     mock_noise_filter.filter.side_effect = None
     mock_noise_filter.filter.return_value = review_with_noise.comments[:1]
 
@@ -270,3 +287,158 @@ def test_execute_with_no_context_items(
 
     assert result.context_items_used == 0
     assert result.tokens_used == TokenCount(0)
+
+
+# =============================================================================
+# Memory context
+# =============================================================================
+
+
+def test_execute_with_outline_renderer(
+    mock_indexing_service: MagicMock,
+    mock_repository: MagicMock,
+    mock_orchestrator: MagicMock,
+    mock_review_generator: MagicMock,
+    mock_noise_filter: MagicMock,
+    mock_publisher: MagicMock,
+) -> None:
+    from argus.domain.memory.value_objects import CodebaseOutline, FileOutlineEntry
+
+    mock_outline_renderer = MagicMock()
+    mock_outline_renderer.render.return_value = (
+        "# main.py\n  function main",
+        CodebaseOutline(
+            entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+        ),
+    )
+
+    uc = ReviewPullRequest(
+        indexing_service=mock_indexing_service,
+        repository=mock_repository,
+        orchestrator=mock_orchestrator,
+        review_generator=mock_review_generator,
+        noise_filter=mock_noise_filter,
+        publisher=mock_publisher,
+        outline_renderer=mock_outline_renderer,
+    )
+
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        review_depth=ReviewDepth.STANDARD,
+    )
+    uc.execute(cmd)
+
+    # The outline text should be passed through to the review request.
+    call_args = mock_review_generator.generate.call_args[0][0]
+    assert call_args.codebase_outline_text is not None
+    assert "main.py" in call_args.codebase_outline_text
+
+
+def test_execute_quick_depth_skips_memory(
+    mock_indexing_service: MagicMock,
+    mock_repository: MagicMock,
+    mock_orchestrator: MagicMock,
+    mock_review_generator: MagicMock,
+    mock_noise_filter: MagicMock,
+    mock_publisher: MagicMock,
+) -> None:
+    mock_outline_renderer = MagicMock()
+
+    uc = ReviewPullRequest(
+        indexing_service=mock_indexing_service,
+        repository=mock_repository,
+        orchestrator=mock_orchestrator,
+        review_generator=mock_review_generator,
+        noise_filter=mock_noise_filter,
+        publisher=mock_publisher,
+        outline_renderer=mock_outline_renderer,
+    )
+
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        review_depth=ReviewDepth.QUICK,
+    )
+    uc.execute(cmd)
+
+    # Outline renderer should NOT be called for quick depth.
+    mock_outline_renderer.render.assert_not_called()
+    call_args = mock_review_generator.generate.call_args[0][0]
+    assert call_args.codebase_outline_text is None
+
+
+def test_execute_deep_depth_includes_patterns(
+    mock_indexing_service: MagicMock,
+    mock_repository: MagicMock,
+    mock_orchestrator: MagicMock,
+    mock_review_generator: MagicMock,
+    mock_noise_filter: MagicMock,
+    mock_publisher: MagicMock,
+) -> None:
+    from argus.domain.memory.value_objects import (
+        CodebaseMemory,
+        CodebaseOutline,
+        FileOutlineEntry,
+        PatternCategory,
+        PatternEntry,
+    )
+
+    mock_outline_renderer = MagicMock()
+    outline = CodebaseOutline(
+        entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+    )
+    mock_outline_renderer.render.return_value = ("# outline text", outline)
+
+    mock_memory_repo = MagicMock()
+    mock_memory_repo.load.return_value = None
+
+    mock_profile_service = MagicMock()
+    mock_profile_service.build_profile.return_value = CodebaseMemory(
+        repo_id="org/repo",
+        outline=outline,
+        patterns=[
+            PatternEntry(
+                category=PatternCategory.STYLE,
+                description="Use snake_case",
+                confidence=0.9,
+            ),
+        ],
+        version=1,
+    )
+
+    uc = ReviewPullRequest(
+        indexing_service=mock_indexing_service,
+        repository=mock_repository,
+        orchestrator=mock_orchestrator,
+        review_generator=mock_review_generator,
+        noise_filter=mock_noise_filter,
+        publisher=mock_publisher,
+        outline_renderer=mock_outline_renderer,
+        memory_repository=mock_memory_repo,
+        profile_service=mock_profile_service,
+    )
+
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        review_depth=ReviewDepth.DEEP,
+    )
+    uc.execute(cmd)
+
+    call_args = mock_review_generator.generate.call_args[0][0]
+    assert call_args.codebase_outline_text is not None
+    assert call_args.codebase_patterns_text is not None
+    assert "snake_case" in call_args.codebase_patterns_text

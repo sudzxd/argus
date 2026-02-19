@@ -24,6 +24,7 @@ class RetrievalOrchestrator:
 
     strategies: list[RetrievalStrategy]
     budget: TokenCount
+    strategy_budgets: list[TokenCount] | None = None
     _ranker: ContextRanker = field(default_factory=ContextRanker)
 
     def retrieve(self, query: RetrievalQuery) -> RetrievalResult:
@@ -36,7 +37,8 @@ class RetrievalOrchestrator:
             Ranked, deduplicated, budget-constrained retrieval result.
         """
         all_items: list[ContextItem] = []
-        for strategy in self.strategies:
-            all_items.extend(strategy.retrieve(query))
+        for i, strategy in enumerate(self.strategies):
+            strat_budget = self.strategy_budgets[i] if self.strategy_budgets else None
+            all_items.extend(strategy.retrieve(query, budget=strat_budget))
 
         return self._ranker.rank(all_items, self.budget)

@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 from pydantic import BaseModel
 from pydantic_ai import Agent
 
-from argus.domain.llm.value_objects import ModelConfig
+from argus.domain.llm.value_objects import LLMUsage, ModelConfig
 from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.retrieval.value_objects import ContextItem, RetrievalQuery
 from argus.infrastructure.llm_providers.factory import create_agent
 from argus.shared.constants import MAX_AGENTIC_ITERATIONS
-from argus.shared.types import FilePath
+from argus.shared.types import FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,7 @@ class AgenticRetrievalStrategy:
     fallback_strategies: list[RetrievalStrategy]
     max_iterations: int = MAX_AGENTIC_ITERATIONS
     _agent: Agent[None, SearchPlan] = field(init=False, repr=False)
+    last_llm_usage: LLMUsage = field(init=False, default_factory=LLMUsage)
 
     def __post_init__(self) -> None:
         self._agent = create_agent(
@@ -65,14 +66,24 @@ class AgenticRetrievalStrategy:
             system_prompt=SYSTEM_PROMPT,
         )
 
-    def retrieve(self, query: RetrievalQuery) -> list[ContextItem]:
+    def retrieve(
+        self, query: RetrievalQuery, budget: TokenCount | None = None
+    ) -> list[ContextItem]:
         """Iteratively retrieve context using LLM-generated search queries."""
         all_items: dict[FilePath, ContextItem] = {}
         changed = set(query.changed_files)
+        accumulated_tokens = 0
+        self.last_llm_usage = LLMUsage()
 
         for iteration in range(self.max_iterations):
             user_prompt = self._build_prompt(query, list(all_items.values()))
             plan = self._agent.run_sync(user_prompt)
+            run_usage = plan.usage()
+            self.last_llm_usage = self.last_llm_usage + LLMUsage(
+                input_tokens=run_usage.input_tokens or 0,
+                output_tokens=run_usage.output_tokens or 0,
+                requests=run_usage.requests,
+            )
 
             if not plan.output.queries:
                 logger.debug(
@@ -83,9 +94,20 @@ class AgenticRetrievalStrategy:
 
             new_items = self._execute_sub_queries(plan.output.queries, query, changed)
 
+            budget_exhausted = False
             for item in new_items:
-                if item.source not in all_items:
-                    all_items[item.source] = item
+                if item.source in all_items:
+                    continue
+                if budget is not None and accumulated_tokens + int(
+                    item.token_cost
+                ) > int(budget):
+                    budget_exhausted = True
+                    break
+                all_items[item.source] = item
+                accumulated_tokens += int(item.token_cost)
+
+            if budget_exhausted:
+                break
 
             if not plan.output.needs_more_context:
                 break

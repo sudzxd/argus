@@ -6,7 +6,7 @@ from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.domain.context.value_objects import Edge, EdgeKind
 from argus.domain.retrieval.value_objects import RetrievalQuery
 from argus.infrastructure.retrieval.structural import StructuralRetrievalStrategy
-from argus.shared.types import CommitSHA, FilePath
+from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 # =============================================================================
 # Helpers
@@ -139,6 +139,47 @@ def test_dependents_scored_higher_than_dependencies() -> None:
     dependency_item = next(i for i in items if i.source == FilePath("dependency.py"))
 
     assert dep_item.relevance_score > dependency_item.relevance_score
+
+
+def test_budget_limits_returned_items() -> None:
+    cbm = _make_map_with_edges(
+        files=["changed.py", "a.py", "b.py", "c.py"],
+        edges=[
+            ("a.py", "changed.py"),
+            ("b.py", "changed.py"),
+            ("c.py", "changed.py"),
+        ],
+    )
+    strategy = StructuralRetrievalStrategy(codebase_map=cbm)
+    query = RetrievalQuery(
+        changed_files=[FilePath("changed.py")],
+        changed_symbols=[],
+        diff_text="",
+    )
+
+    # Without budget — all 3 items returned.
+    all_items = strategy.retrieve(query)
+    assert len(all_items) == 3
+
+    # With a tiny budget — only as many items as fit.
+    budget_items = strategy.retrieve(query, budget=TokenCount(1))
+    assert len(budget_items) < len(all_items)
+
+
+def test_budget_none_returns_all_items() -> None:
+    cbm = _make_map_with_edges(
+        files=["changed.py", "a.py", "b.py"],
+        edges=[("a.py", "changed.py"), ("b.py", "changed.py")],
+    )
+    strategy = StructuralRetrievalStrategy(codebase_map=cbm)
+    query = RetrievalQuery(
+        changed_files=[FilePath("changed.py")],
+        changed_symbols=[],
+        diff_text="",
+    )
+
+    items = strategy.retrieve(query, budget=None)
+    assert len(items) == 2
 
 
 def test_content_includes_exports() -> None:

@@ -14,7 +14,7 @@ tests/
 │   └── interfaces/      # Mock pydantic-ai agent
 ├── integration/         # Real internal wiring, mock only GitHub API + LLM
 ├── smoke/               # Live LLM provider tests (skipped without API keys)
-│   └── test_providers.py    # Anthropic, OpenAI, local model tests
+│   └── test_providers.py    # Anthropic, OpenAI, Google (Gemini) tests
 └── conftest.py
 ```
 
@@ -27,15 +27,13 @@ tests/
 | Infrastructure | HTTP calls, filesystem | Implementation logic |
 | Interfaces (unit) | `create_agent` (pydantic-ai) | Config parsing, output mapping |
 | Integration | GitHub API + LLM calls | Parser, chunker, storage, retrieval, noise filter, publisher |
-| Smoke | Nothing | Full LLM round-trip (requires API keys or local model) |
+| Smoke | Nothing | Full LLM round-trip (requires API keys) |
 
 ## Running Smoke Tests
 
 ```bash
-# Local model (LM Studio/Ollama)
-LOCAL_MODEL=qwen/qwen3-coder-30b LOCAL_BASE_URL=http://localhost:1234/v1 make test-smoke
-
-# Anthropic / OpenAI (when keys available)
+# Anthropic / OpenAI / Google (when keys available)
 ANTHROPIC_API_KEY=<key> make test-smoke
 OPENAI_API_KEY=<key> make test-smoke
+GOOGLE_API_KEY=<key> make test-smoke
 ```

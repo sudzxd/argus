@@ -19,15 +19,17 @@ src/argus/
 │   ├── context/      # Codebase map: entities, indexing, parsing protocols
 │   ├── retrieval/    # Context retrieval: strategies, ranker, orchestrator
 │   ├── review/       # Review: entities, noise filter, publisher protocol
+│   ├── memory/       # Codebase memory: outline, patterns, ProfileService
 │   └── llm/          # LLM config: ModelConfig, TokenBudget
 ├── application/      # Use cases — orchestrates domain services
 ├── infrastructure/   # Concrete implementations of domain protocols
 │   ├── parsing/      # Tree-sitter AST parser + code chunker
 │   ├── retrieval/    # Structural, lexical (BM25), agentic strategies
+│   ├── memory/       # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/# pydantic-ai Agent factory
-│   ├── storage/      # Codebase map JSON persistence
+│   ├── storage/      # Sharded codebase map + memory JSON persistence
 │   └── github/       # GitHub API client + review publisher
-└── interfaces/       # Entry point: config, composition root, action handler
+└── interfaces/       # Entry points: review, index, bootstrap
 ```
 
 ## Layer Dependency Rules (CRITICAL)
@@ -98,7 +100,7 @@ Scopes: `domain`, `infra`, `app`, `interfaces`, `shared`, `tests`, `ci`
 ## Running the Action
 
 ```yaml
-- uses: your-org/argus-pr-reviewer@main
+- uses: sudzxd/argus@develop
   with:
     model: anthropic:claude-sonnet-4-5-20250929
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

@@ -25,7 +25,7 @@ AGENTIC_BUDGET_RATIO = 0.1
 
 MAX_FILES_PER_INDEX_RUN = 5_000
 MAX_FILE_SIZE_BYTES = 1_000_000
-MAX_AGENTIC_ITERATIONS = 5
+MAX_AGENTIC_ITERATIONS = 3
 
 # =============================================================================
 # REVIEW
@@ -53,6 +53,14 @@ SUPPORTED_LANGUAGES = frozenset(
         "swift",
     }
 )
+
+# =============================================================================
+# CODEBASE MEMORY
+# =============================================================================
+
+DEFAULT_OUTLINE_TOKEN_BUDGET = 4_000
+MAX_PATTERN_ENTRIES = 30
+MIN_PATTERN_CONFIDENCE = 0.3
 
 # =============================================================================
 # RETRY / TIMEOUTS
