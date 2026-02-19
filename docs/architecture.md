@@ -173,7 +173,7 @@ Responsible for maintaining persistent codebase understanding across reviews. Pr
 
 **Core Concepts:**
 
-- **CodebaseMemory** — The aggregate root. Bundles a codebase outline with learned patterns, versioned for staleness tracking.
+- **CodebaseMemory** — The aggregate root. Bundles a codebase outline with learned patterns, versioned for staleness tracking. Tracks `analyzed_at` (the commit SHA where patterns were last analyzed) independently of `indexed_at` to prevent history divergence between index and bootstrap modes.
 - **CodebaseOutline** — An AST-derived structural summary of the codebase, scoped to changed files and their blast radius (dependents + dependencies).
 - **PatternEntry** — A single learned coding pattern with category (style, naming, architecture, etc.), description, confidence score, and examples.
 - **ProfileService** — Orchestrates building and updating memory profiles. Prunes low-confidence patterns and caps total entries.
@@ -190,9 +190,13 @@ Memory inclusion is controlled by review depth:
 
 The review generator prioritizes sections within the token budget: diff (always) > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
 
-**Bootstrap:**
+**Pattern Analysis:**
 
-The `bootstrap.py` command pre-builds codebase memory by fetching the full repository tree, parsing all source files, rendering a complete outline, and running LLM pattern analysis.
+Patterns can be analyzed in two ways:
+- **Bootstrap** (`bootstrap.py`) — Full rebuild: fetches the entire repository tree, parses all source files, renders a complete outline, and runs LLM pattern analysis. Sets `analyzed_at` to the current HEAD SHA.
+- **Index** (`sync_index.py`) — Incremental: when `INPUT_ANALYZE_PATTERNS` is `"true"`, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
+
+Bootstrap uses `analyzed_at` (falling back to `indexed_at`) as the diff base for incremental analysis, ensuring no changes are missed even when index mode has advanced `indexed_at`.
 
 **Invariants:**
 
@@ -239,12 +243,12 @@ argus-data branch:
 **Selective loading:**
 
 - **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs.
-- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled.
 - **Bootstrap** builds the full map, splits into shards, and saves everything.
 
 `ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
 
-Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access.
+Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
 
 ### Parsing
 
