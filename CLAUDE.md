@@ -63,7 +63,9 @@ application → infrastructure
 | `make lint` | Run linter |
 | `make lint-fix` | Run linter with auto-fix |
 | `make typecheck` | Run pyright strict mode |
-| `make check` | Run lint + typecheck |
+| `make security` | Run security scan (bandit) |
+| `make audit` | Run dependency audit (pip-audit) |
+| `make check` | Run lint + typecheck + security + audit |
 | `make test` | Run all tests with coverage |
 | `make test-unit` | Run unit tests only |
 | `make test-integration` | Run integration tests only |
@@ -100,7 +102,7 @@ Scopes: `domain`, `infra`, `app`, `interfaces`, `shared`, `tests`, `ci`
 ## Running the Action
 
 ```yaml
-- uses: sudzxd/argus@develop
+- uses: sudzxd/argus@v0
   with:
     model: anthropic:claude-sonnet-4-5-20250929
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
