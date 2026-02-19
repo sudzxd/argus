@@ -31,10 +31,20 @@ recurring patterns, conventions, and architectural decisions.
 For each pattern, provide:
 - category: one of style, naming, architecture, error_handling, testing, dependency
 - description: a concise description of the pattern
-- confidence: how confident you are (0.0-1.0) that this is an intentional convention
+- confidence: how confident you are (0.0-1.0) that this is a deliberate, \
+project-specific convention (not just a language default or common practice)
 - examples: 1-2 brief examples from the outline that demonstrate the pattern
 
-Focus on patterns that a code reviewer should enforce when reviewing new PRs.
+Confidence calibration:
+- 0.9-1.0: Pattern is unique to this project and clearly enforced everywhere
+- 0.7-0.8: Strong signal across multiple files, likely intentional
+- 0.5-0.6: Appears consistent but could be coincidence or standard practice
+- 0.3-0.4: Weak signal, only a few examples, might not be intentional
+
+Do NOT give high confidence to patterns that are just standard language idioms \
+or framework defaults (e.g. using underscores for private methods in Python, \
+having a tests/ directory). Focus on patterns that are specific to this project \
+and that a reviewer should actively enforce.
 """
 
 _INCREMENTAL_SYSTEM_PROMPT = """\
@@ -43,7 +53,9 @@ You are a codebase analyst. You are given:
 2. A list of patterns already known about this codebase
 
 Your job is to identify ONLY patterns that are NOT already covered by the \
-existing list. Do NOT repeat, rephrase, or re-discover existing patterns.
+existing list. Do NOT repeat, rephrase, or re-discover existing patterns. \
+Two patterns "overlap" if they describe the same underlying convention, even \
+if worded differently or at a different level of abstraction.
 
 Only report a pattern if it is genuinely new — something not captured by any \
 existing pattern entry. If nothing new stands out, return an empty list.
@@ -51,10 +63,18 @@ existing pattern entry. If nothing new stands out, return an empty list.
 For each new pattern, provide:
 - category: one of style, naming, architecture, error_handling, testing, dependency
 - description: a concise description of the pattern
-- confidence: how confident you are (0.0-1.0) that this is an intentional convention
+- confidence: how confident you are (0.0-1.0) that this is a deliberate, \
+project-specific convention (not just a language default or common practice)
 - examples: 1-2 brief examples from the outline that demonstrate the pattern
 
-Focus on patterns that a code reviewer should enforce when reviewing new PRs.
+Confidence calibration:
+- 0.9-1.0: Pattern is unique to this project and clearly enforced everywhere
+- 0.7-0.8: Strong signal across multiple files, likely intentional
+- 0.5-0.6: Appears consistent but could be coincidence or standard practice
+- 0.3-0.4: Weak signal, only a few examples, might not be intentional
+
+Do NOT give high confidence to patterns that are just standard language idioms \
+or framework defaults. Focus on patterns specific to this project.
 """
 
 
