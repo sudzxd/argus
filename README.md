@@ -1,60 +1,67 @@
-# Argus
+<p align="center">
+  <img src="website/public/argus-logo.svg" alt="Argus" width="80">
+</p>
 
-**AI-powered pull request reviews that understand your codebase.**
+<h1 align="center">Argus</h1>
 
----
+<p align="center">
+  AI-powered code reviews that understand your entire codebase.
+</p>
 
-## The Problem
+<p align="center">
+  <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI"></a>
+  <a href="https://github.com/sudzxd/argus/actions/workflows/website.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/website.yml/badge.svg" alt="Website"></a>
+  <img src="https://img.shields.io/badge/python-3.12+-blue" alt="Python 3.12+">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+</p>
 
-Code review is one of the most important parts of the development process — and one of the most neglected by current tooling. Existing AI review tools treat every pull request as an isolated diff. They scan line-by-line, flag surface-level style issues, and miss what actually matters: whether the change makes sense in the context of *your* codebase.
-
-They don't know your architecture. They don't know your patterns. They don't know that the function being modified is called by three critical services, or that a similar bug was introduced and fixed two months ago.
-
-## What Argus Does
-
-Argus is a GitHub Action that reviews pull requests with deep understanding of your codebase.
-
-It builds and maintains a semantic map of your repository — the structure, the dependencies, the patterns, the intent behind the code. When a pull request is opened, Argus doesn't just read the diff. It understands what changed, why it matters, and what it affects.
-
-Reviews are posted directly on the pull request as inline comments: a summary of findings, annotations on specific lines, and actionable suggestions — not noise.
-
-## How It Works
-
-Argus operates in three modes:
-
-- **bootstrap** — Parses every file, builds a full codebase map and memory profile (patterns, conventions), shards the map per directory, and stores artifacts on a dedicated `argus-data` branch.
-- **index** — Runs on each push to your default branch. Pulls only the manifest and dirty shards, incrementally updates the codebase map for changed files. Optionally runs incremental pattern analysis on changed files when `INPUT_ANALYZE_PATTERNS` is `"true"`.
-- **review** — Runs on pull requests. Pulls the manifest, loads only the shards relevant to the changed files (plus 1-hop dependency neighbors), retrieves context, generates a structured review via LLM, and posts inline PR comments.
-
-Artifacts are persisted on an orphan `argus-data` branch using the Git Data API — no databases, no external storage. The codebase map is sharded per directory so that large monorepos only load the slices they need.
-
-## Key Capabilities
-
-- **Codebase-aware reviews** — Every review is grounded in the full context of your repository, not just the changed lines.
-- **Smart retrieval** — Hybrid retrieval combining structural analysis (dependency graph), lexical search (BM25), and optional LLM-driven agentic search.
-- **Codebase memory** — Learns your project's patterns, conventions, and architectural decisions. Reviews enforce what it knows about your codebase.
-- **Multi-provider LLM support** — Bring your own model. Supports Anthropic (Claude), OpenAI, Google (Gemini), and any OpenAI-compatible endpoint.
-- **Sharded storage** — The codebase map is split into per-directory shards with a DAG manifest tracking cross-shard dependencies. Reviews and index updates load only the shards they need.
-- **Incremental indexing** — The codebase map updates incrementally on each push, with optional pattern analysis on changed files. Bootstrap only runs once (or on demand).
-- **Zero infrastructure** — No databases, no servers, no external services beyond the LLM API. Everything runs inside GitHub Actions.
-
-## Configuration
-
-| Input | Default | Description |
-|-------|---------|-------------|
-| `mode` | `review` | Operating mode: `review`, `index`, or `bootstrap` |
-| `model` | `anthropic:claude-sonnet-4-5-20250929` | LLM model identifier |
-| `confidence_threshold` | `0.7` | Minimum confidence for review comments |
-| `review_depth` | `standard` | `quick` (no memory), `standard` (outline), `deep` (outline + patterns) |
-| `ignored_paths` | `""` | Comma-separated glob patterns to ignore |
-| `enable_agentic` | `false` | Enable LLM-driven agentic retrieval |
-| `extra_extensions` | `""` | Extra file extensions to parse (e.g. `.vue,.svelte`) |
-| `analyze_patterns` | `false` | Run incremental pattern analysis during index mode |
-
-## Status
-
-363 tests passing, 80% coverage. All layers implemented and running in CI.
+<p align="center">
+  <a href="https://sudzxd.github.io/argus/">Website</a> · <a href="https://sudzxd.github.io/argus/docs/getting-started">Getting Started</a> · <a href="https://sudzxd.github.io/argus/docs/configuration">Configuration</a> · <a href="https://sudzxd.github.io/argus/docs/architecture">Architecture</a>
+</p>
 
 ---
 
-*Named after Argus Panoptes — the many-eyed giant of Greek mythology.*
+Argus indexes your repository into a semantic map, retrieves relevant context for every diff, and delivers precise inline review comments on your pull requests. It learns your codebase's patterns and conventions over time.
+
+## Quick Start
+
+```yaml
+# .github/workflows/argus-review.yml
+name: Argus PR Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sudzxd/argus@develop
+        with:
+          model: anthropic:claude-sonnet-4-5-20250929
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+See the [getting started guide](https://sudzxd.github.io/argus/docs/getting-started) for bootstrap and indexing setup.
+
+## Features
+
+- **Codebase-aware** — Reviews grounded in your full repository, not just the diff
+- **Hybrid retrieval** — Structural analysis, BM25 lexical search, and optional agentic exploration
+- **Pattern memory** — Learns conventions and anti-patterns through incremental analysis
+- **Multi-provider** — Anthropic, OpenAI, Google Gemini, or any OpenAI-compatible endpoint
+- **Zero infrastructure** — Runs entirely in GitHub Actions with artifacts on an orphan branch
+
+## Documentation
+
+Full docs at **[sudzxd.github.io/argus](https://sudzxd.github.io/argus/)**
+
+---
+
+<p align="center">
+  <em>Named after Argus Panoptes — the many-eyed giant of Greek mythology.</em>
+</p>
