@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 _DEFAULT_MODEL = "gemini-embedding-001"
 _DEFAULT_DIMENSION = 3072
 _MAX_CHARS_PER_TEXT = 7500  # ~2048 tokens, stay under per-text limit
-_BATCH_SIZE = 100  # Larger batches = fewer requests = less rate-limit pressure
+_BATCH_SIZE = 20  # Small batches to stay under per-minute token limits
 _MAX_RETRIES = 7
-_INITIAL_BACKOFF = 5.0  # seconds — generous to avoid cascading 429s
-_REQUEST_DELAY = 1.0  # seconds between requests to stay under RPM limit
+_INITIAL_BACKOFF = 10.0  # seconds — generous for free tier rate limits
+_REQUEST_DELAY = 3.0  # seconds between requests to stay under token/min limit
 
 
 def _embed_batch_with_retry(

@@ -352,10 +352,6 @@ def _maybe_build_embeddings(
     # Determine changed shard IDs.
     changed_shard_ids: set[ShardId] = {shard_id_for(f) for f in changed_files}
 
-    # Collect all chunks across changed shards, then embed in one call.
-    all_texts: list[str] = []
-    shard_data: dict[ShardId, tuple[int, int, list[str]]] = {}  # (start, count, ids)
-
     for sid in changed_shard_ids:
         texts: list[str] = []
         chunk_ids: list[str] = []
@@ -377,29 +373,19 @@ def _maybe_build_embeddings(
         if not texts:
             continue
 
-        start = len(all_texts)
-        all_texts.extend(texts)
-        shard_data[sid] = (start, len(texts), chunk_ids)
-
-    if not all_texts:
-        return
-
-    try:
-        all_embeddings = provider.embed(all_texts)
-    except Exception:
-        logger.warning("Embedding call failed for %d texts", len(all_texts))
-        return
-
-    for sid, (start, count, chunk_ids) in shard_data.items():
-        index = EmbeddingIndex(
-            shard_id=sid,
-            embeddings=all_embeddings[start : start + count],
-            chunk_ids=chunk_ids,
-            dimension=provider.dimension,
-            model=embedding_model,
-        )
-        store.save_embedding_index(index)
-        logger.info("Built embeddings for shard %s: %d chunks", sid, count)
+        try:
+            embeddings = provider.embed(texts)
+            index = EmbeddingIndex(
+                shard_id=sid,
+                embeddings=embeddings,
+                chunk_ids=chunk_ids,
+                dimension=provider.dimension,
+                model=embedding_model,
+            )
+            store.save_embedding_index(index)
+            logger.info("Built embeddings for shard %s: %d chunks", sid, len(texts))
+        except Exception:
+            logger.warning("Failed to build embeddings for shard %s", sid)
 
 
 def _incremental_update_sharded(
