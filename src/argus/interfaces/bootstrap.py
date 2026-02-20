@@ -253,13 +253,17 @@ def _build_embeddings(
 
     chunker = Chunker()
 
-    # Group files by shard.
+    # Group files by shard and collect all chunks.
     shard_files: dict[ShardId, list[FilePath]] = {}
     for path in codebase_map.files():
         sid = shard_id_for(path)
         shard_files.setdefault(sid, []).append(path)
 
-    built = 0
+    # Build per-shard chunk lists and a flat list for one big embed() call.
+    shard_chunks: dict[ShardId, tuple[list[str], list[str]]] = {}
+    all_texts: list[str] = []
+    shard_offsets: dict[ShardId, tuple[int, int]] = {}  # (start, count)
+
     for sid, paths in shard_files.items():
         texts: list[str] = []
         chunk_ids: list[str] = []
@@ -277,21 +281,38 @@ def _build_embeddings(
         if not texts:
             continue
 
-        try:
-            embeddings = provider.embed(texts)
-            index = EmbeddingIndex(
-                shard_id=sid,
-                embeddings=embeddings,
-                chunk_ids=chunk_ids,
-                dimension=provider.dimension,
-                model=embedding_model,
-            )
-            sharded_store.save_embedding_index(index)
-            built += 1
-        except Exception:
-            logger.warning("Failed to build embeddings for shard %s", sid)
+        start = len(all_texts)
+        all_texts.extend(texts)
+        shard_offsets[sid] = (start, len(texts))
+        shard_chunks[sid] = (texts, chunk_ids)
 
-    logger.info("Built embeddings for %d shards", built)
+    if not all_texts:
+        logger.info("No chunks to embed")
+        return
+
+    # Single embed() call — the provider handles batching + async internally.
+    try:
+        all_embeddings = provider.embed(all_texts)
+    except Exception:
+        logger.warning("Embedding call failed for %d texts", len(all_texts))
+        return
+
+    # Distribute embeddings back to shards and save.
+    built = 0
+    for sid, (start, count) in shard_offsets.items():
+        _, chunk_ids = shard_chunks[sid]
+        shard_embeddings = all_embeddings[start : start + count]
+        index = EmbeddingIndex(
+            shard_id=sid,
+            embeddings=shard_embeddings,
+            chunk_ids=chunk_ids,
+            dimension=provider.dimension,
+            model=embedding_model,
+        )
+        sharded_store.save_embedding_index(index)
+        built += 1
+
+    logger.info("Built embeddings for %d shards (%d chunks)", built, len(all_texts))
 
 
 if __name__ == "__main__":
