@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 
 from argus.shared.exceptions import ConfigurationError
 
-_DEFAULT_MODEL = "text-embedding-004"
-_DEFAULT_DIMENSION = 768
+_DEFAULT_MODEL = "gemini-embedding-001"
+_DEFAULT_DIMENSION = 3072
 
 
 def _call_embed_api(api_key: str, model: str, texts: list[str]) -> list[list[float]]:

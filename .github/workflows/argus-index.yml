@@ -34,7 +34,7 @@ jobs:
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ANALYZE_PATTERNS: "true"
-          INPUT_EMBEDDING_MODEL: "google-emb:text-embedding-004"
+          INPUT_EMBEDDING_MODEL: "google-emb:gemini-embedding-001"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
 
@@ -48,6 +48,6 @@ jobs:
           INPUT_MODEL: "google-gla:gemini-2.5-flash"
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_EMBEDDING_MODEL: "google-emb:text-embedding-004"
+          INPUT_EMBEDDING_MODEL: "google-emb:gemini-embedding-001"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main

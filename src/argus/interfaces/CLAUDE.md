@@ -55,6 +55,6 @@ See `.env.example` for all variables. Key ones:
 - `INPUT_MODEL`, `INPUT_MAX_TOKENS`, `INPUT_TEMPERATURE` (optional, with defaults)
 - `INPUT_ENABLE_PR_CONTEXT` — `"true"` (default) to collect PR metadata, CI, comments for review
 - `INPUT_SEARCH_RELATED_ISSUES` — `"true"` to search for related issues/PRs in review context
-- `INPUT_EMBEDDING_MODEL` — embedding model ID for semantic retrieval (e.g. `google-emb:text-embedding-004`)
+- `INPUT_EMBEDDING_MODEL` — embedding model ID for semantic retrieval (e.g. `google-emb:gemini-embedding-001`)
 - `INPUT_ANALYZE_PATTERNS` — `"true"` to enable pattern analysis in index mode
 - `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_API_KEY` (provider-specific)
