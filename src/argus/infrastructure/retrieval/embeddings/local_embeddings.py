@@ -10,12 +10,21 @@ _DEFAULT_MODEL = "all-MiniLM-L6-v2"
 _DEFAULT_DIMENSION = 384
 
 
-def _load_and_encode(model_name: str, texts: list[str]) -> list[list[float]]:
-    """Load model and encode texts (untyped SDK)."""
-    import sentence_transformers  # type: ignore[import-untyped]
+_model_cache: dict[str, object] = {}
 
-    model = sentence_transformers.SentenceTransformer(model_name)  # pyright: ignore[reportUnknownVariableType]
-    embeddings = model.encode(texts)  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
+
+def _get_model(model_name: str) -> object:
+    """Get or create a cached SentenceTransformer model."""
+    if model_name not in _model_cache:
+        import sentence_transformers  # type: ignore[import-untyped]
+
+        _model_cache[model_name] = sentence_transformers.SentenceTransformer(model_name)  # pyright: ignore[reportUnknownVariableType]
+    return _model_cache[model_name]
+
+
+def _encode(model: object, texts: list[str]) -> list[list[float]]:
+    """Encode texts with a loaded model."""
+    embeddings = model.encode(texts)  # type: ignore[union-attr]  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
     return [e.tolist() for e in embeddings]  # type: ignore[no-any-return]
 
 
@@ -29,7 +38,8 @@ class LocalEmbeddingProvider:
     def embed(self, texts: list[str]) -> list[list[float]]:
         """Embed texts using a local sentence-transformers model."""
         try:
-            result = _load_and_encode(self.model_name, texts)
+            model = _get_model(self.model_name)
+            result = _encode(model, texts)
         except ImportError as e:
             msg = "sentence-transformers package required for local embeddings"
             raise ConfigurationError(msg) from e

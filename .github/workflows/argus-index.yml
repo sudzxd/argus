@@ -19,7 +19,7 @@ jobs:
         with:
           enable-cache: true
 
-      - run: uv sync --no-dev
+      - run: uv sync --no-dev --extra embeddings
 
       # On push: incremental update (only changed files).
       # Falls back to full bootstrap if no existing artifacts.
@@ -34,8 +34,7 @@ jobs:
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ANALYZE_PATTERNS: "true"
-          INPUT_EMBEDDING_MODEL: "google-emb:gemini-embedding-001"
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
         run: uv run python -m argus.interfaces.main
 
       # On manual dispatch: full re-index from scratch.
@@ -48,6 +47,5 @@ jobs:
           INPUT_MODEL: "google-gla:gemini-2.5-flash"
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_EMBEDDING_MODEL: "google-emb:gemini-embedding-001"
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
         run: uv run python -m argus.interfaces.main

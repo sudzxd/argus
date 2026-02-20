@@ -24,6 +24,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
 dev = [
     "ruff>=0.15",
     "pyright>=1.1.408",

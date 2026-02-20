@@ -152,27 +152,39 @@ def test_openai_embed_import_error_raises_config_error(mock_api: MagicMock) -> N
 # =============================================================================
 
 
-@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._load_and_encode")
-def test_local_embed_returns_embeddings(mock_encode: MagicMock) -> None:
+@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._encode")
+@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._get_model")
+def test_local_embed_returns_embeddings(
+    mock_get_model: MagicMock, mock_encode: MagicMock
+) -> None:
     from argus.infrastructure.retrieval.embeddings.local_embeddings import (
         LocalEmbeddingProvider,
+        _model_cache,
     )
 
+    _model_cache.clear()
+    mock_get_model.return_value = MagicMock()
     mock_encode.return_value = [[0.5, 0.6]]
     provider = LocalEmbeddingProvider()
     result = provider.embed(["hello"])
 
     assert result == [[0.5, 0.6]]
     assert provider.dimension == 2
+    _model_cache.clear()
 
 
-@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._load_and_encode")
-def test_local_embed_import_error_raises_config_error(mock_encode: MagicMock) -> None:
+@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._get_model")
+def test_local_embed_import_error_raises_config_error(
+    mock_get_model: MagicMock,
+) -> None:
     from argus.infrastructure.retrieval.embeddings.local_embeddings import (
         LocalEmbeddingProvider,
+        _model_cache,
     )
 
-    mock_encode.side_effect = ImportError("no sentence_transformers")
+    _model_cache.clear()
+    mock_get_model.side_effect = ImportError("no sentence_transformers")
     provider = LocalEmbeddingProvider()
     with pytest.raises(ConfigurationError, match="sentence-transformers"):
         provider.embed(["hello"])
+    _model_cache.clear()
