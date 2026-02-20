@@ -20,7 +20,7 @@ jobs:
         with:
           enable-cache: true
 
-      - run: uv sync --no-dev
+      - run: uv sync --no-dev --extra embeddings
 
       - name: Run Argus review
         env:
@@ -33,5 +33,6 @@ jobs:
           INPUT_IGNORED_PATHS: ""
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ENABLE_AGENTIC: "false"
+          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
