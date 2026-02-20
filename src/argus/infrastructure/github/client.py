@@ -174,6 +174,17 @@ class GitHubClient:
         """
         return self._get_list(f"/repos/{self.repo}/issues/{pr_number}/comments")
 
+    def get_pr_review_comments(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch review comments (inline code annotations) on a PR.
+
+        Returns:
+            List of review comment dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/pulls/{pr_number}/comments")
+
     def get_pr_commits(self, pr_number: int) -> list[dict[str, object]]:
         """Fetch commits on a PR.
 

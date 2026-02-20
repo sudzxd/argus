@@ -323,3 +323,50 @@ class TestFormatPrContext:
         result = generator._format_pr_context(pr_ctx)
 
         assert "missing or very short" in result
+
+    def test_format_review_comments_with_file_and_line(
+        self, model_config: ModelConfig
+    ) -> None:
+        pr_ctx = PRContext(
+            title="Feature",
+            body="Description",
+            author="dev",
+            created_at="2026-02-01",
+            labels=[],
+            comments=[
+                PRComment(
+                    author="reviewer",
+                    body="General feedback",
+                    created_at="2026-02-17T10:00:00Z",
+                ),
+                PRComment(
+                    author="reviewer",
+                    body="Rename this",
+                    created_at="2026-02-17T11:00:00Z",
+                    file_path="src/foo.py",
+                    line=42,
+                ),
+                PRComment(
+                    author="reviewer",
+                    body="File-level note",
+                    created_at="2026-02-17T12:00:00Z",
+                    file_path="src/bar.py",
+                    line=None,
+                ),
+            ],
+            ci_status=CIStatus(conclusion="success", checks=[]),
+            git_health=GitHealth(behind_by=0, has_merge_commits=False, days_open=1),
+            related_items=[],
+        )
+        generator = LLMReviewGenerator(config=model_config)
+        result = generator._format_pr_context(pr_ctx)
+
+        # Issue comment — no file info.
+        assert "@reviewer (2026-02-17T10:00:00Z)" in result
+        assert "General feedback" in result
+        # Review comment with file and line.
+        assert "@reviewer on src/foo.py:42" in result
+        assert "Rename this" in result
+        # Review comment with file but no line.
+        assert "@reviewer on src/bar.py (" in result
+        assert "File-level note" in result

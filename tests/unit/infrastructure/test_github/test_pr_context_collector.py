@@ -54,6 +54,7 @@ def test_collect_ci_status_detects_failure() -> None:
     client.get_pull_request.return_value = _make_pr_response()
     client.get_check_runs.return_value = _make_check_runs()
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -75,6 +76,7 @@ def test_collect_ci_status_all_success() -> None:
         [("lint", "completed", "success"), ("test", "completed", "success")]
     )
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -90,6 +92,7 @@ def test_collect_ci_status_pending_when_in_progress() -> None:
         [("lint", "completed", "success"), ("test", "in_progress", None)]
     )
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -103,6 +106,7 @@ def test_collect_ci_status_pending_when_no_checks() -> None:
     client.get_pull_request.return_value = _make_pr_response()
     client.get_check_runs.return_value = []
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -121,6 +125,7 @@ def test_collect_extracts_pr_metadata() -> None:
     client.get_pull_request.return_value = _make_pr_response()
     client.get_check_runs.return_value = []
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -148,6 +153,7 @@ def test_collect_gathers_comments() -> None:
             "created_at": "2026-02-17T10:00:00Z",
         },
     ]
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -206,6 +212,7 @@ def test_collect_skips_related_by_default() -> None:
     client.get_pull_request.return_value = _make_pr_response()
     client.get_check_runs.return_value = []
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
 
     collector = PRContextCollector(client=client)
@@ -230,6 +237,7 @@ def test_collect_related_items_from_body_refs() -> None:
     ]
     client.get_check_runs.return_value = []
     client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
     client.get_pr_commits.return_value = []
     client.search_issues.return_value = []
 
@@ -239,3 +247,76 @@ def test_collect_related_items_from_body_refs() -> None:
     assert len(ctx.related_items) == 1
     assert ctx.related_items[0].number == 42
     assert ctx.related_items[0].title == "Auth timeout"
+
+
+# =============================================================================
+# Review Comments (inline code annotations)
+# =============================================================================
+
+
+def test_collect_merges_issue_and_review_comments() -> None:
+    client = MagicMock()
+    client.get_pull_request.return_value = _make_pr_response()
+    client.get_check_runs.return_value = []
+    client.get_issue_comments.return_value = [
+        {
+            "user": {"login": "reviewer"},
+            "body": "Looks good overall",
+            "created_at": "2026-02-17T12:00:00Z",
+        },
+    ]
+    client.get_pr_review_comments.return_value = [
+        {
+            "user": {"login": "reviewer"},
+            "body": "Nit: rename this var",
+            "created_at": "2026-02-17T11:00:00Z",
+            "path": "src/foo.py",
+            "line": 42,
+        },
+    ]
+    client.get_pr_commits.return_value = []
+
+    collector = PRContextCollector(client=client)
+    ctx = collector.collect(pr_number=1, head_sha="abc123")
+
+    assert len(ctx.comments) == 2
+    # Sorted by created_at — review comment first (11:00), then issue comment (12:00).
+    assert ctx.comments[0].file_path == "src/foo.py"
+    assert ctx.comments[0].line == 42
+    assert ctx.comments[0].body == "Nit: rename this var"
+    assert ctx.comments[1].file_path is None
+    assert ctx.comments[1].line is None
+
+
+def test_collect_filters_bot_comments() -> None:
+    client = MagicMock()
+    client.get_pull_request.return_value = _make_pr_response()
+    client.get_check_runs.return_value = []
+    client.get_issue_comments.return_value = [
+        {
+            "user": {"login": "github-actions[bot]"},
+            "body": "Argus review posted",
+            "created_at": "2026-02-17T10:00:00Z",
+        },
+        {
+            "user": {"login": "reviewer"},
+            "body": "Human comment",
+            "created_at": "2026-02-17T11:00:00Z",
+        },
+    ]
+    client.get_pr_review_comments.return_value = [
+        {
+            "user": {"login": "github-actions[bot]"},
+            "body": "Bot inline comment",
+            "created_at": "2026-02-17T10:30:00Z",
+            "path": "x.py",
+            "line": 1,
+        },
+    ]
+    client.get_pr_commits.return_value = []
+
+    collector = PRContextCollector(client=client)
+    ctx = collector.collect(pr_number=1, head_sha="abc123")
+
+    assert len(ctx.comments) == 1
+    assert ctx.comments[0].author == "reviewer"

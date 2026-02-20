@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 _MAX_SUMMARY_CHARS = 200
 _MAX_RELATED_ITEMS = 5
 _MAX_BODY_CHARS = 200
+_BOT_SUFFIXES = ("[bot]",)
 _ISSUE_REF_RE = re.compile(
     r"(?:fixes|closes|resolves|fix|close|resolve)\s+#(\d+)",
     re.IGNORECASE,
@@ -158,20 +159,55 @@ class PRContextCollector:
         return CIStatus(conclusion=overall, checks=checks)
 
     def _collect_comments(self, pr_number: int) -> list[PRComment]:
-        raw_comments = self.client.get_issue_comments(pr_number)
         comments: list[PRComment] = []
-        for comment_data in raw_comments:
-            user = comment_data.get("user")
-            author = "unknown"
-            if isinstance(user, dict):
-                user_data = cast(dict[str, object], user)
-                login = user_data.get("login")
-                if isinstance(login, str):
-                    author = login
-            body = str(comment_data.get("body", ""))
-            created_at = str(comment_data.get("created_at", ""))
-            comments.append(PRComment(author=author, body=body, created_at=created_at))
+
+        # Issue comments (conversation tab).
+        for cd in self.client.get_issue_comments(pr_number):
+            author = self._extract_comment_author(cd)
+            if self._is_bot(author):
+                continue
+            comments.append(
+                PRComment(
+                    author=author,
+                    body=str(cd.get("body", "")),
+                    created_at=str(cd.get("created_at", "")),
+                )
+            )
+
+        # Review comments (inline code annotations).
+        for cd in self.client.get_pr_review_comments(pr_number):
+            author = self._extract_comment_author(cd)
+            if self._is_bot(author):
+                continue
+            path = cd.get("path")
+            line_raw = cd.get("line")
+            comments.append(
+                PRComment(
+                    author=author,
+                    body=str(cd.get("body", "")),
+                    created_at=str(cd.get("created_at", "")),
+                    file_path=str(path) if isinstance(path, str) else None,
+                    line=int(line_raw) if isinstance(line_raw, int) else None,
+                )
+            )
+
+        # Sort by timestamp so the LLM sees chronological order.
+        comments.sort(key=lambda c: c.created_at)
         return comments
+
+    @staticmethod
+    def _extract_comment_author(comment_data: dict[str, object]) -> str:
+        user = comment_data.get("user")
+        if isinstance(user, dict):
+            user_data = cast(dict[str, object], user)
+            login = user_data.get("login")
+            if isinstance(login, str):
+                return login
+        return "unknown"
+
+    @staticmethod
+    def _is_bot(author: str) -> bool:
+        return any(author.endswith(suffix) for suffix in _BOT_SUFFIXES)
 
     def _compute_git_health(
         self,

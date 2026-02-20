@@ -234,7 +234,11 @@ class LLMReviewGenerator:
         if ctx.comments:
             lines.append(f"\n### Prior Comments ({len(ctx.comments)})")
             for c in ctx.comments:
-                lines.append(f'- @{c.author} ({c.created_at}): "{c.body}"')
+                if c.file_path is not None:
+                    loc = f"{c.file_path}:{c.line}" if c.line else c.file_path
+                    lines.append(f'- @{c.author} on {loc} ({c.created_at}): "{c.body}"')
+                else:
+                    lines.append(f'- @{c.author} ({c.created_at}): "{c.body}"')
 
         # Related items.
         if ctx.related_items:

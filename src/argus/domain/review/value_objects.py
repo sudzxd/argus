@@ -56,6 +56,8 @@ class PRComment:
     author: str
     body: str
     created_at: str
+    file_path: str | None = None
+    line: int | None = None
 
 
 @dataclass(frozen=True)

@@ -34,5 +34,6 @@ jobs:
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ENABLE_AGENTIC: "false"
           INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
+          INPUT_SEARCH_RELATED_ISSUES: "true"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
