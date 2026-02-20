@@ -145,6 +145,15 @@ def _execute() -> None:
             changed_files=changed_files,
         )
 
+    # 2b. Optionally build embeddings for changed shards.
+    _maybe_build_embeddings(
+        storage_dir=storage_dir,
+        codebase_map=codebase_map,
+        changed_files=changed_files or [],
+        client=client,
+        after_sha=after_sha,
+    )
+
     # 3. Push updated artifacts (merges with existing via base_tree).
     sync.push()
 
@@ -312,6 +321,72 @@ def _maybe_analyze_patterns(
         len(memory.patterns),
         memory.version,
     )
+
+
+def _maybe_build_embeddings(
+    storage_dir: Path,
+    codebase_map: CodebaseMap,
+    changed_files: list[FilePath],
+    client: GitHubClient,
+    after_sha: str,
+) -> None:
+    """Build embedding indices for changed shards if embedding_model is configured."""
+    embedding_model = os.environ.get("INPUT_EMBEDDING_MODEL", "")
+    if not embedding_model:
+        return
+
+    from argus.domain.context.value_objects import EmbeddingIndex, ShardId, shard_id_for
+    from argus.infrastructure.parsing.chunker import Chunker
+    from argus.infrastructure.retrieval.embeddings import create_embedding_provider
+    from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
+
+    try:
+        provider = create_embedding_provider(embedding_model)
+    except Exception:
+        logger.warning("Could not create embedding provider, skipping embeddings")
+        return
+
+    chunker = Chunker()
+    store = ShardedArtifactStore(storage_dir=storage_dir)
+
+    # Determine changed shard IDs.
+    changed_shard_ids: set[ShardId] = {shard_id_for(f) for f in changed_files}
+
+    for sid in changed_shard_ids:
+        # Collect chunks for all files in this shard.
+        texts: list[str] = []
+        chunk_ids: list[str] = []
+        for path in codebase_map.files():
+            if shard_id_for(path) != sid:
+                continue
+            if path not in codebase_map:
+                continue
+            entry = codebase_map.get(path)
+            try:
+                content = client.get_file_content(path, ref=after_sha)
+                file_chunks = chunker.chunk(path, content, entry.symbols)
+                for chunk in file_chunks:
+                    texts.append(chunk.content)
+                    chunk_ids.append(f"{chunk.source}:{chunk.symbol_name}")
+            except Exception:
+                logger.debug("Could not fetch/chunk %s for embeddings", path)
+
+        if not texts:
+            continue
+
+        try:
+            embeddings = provider.embed(texts)
+            index = EmbeddingIndex(
+                shard_id=sid,
+                embeddings=embeddings,
+                chunk_ids=chunk_ids,
+                dimension=provider.dimension,
+                model=embedding_model,
+            )
+            store.save_embedding_index(index)
+            logger.info("Built embeddings for shard %s: %d chunks", sid, len(texts))
+        except Exception:
+            logger.warning("Failed to build embeddings for shard %s", sid)
 
 
 def _incremental_update_sharded(

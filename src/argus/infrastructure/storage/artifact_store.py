@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from argus.domain.context.entities import CodebaseMap
-from argus.domain.context.value_objects import ShardedManifest, ShardId
+from argus.domain.context.value_objects import EmbeddingIndex, ShardedManifest, ShardId
 from argus.infrastructure.storage import serializer, shard_serializer
 
 logger = logging.getLogger(__name__)
@@ -269,3 +271,58 @@ class ShardedArtifactStore:
         # Write merged manifest.
         manifest_path = self.storage_dir / MANIFEST_FILENAME
         manifest_path.write_text(merged.to_json(), encoding="utf-8")
+
+    # ------------------------------------------------------------------
+    # Embedding index persistence
+    # ------------------------------------------------------------------
+
+    def save_embedding_index(self, index: EmbeddingIndex) -> str:
+        """Persist an embedding index for a shard.
+
+        Returns:
+            The blob filename written (e.g. ``<hash>_embeddings.json``).
+        """
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        data: dict[str, object] = {
+            "shard_id": str(index.shard_id),
+            "embeddings": index.embeddings,
+            "chunk_ids": index.chunk_ids,
+            "dimension": index.dimension,
+            "model": index.model,
+        }
+        json_str = json.dumps(data)
+        content_hash = hashlib.sha256(index.shard_id.encode()).hexdigest()[:16]
+        blob_name = f"{content_hash}_embeddings.json"
+        (self.storage_dir / blob_name).write_text(json_str, encoding="utf-8")
+        return blob_name
+
+    def load_embedding_indices(self, shard_ids: set[ShardId]) -> list[EmbeddingIndex]:
+        """Load embedding indices for the given shard IDs."""
+        indices: list[EmbeddingIndex] = []
+        for sid in shard_ids:
+            content_hash = hashlib.sha256(sid.encode()).hexdigest()[:16]
+            blob_name = f"{content_hash}_embeddings.json"
+            path = self.storage_dir / blob_name
+            if not path.exists():
+                continue
+            try:
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                raw_data = cast(dict[str, object], raw)
+                embeddings_raw = raw_data.get("embeddings")
+                chunk_ids_raw = raw_data.get("chunk_ids")
+                if not isinstance(embeddings_raw, list) or not isinstance(
+                    chunk_ids_raw, list
+                ):
+                    continue
+                indices.append(
+                    EmbeddingIndex(
+                        shard_id=ShardId(str(raw_data.get("shard_id", ""))),
+                        embeddings=cast(list[list[float]], embeddings_raw),
+                        chunk_ids=cast(list[str], chunk_ids_raw),
+                        dimension=int(str(raw_data.get("dimension", 0))),
+                        model=str(raw_data.get("model", "")),
+                    )
+                )
+            except (ValueError, KeyError):
+                logger.warning("Corrupt embedding index for %s", sid)
+        return indices

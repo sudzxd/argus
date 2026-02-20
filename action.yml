@@ -46,6 +46,18 @@ inputs:
     description: "Comma-separated extra file extensions to parse (e.g. .vue,.svelte,.proto)"
     required: false
     default: ""
+  enable_pr_context:
+    description: "Include PR metadata, CI status, and git health in review"
+    required: false
+    default: "true"
+  search_related_issues:
+    description: "Search for related issues and PRs to include in review context"
+    required: false
+    default: "false"
+  embedding_model:
+    description: "Embedding model for semantic retrieval (e.g. google-emb:text-embedding-004, openai-emb:text-embedding-3-small, local:all-MiniLM-L6-v2)"
+    required: false
+    default: ""
   analyze_patterns:
     description: "Enable incremental pattern analysis during index mode"
     required: false
@@ -75,6 +87,9 @@ runs:
     INPUT_ENABLE_AGENTIC: ${{ inputs.enable_agentic }}
     INPUT_REVIEW_DEPTH: ${{ inputs.review_depth }}
     INPUT_EXTRA_EXTENSIONS: ${{ inputs.extra_extensions }}
+    INPUT_ENABLE_PR_CONTEXT: ${{ inputs.enable_pr_context }}
+    INPUT_SEARCH_RELATED_ISSUES: ${{ inputs.search_related_issues }}
+    INPUT_EMBEDDING_MODEL: ${{ inputs.embedding_model }}
     INPUT_ANALYZE_PATTERNS: ${{ inputs.analyze_patterns }}
     ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
     OPENAI_API_KEY: ${{ inputs.openai_api_key }}

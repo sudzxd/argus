@@ -68,7 +68,7 @@ class GitHubReviewPublisher:
                     f"\n**{c.file}:{c.line_range.start}** {label} {c.body}\n"
                 )
                 if c.suggestion:
-                    summary_text += f"> **Suggestion:** {c.suggestion}\n"
+                    summary_text += f"```suggestion\n{c.suggestion}\n```\n"
 
         if inline_comments:
             try:
@@ -168,7 +168,7 @@ class GitHubReviewPublisher:
         body = f"{label} {comment.body}"
 
         if comment.suggestion:
-            body += f"\n\n**Suggestion:** {comment.suggestion}"
+            body += f"\n\n```suggestion\n{comment.suggestion}\n```"
 
         return {
             "path": str(comment.file),

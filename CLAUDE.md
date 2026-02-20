@@ -24,7 +24,7 @@ src/argus/
 ├── application/      # Use cases — orchestrates domain services
 ├── infrastructure/   # Concrete implementations of domain protocols
 │   ├── parsing/      # Tree-sitter AST parser + code chunker
-│   ├── retrieval/    # Structural, lexical (BM25), agentic strategies
+│   ├── retrieval/    # Structural, lexical (BM25), semantic (embeddings), agentic strategies
 │   ├── memory/       # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/# pydantic-ai Agent factory
 │   ├── storage/      # Sharded codebase map + memory JSON persistence

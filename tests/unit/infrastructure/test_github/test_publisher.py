@@ -138,7 +138,9 @@ def test_publish_includes_suggestion_in_comment() -> None:
     publisher.publish(review, pr_number=42)
 
     posted_comments = mock_client.post_review.call_args.kwargs["comments"]
-    assert "Suggestion:" in posted_comments[0]["body"]
+    body = posted_comments[0]["body"]
+    assert "```suggestion\n" in body
+    assert "Consider adding a null check." in body
 
 
 def test_publish_comment_uses_position() -> None:
@@ -188,6 +190,21 @@ def test_comments_outside_diff_go_to_body() -> None:
     body = mock_client.post_issue_comment.call_args.kwargs["body"]
     assert "other_file.py:1" in body
     assert "This could be an issue." in body
+
+
+def test_body_fallback_suggestion_uses_suggestion_fence() -> None:
+    mock_client = MagicMock()
+    publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
+
+    # Comment on a file not in the diff → goes to body
+    comment = _make_comment(file="other_file.py", start=1, end=1)
+    review = _make_review(comments=[comment])
+
+    publisher.publish(review, pr_number=42)
+
+    body = mock_client.post_issue_comment.call_args.kwargs["body"]
+    assert "```suggestion\n" in body
+    assert "Consider adding a null check." in body
 
 
 def test_no_diff_puts_all_comments_in_body() -> None:

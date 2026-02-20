@@ -49,7 +49,8 @@ See the [getting started guide](https://sudzxd.github.io/argus/docs/getting-star
 ## Features
 
 - **Codebase-aware** — Reviews grounded in your full repository, not just the diff
-- **Hybrid retrieval** — Structural analysis, BM25 lexical search, and optional agentic exploration
+- **Hybrid retrieval** — Structural analysis, BM25 lexical search, optional semantic embeddings, and agentic exploration
+- **PR context-aware** — Incorporates CI status, git health, prior comments, and related issues into reviews
 - **Pattern memory** — Learns conventions and anti-patterns through incremental analysis
 - **Multi-provider** — Anthropic, OpenAI, Google Gemini, or any OpenAI-compatible endpoint
 - **Zero infrastructure** — Runs entirely in GitHub Actions with artifacts on an orphan branch

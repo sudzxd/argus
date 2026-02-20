@@ -216,12 +216,82 @@ def _execute_bootstrap() -> None:
     )
     memory_store.save(memory)
 
+    # 7. Optionally build embedding indices.
+    embedding_model = os.environ.get("INPUT_EMBEDDING_MODEL", "")
+    if embedding_model:
+        _build_embeddings(
+            embedding_model=embedding_model,
+            codebase_map=codebase_map,
+            file_contents=file_contents,
+            sharded_store=sharded_store,
+        )
+
     logger.info(
         "Bootstrap complete: %d files, %d patterns (version %d)",
         memory.outline.file_count,
         len(memory.patterns),
         memory.version,
     )
+
+
+def _build_embeddings(
+    embedding_model: str,
+    codebase_map: CodebaseMap,
+    file_contents: dict[FilePath, str],
+    sharded_store: ShardedArtifactStore,
+) -> None:
+    """Build embedding indices for all shards."""
+    from argus.domain.context.value_objects import EmbeddingIndex, ShardId, shard_id_for
+    from argus.infrastructure.parsing.chunker import Chunker
+    from argus.infrastructure.retrieval.embeddings import create_embedding_provider
+
+    try:
+        provider = create_embedding_provider(embedding_model)
+    except Exception:
+        logger.warning("Could not create embedding provider, skipping embeddings")
+        return
+
+    chunker = Chunker()
+
+    # Group files by shard.
+    shard_files: dict[ShardId, list[FilePath]] = {}
+    for path in codebase_map.files():
+        sid = shard_id_for(path)
+        shard_files.setdefault(sid, []).append(path)
+
+    built = 0
+    for sid, paths in shard_files.items():
+        texts: list[str] = []
+        chunk_ids: list[str] = []
+
+        for path in paths:
+            content = file_contents.get(path)
+            if content is None or path not in codebase_map:
+                continue
+            entry = codebase_map.get(path)
+            file_chunks = chunker.chunk(path, content, entry.symbols)
+            for chunk in file_chunks:
+                texts.append(chunk.content)
+                chunk_ids.append(f"{chunk.source}:{chunk.symbol_name}")
+
+        if not texts:
+            continue
+
+        try:
+            embeddings = provider.embed(texts)
+            index = EmbeddingIndex(
+                shard_id=sid,
+                embeddings=embeddings,
+                chunk_ids=chunk_ids,
+                dimension=provider.dimension,
+                model=embedding_model,
+            )
+            sharded_store.save_embedding_index(index)
+            built += 1
+        except Exception:
+            logger.warning("Failed to build embeddings for shard %s", sid)
+
+    logger.info("Built embeddings for %d shards", built)
 
 
 if __name__ == "__main__":

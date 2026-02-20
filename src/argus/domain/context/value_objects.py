@@ -118,6 +118,17 @@ class DependencyGraph:
 # =============================================================================
 
 
+@dataclass(frozen=True)
+class EmbeddingIndex:
+    """Pre-computed embeddings for chunks in a shard."""
+
+    shard_id: ShardId
+    embeddings: list[list[float]]
+    chunk_ids: list[str]  # "file:symbol_name"
+    dimension: int
+    model: str
+
+
 def shard_id_for(path: FilePath) -> ShardId:
     """Derive the shard ID for a file from its parent directory."""
     return ShardId(str(PurePosixPath(path).parent))

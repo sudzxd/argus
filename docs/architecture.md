@@ -93,15 +93,18 @@ flowchart LR
     D[PR Diff] --> Q[RetrievalQuery]
     Q --> S1[Structural]
     Q --> S2[Lexical]
-    Q --> S3[Agentic]
+    Q --> S3[Semantic]
+    Q --> S4[Agentic]
     S1 --> R[Ranker]
     S2 --> R
     S3 --> R
+    S4 --> R
     R -->|budget + dedup| OUT[RetrievalResult]
 
     style S1 fill:#bbf,stroke:#333
     style S2 fill:#bbf,stroke:#333
-    style S3 fill:#fbb,stroke:#333
+    style S3 fill:#bbf,stroke:#333
+    style S4 fill:#fbb,stroke:#333
 ```
 
 **Core Concepts:**
@@ -114,7 +117,8 @@ flowchart LR
 
 1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Deterministic, instant, highest signal.
 2. **Lexical retrieval** — BM25 sparse search over AST-chunked code. Handles identifier lookups and pattern matching. Useful when the structural graph doesn't capture a relationship.
-3. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
+3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`INPUT_EMBEDDING_MODEL`). Supports Google, OpenAI, and local (sentence-transformers) providers.
+4. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
 
 **Context Budgeting:**
 
@@ -148,14 +152,15 @@ flowchart LR
 
 **Core Concepts:**
 
-- **ReviewRequest** — Bundles the PR diff and retrieved context.
+- **PRContext** — Enriched PR metadata: title, body, author, labels, CI status (check runs), git health (behind-by, merge commits, days open), prior comments, and optionally related issues/PRs. Collected by `PRContextCollector` in infrastructure and passed through to the review prompt.
+- **ReviewRequest** — Bundles the PR diff, retrieved context, and optional PR context.
 - **Review** — The aggregate root. Contains a summary and a collection of review comments.
 - **ReviewComment** — A single finding with location (file, line range), severity (critical, warning, suggestion, praise), category (bug, security, performance, style, architecture), confidence score, and suggested fix.
 - **ReviewSummary** — High-level assessment: what the PR does, risks, strengths, and verdict.
 
 **Behaviors:**
 
-- **Generation** — Diff + context assembled into a prompt, sent to LLM, response parsed into structured `ReviewOutput`.
+- **Generation** — Diff + PR context + retrieved context assembled into a prompt, sent to LLM, response parsed into structured `ReviewOutput`. PR context enables holistic assessment: CI failures, stale PRs, unaddressed reviewer feedback, and poor descriptions.
 - **Noise filtering** — Comments below confidence threshold are dropped. Findings on ignored paths are dropped.
 - **Severity calibration** — Explicit severity classification distinguishes "this will break production" from "consider renaming this variable."
 
@@ -188,7 +193,7 @@ Memory inclusion is controlled by review depth:
 
 **Budget-Aware Prompt Assembly:**
 
-The review generator prioritizes sections within the token budget: diff (always) > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
+The review generator prioritizes sections within the token budget: diff (always) > PR context > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
 
 **Pattern Analysis:**
 
@@ -234,6 +239,7 @@ argus-data branch:
   manifest.json              # DAG index: shard descriptors + cross-shard edges
   shard_<content_hash>.json  # One per leaf directory
   <hash>_memory.json         # Patterns + outline (unchanged)
+  <hash>_embeddings.json     # Pre-computed embedding vectors per shard
 ```
 
 - **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name) and tracks cross-shard dependency edges.
@@ -242,9 +248,9 @@ argus-data branch:
 
 **Selective loading:**
 
-- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs.
-- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled.
-- **Bootstrap** builds the full map, splits into shards, and saves everything.
+- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs. Optionally pulls embedding indices for semantic retrieval when `INPUT_EMBEDDING_MODEL` is configured.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled. Optionally rebuilds embedding indices for changed shards when `INPUT_EMBEDDING_MODEL` is configured.
+- **Bootstrap** builds the full map, splits into shards, and saves everything. Optionally builds embedding indices for all shards when `INPUT_EMBEDDING_MODEL` is configured.
 
 `ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
 
@@ -303,16 +309,17 @@ sequenceDiagram
 
     GH->>ACT: PR webhook event
     ACT->>GH: Fetch diff + file contents
+    ACT->>GH: Collect PR context (metadata, CI, comments, git health)
     ACT->>GH: Pull manifest.json from argus-data
     ACT->>ACT: Compute needed shards (changed files + 1-hop neighbors)
-    ACT->>GH: Pull only needed shard blobs + memory
+    ACT->>GH: Pull only needed shard blobs + memory + embeddings
     ACT->>CTX: Parse changed files, build/update partial CodebaseMap
     CTX-->>ACT: CodebaseMap + Chunks
-    ACT->>RET: Retrieve context (structural → lexical → agentic)
+    ACT->>RET: Retrieve context (structural → lexical → semantic → agentic)
     RET-->>ACT: Ranked ContextItems
     ACT->>MEM: Render outline + load/build patterns (based on review depth)
     MEM-->>ACT: Outline text + Patterns text
-    ACT->>LLM: Generate review (diff + context + outline + patterns)
+    ACT->>LLM: Generate review (diff + PR context + context + outline + patterns)
     LLM-->>ACT: Structured ReviewOutput
     ACT->>ACT: Noise filter (confidence + ignored paths)
     ACT->>PUB: Post inline comments (diff-position mapped)
@@ -335,7 +342,7 @@ src/argus/
 ├── application/                     # Use cases — orchestrates domain services
 ├── infrastructure/                  # Concrete implementations of domain protocols
 │   ├── parsing/                     # Tree-sitter AST parser + code chunker
-│   ├── retrieval/                   # Structural, lexical, agentic strategies
+│   ├── retrieval/                   # Structural, lexical, semantic, agentic strategies
 │   ├── memory/                      # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/              # pydantic-ai Agent factory
 │   ├── storage/                     # Sharded codebase map + memory persistence

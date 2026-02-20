@@ -53,6 +53,9 @@ class ActionConfig:
     enable_agentic: bool = False
     review_depth: ReviewDepth = ReviewDepth.STANDARD
     extra_extensions: list[str] = field(default_factory=list[str])
+    enable_pr_context: bool = True
+    search_related_issues: bool = False
+    embedding_model: str = ""
 
     @classmethod
     def from_env(cls) -> ActionConfig:
@@ -93,6 +96,13 @@ class ActionConfig:
             extra_extensions=_parse_extensions(
                 os.environ.get("INPUT_EXTRA_EXTENSIONS", "")
             ),
+            enable_pr_context=os.environ.get("INPUT_ENABLE_PR_CONTEXT", "true").lower()
+            == "true",
+            search_related_issues=os.environ.get(
+                "INPUT_SEARCH_RELATED_ISSUES", "false"
+            ).lower()
+            == "true",
+            embedding_model=os.environ.get("INPUT_EMBEDDING_MODEL", ""),
         )
 
 

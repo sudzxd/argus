@@ -23,10 +23,11 @@ action.py::run()  (review mode)
   → ActionConfig.from_env()           # read config
   → _load_event()                     # parse GitHub webhook payload
   → GitHubClient.get_pull_request_diff()
-  → SelectiveGitBranchSync            # pull manifest + needed shards + memory
+  → PRContextCollector.collect()      # PR metadata, CI, comments, git health
+  → SelectiveGitBranchSync            # pull manifest + needed shards + memory + embeddings
   → TreeSitterParser + Chunker        # build codebase map + chunks
-  → RetrievalOrchestrator             # structural + lexical + optional agentic
-  → LLMReviewGenerator.generate()     # LLM structured review
+  → RetrievalOrchestrator             # structural + lexical + semantic + optional agentic
+  → LLMReviewGenerator.generate()     # LLM structured review (diff + PR context + context)
   → NoiseFilter                       # drop low-confidence / ignored paths
   → GitHubReviewPublisher             # post inline PR comments
 
@@ -36,11 +37,13 @@ sync_index.py::run()  (index mode)
   → pull dirty shards, parse changed files
   → save_incremental() (merge into manifest)
   → [optional] _maybe_analyze_patterns()  # if INPUT_ANALYZE_PATTERNS=true
+  → [optional] _maybe_build_embeddings()  # if INPUT_EMBEDDING_MODEL set
   → sync.push()
 
 bootstrap.py::run()  (bootstrap mode)
   → fetch full tree, parse all files
   → render outline + analyze patterns via LLM
+  → [optional] build embedding indices   # if INPUT_EMBEDDING_MODEL set
   → save sharded map + memory (with analyzed_at)
   → sync_push.py pushes to argus-data
 ```
@@ -50,5 +53,8 @@ bootstrap.py::run()  (bootstrap mode)
 See `.env.example` for all variables. Key ones:
 - `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_EVENT_PATH` (required)
 - `INPUT_MODEL`, `INPUT_MAX_TOKENS`, `INPUT_TEMPERATURE` (optional, with defaults)
+- `INPUT_ENABLE_PR_CONTEXT` — `"true"` (default) to collect PR metadata, CI, comments for review
+- `INPUT_SEARCH_RELATED_ISSUES` — `"true"` to search for related issues/PRs in review context
+- `INPUT_EMBEDDING_MODEL` — embedding model ID for semantic retrieval (e.g. `google-emb:text-embedding-004`)
 - `INPUT_ANALYZE_PATTERNS` — `"true"` to enable pattern analysis in index mode
 - `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_API_KEY` (provider-specific)

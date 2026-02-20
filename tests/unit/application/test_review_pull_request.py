@@ -16,7 +16,12 @@ from argus.domain.retrieval.value_objects import (
     RetrievalResult,
 )
 from argus.domain.review.entities import Review, ReviewComment
-from argus.domain.review.value_objects import ReviewSummary
+from argus.domain.review.value_objects import (
+    CIStatus,
+    GitHealth,
+    PRContext,
+    ReviewSummary,
+)
 from argus.shared.types import (
     Category,
     CommitSHA,
@@ -442,3 +447,39 @@ def test_execute_deep_depth_includes_patterns(
     assert call_args.codebase_outline_text is not None
     assert call_args.codebase_patterns_text is not None
     assert "snake_case" in call_args.codebase_patterns_text
+
+
+# =============================================================================
+# PR context passthrough
+# =============================================================================
+
+
+def test_execute_passes_pr_context_to_review_request(
+    use_case: ReviewPullRequest,
+    mock_review_generator: MagicMock,
+) -> None:
+    pr_ctx = PRContext(
+        title="Fix bug",
+        body="Fixes #1",
+        author="dev",
+        created_at="2026-02-01",
+        labels=["bug"],
+        comments=[],
+        ci_status=CIStatus(conclusion="success", checks=[]),
+        git_health=GitHealth(behind_by=0, has_merge_commits=False, days_open=1),
+        related_items=[],
+    )
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff --git a/file.py",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        pr_context=pr_ctx,
+    )
+    use_case.execute(cmd)
+
+    request = mock_review_generator.generate.call_args[0][0]
+    assert request.pr_context is pr_ctx
+    assert request.pr_context.title == "Fix bug"

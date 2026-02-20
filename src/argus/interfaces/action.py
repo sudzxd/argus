@@ -15,13 +15,16 @@ from argus.application.dto import ReviewPullRequestCommand
 from argus.application.review_pull_request import ReviewPullRequest
 from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.services import IndexingService
+from argus.domain.context.value_objects import ShardId
 from argus.domain.llm.value_objects import LLMUsage, ModelConfig, TokenBudget
 from argus.domain.memory.services import ProfileService
 from argus.domain.retrieval.services import RetrievalOrchestrator
 from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.review.services import NoiseFilter
+from argus.domain.review.value_objects import PRContext
 from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
+from argus.infrastructure.github.pr_context_collector import PRContextCollector
 from argus.infrastructure.github.publisher import GitHubReviewPublisher
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
 from argus.infrastructure.memory.outline_renderer import OutlineRenderer
@@ -44,6 +47,7 @@ from argus.shared.constants import (
     DEFAULT_OUTLINE_TOKEN_BUDGET,
     DEFAULT_RETRIEVAL_BUDGET_RATIO,
     LEXICAL_BUDGET_RATIO,
+    SEMANTIC_BUDGET_RATIO,
     STRUCTURAL_BUDGET_RATIO,
 )
 from argus.shared.exceptions import ArgusError, IndexingError, PublishError
@@ -104,8 +108,28 @@ def _execute_pipeline(config: ActionConfig) -> None:
         except (ArgusError, httpx.HTTPError) as e:
             logger.warning("Could not fetch %s, skipping: %s", path, e)
 
+    # 3b. Collect PR context (metadata, CI, comments, git health)
+    pr_context: PRContext | None = None
+    if config.enable_pr_context:
+        try:
+            collector = PRContextCollector(client=client)
+            pr_context = collector.collect(
+                pr_number=pr_number,
+                head_sha=head_sha,
+                search_related=config.search_related_issues,
+            )
+            logger.info(
+                "Collected PR context: CI=%s, %d comments, %d days open",
+                pr_context.ci_status.conclusion,
+                len(pr_context.comments),
+                pr_context.git_health.days_open,
+            )
+        except Exception:
+            logger.warning("Could not collect PR context, continuing without it")
+
     # 4. Build codebase map — selective shard loading
     codebase_map: CodebaseMap | None = None
+    loaded_shard_ids: set[ShardId] = set()
     try:
         has_manifest = selective_sync.pull_manifest()
         if has_manifest:
@@ -123,6 +147,7 @@ def _execute_pipeline(config: ActionConfig) -> None:
                 # Also pull memory files (discovered from cached tree).
                 memory_blobs = selective_sync.memory_blob_names()
                 selective_sync.pull_blobs(blob_names | memory_blobs)
+                loaded_shard_ids = all_needed
                 codebase_map = sharded_store.load_shards(
                     config.github_repository,
                     all_needed,
@@ -221,6 +246,45 @@ def _execute_pipeline(config: ActionConfig) -> None:
             TokenCount(int(retrieval_budget * AGENTIC_BUDGET_RATIO)),
         )
 
+    if config.embedding_model:
+        try:
+            from argus.infrastructure.retrieval.embeddings import (
+                create_embedding_provider,
+            )
+            from argus.infrastructure.retrieval.semantic import (
+                SemanticRetrievalStrategy,
+            )
+
+            # Pull embedding blobs from remote.
+            embedding_blobs = selective_sync.embedding_blob_names()
+            if embedding_blobs:
+                selective_sync.pull_blobs(embedding_blobs)
+
+            # Load embedding indices for needed shards.
+            embedding_indices = sharded_store.load_embedding_indices(
+                loaded_shard_ids,
+            )
+            if embedding_indices:
+                emb_provider = create_embedding_provider(config.embedding_model)
+                strategies.append(
+                    SemanticRetrievalStrategy(
+                        provider=emb_provider,
+                        embedding_indices=embedding_indices,
+                        chunks=chunks,
+                    )
+                )
+                strategy_budgets.append(
+                    TokenCount(int(retrieval_budget * SEMANTIC_BUDGET_RATIO)),
+                )
+                logger.info(
+                    "Semantic retrieval enabled with %d embedding indices",
+                    len(embedding_indices),
+                )
+        except Exception:
+            logger.warning(
+                "Could not initialize semantic retrieval, continuing without it"
+            )
+
     orchestrator = RetrievalOrchestrator(
         strategies=strategies,
         budget=retrieval_budget,
@@ -275,6 +339,7 @@ def _execute_pipeline(config: ActionConfig) -> None:
         file_contents=file_contents,
         review_depth=config.review_depth,
         preloaded_map=codebase_map,
+        pr_context=pr_context,
     )
 
     result = use_case.execute(cmd)

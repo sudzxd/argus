@@ -8,7 +8,14 @@ import pytest
 
 from argus.domain.llm.value_objects import LLMUsage, ModelConfig
 from argus.domain.retrieval.value_objects import ContextItem, RetrievalResult
-from argus.domain.review.value_objects import ReviewRequest
+from argus.domain.review.value_objects import (
+    CheckRun,
+    CIStatus,
+    GitHealth,
+    PRComment,
+    PRContext,
+    ReviewRequest,
+)
 from argus.interfaces.review_generator import (
     LLMReviewGenerator,
     ReviewOutput,
@@ -206,3 +213,113 @@ class TestLLMReviewGenerator:
         assert "foo.py" in call_args
         assert "import os" in call_args
         assert "bar.py" in call_args
+
+    @patch("argus.interfaces.review_generator.create_agent")
+    def test_prompt_includes_pr_context(
+        self,
+        mock_create_agent: MagicMock,
+        model_config: ModelConfig,
+        sample_review_output: ReviewOutput,
+    ) -> None:
+        pr_ctx = PRContext(
+            title="Fix auth timeout",
+            body="Fixes the timeout bug",
+            author="sudzxd",
+            created_at="2026-02-01T10:00:00Z",
+            labels=["bug"],
+            comments=[
+                PRComment(
+                    author="reviewer",
+                    body="Add tests?",
+                    created_at="2026-02-17T10:00:00Z",
+                ),
+            ],
+            ci_status=CIStatus(
+                conclusion="failure",
+                checks=[
+                    CheckRun(
+                        name="test",
+                        status="completed",
+                        conclusion="failure",
+                        summary="coverage 74% < 80%",
+                    ),
+                ],
+            ),
+            git_health=GitHealth(behind_by=5, has_merge_commits=True, days_open=12),
+            related_items=[],
+        )
+        request = ReviewRequest(
+            diff_text="--- a/foo.py\n+++ b/foo.py\n@@ -1 +1 @@\n+x",
+            context=RetrievalResult(items=[]),
+            pr_context=pr_ctx,
+        )
+        mock_agent = MagicMock()
+        mock_result = MagicMock()
+        mock_result.output = sample_review_output
+        mock_agent.run_sync.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        generator = LLMReviewGenerator(config=model_config)
+        generator.generate(request)
+
+        prompt = mock_agent.run_sync.call_args[0][0]
+        assert "## PR Context" in prompt
+        assert "CI Status: FAILURE" in prompt
+        assert "Behind base by 5 commits" in prompt
+        assert "Contains merge commits" in prompt
+        assert "@reviewer" in prompt
+        assert "Fix auth timeout" in prompt
+
+
+class TestFormatPrContext:
+    """Test _format_pr_context helper."""
+
+    def test_format_includes_all_sections(self, model_config: ModelConfig) -> None:
+        pr_ctx = PRContext(
+            title="Add feature",
+            body="Description here",
+            author="dev",
+            created_at="2026-02-01",
+            labels=["feature", "v2"],
+            comments=[],
+            ci_status=CIStatus(
+                conclusion="success",
+                checks=[
+                    CheckRun(
+                        name="lint",
+                        status="completed",
+                        conclusion="success",
+                        summary=None,
+                    ),
+                ],
+            ),
+            git_health=GitHealth(behind_by=0, has_merge_commits=False, days_open=2),
+            related_items=[],
+        )
+        generator = LLMReviewGenerator(config=model_config)
+        result = generator._format_pr_context(pr_ctx)
+
+        assert "## PR Context" in result
+        assert "Add feature" in result
+        assert "feature, v2" in result
+        assert "CI Status: SUCCESS" in result
+        # No git health warnings expected
+        assert "Behind base" not in result
+        assert "merge commits" not in result
+
+    def test_format_flags_missing_description(self, model_config: ModelConfig) -> None:
+        pr_ctx = PRContext(
+            title="Quick fix",
+            body="",
+            author="dev",
+            created_at="2026-02-01",
+            labels=[],
+            comments=[],
+            ci_status=CIStatus(conclusion="pending", checks=[]),
+            git_health=GitHealth(behind_by=0, has_merge_commits=False, days_open=0),
+            related_items=[],
+        )
+        generator = LLMReviewGenerator(config=model_config)
+        result = generator._format_pr_context(pr_ctx)
+
+        assert "missing or very short" in result

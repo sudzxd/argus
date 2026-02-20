@@ -145,6 +145,65 @@ class GitHubClient:
         return paths
 
     # =================================================================
+    # PR metadata helpers
+    # =================================================================
+
+    def get_check_runs(self, commit_sha: str) -> list[dict[str, object]]:
+        """Fetch check runs for a commit.
+
+        Returns:
+            List of check-run dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/commits/{commit_sha}/check-runs")
+        runs = data.get("check_runs")
+        if isinstance(runs, list):
+            return runs  # type: ignore[return-value]
+        return []
+
+    def get_issue_comments(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch issue comments on a PR.
+
+        Returns:
+            List of comment dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/issues/{pr_number}/comments")
+
+    def get_pr_commits(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch commits on a PR.
+
+        Returns:
+            List of commit dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/pulls/{pr_number}/commits")
+
+    def search_issues(self, query: str) -> list[dict[str, object]]:
+        """Search issues and PRs by query.
+
+        Returns:
+            List of issue/PR dicts from search results.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        import urllib.parse
+
+        encoded = urllib.parse.quote(f"{query} repo:{self.repo}")
+        data = self._get(f"/search/issues?q={encoded}")
+        items = data.get("items")
+        if isinstance(items, list):
+            return items  # type: ignore[return-value]
+        return []
+
+    # =================================================================
     # Git Data API — low-level tree / blob / commit manipulation
     # =================================================================
 
@@ -314,6 +373,14 @@ class GitHubClient:
         url = f"{GitHubAPI.BASE_URL}{path}"
         response = self._request(url, self._headers())
         return response.json()  # type: ignore[no-any-return]
+
+    def _get_list(self, path: str) -> list[dict[str, object]]:
+        url = f"{GitHubAPI.BASE_URL}{path}"
+        response = self._request(url, self._headers())
+        data = response.json()
+        if isinstance(data, list):
+            return cast(list[dict[str, object]], data)
+        return []
 
     def _post(self, url: str, payload: dict[str, object]) -> None:
         try:

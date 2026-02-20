@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from argus.domain.llm.value_objects import LLMUsage, ModelConfig
 from argus.domain.review.entities import Review, ReviewComment
-from argus.domain.review.value_objects import ReviewRequest, ReviewSummary
+from argus.domain.review.value_objects import PRContext, ReviewRequest, ReviewSummary
 from argus.infrastructure.constants import CHARS_PER_TOKEN
 from argus.infrastructure.llm_providers.factory import create_agent
 from argus.shared.types import Category, FilePath, LineRange, Severity
@@ -51,10 +51,16 @@ Guidelines:
 - Assign confidence (0.0-1.0) based on how certain you are about each finding.
 - Use severity levels: praise, suggestion, warning, critical.
 - Use categories: style, performance, bug, security, architecture.
+- When providing a suggestion, include ONLY the replacement code for the exact lines \
+being commented on. No markdown fences, no extra context lines — the content will be \
+wrapped in a GitHub suggestion block automatically.
 - If a codebase outline is provided, use it to understand the broader architecture \
 and catch breaking changes across module boundaries.
 - If codebase patterns are provided, enforce them — flag deviations from established \
 conventions and patterns.
+- If PR context is provided, assess holistically: mention CI failures, flag stale PRs \
+(>7 days open or behind base branch), note unaddressed reviewer feedback, and call out \
+poor or missing PR descriptions.
 """
 
 
@@ -129,7 +135,19 @@ class LLMReviewGenerator:
 
         parts = [diff_section]
 
-        # Retrieved context (second priority).
+        # PR context (second priority).
+        if request.pr_context is not None:
+            pr_section = self._format_pr_context(request.pr_context)
+            if used + len(pr_section) <= budget_chars:
+                parts.append(pr_section)
+                used += len(pr_section)
+            else:
+                logger.info(
+                    "Dropping PR context section (%d chars) — exceeds budget",
+                    len(pr_section),
+                )
+
+        # Retrieved context (third priority).
         if request.context.items:
             context_parts: list[str] = []
             for item in request.context.items:
@@ -144,7 +162,7 @@ class LLMReviewGenerator:
                     len(context_section),
                 )
 
-        # Codebase outline (third priority).
+        # Codebase outline (fourth priority).
         if request.codebase_outline_text:
             outline_section = (
                 "## Codebase Outline\n```\n" + request.codebase_outline_text + "\n```"
@@ -158,7 +176,7 @@ class LLMReviewGenerator:
                     len(outline_section),
                 )
 
-        # Codebase patterns (fourth priority).
+        # Codebase patterns (fifth priority).
         if request.codebase_patterns_text:
             patterns_section = "## Codebase Patterns\n" + request.codebase_patterns_text
             if used + len(patterns_section) <= budget_chars:
@@ -171,6 +189,64 @@ class LLMReviewGenerator:
                 )
 
         return "\n\n".join(parts)
+
+    def _format_pr_context(self, ctx: PRContext) -> str:
+        """Format PR context as a prompt section."""
+        lines: list[str] = ["## PR Context"]
+        lines.append(
+            f"**Title:** {ctx.title} | **Author:** {ctx.author} "
+            f"| **Open:** {ctx.git_health.days_open} days"
+        )
+        if ctx.labels:
+            lines.append(f"**Labels:** {', '.join(ctx.labels)}")
+
+        # CI status.
+        ci = ctx.ci_status
+        ci_label = (ci.conclusion or "pending").upper()
+        lines.append(f"\n### CI Status: {ci_label}")
+        for check in ci.checks:
+            emoji = (
+                "✅"
+                if check.conclusion == "success"
+                else "❌"
+                if check.conclusion == "failure"
+                else "⏳"
+            )
+            conclusion_str = check.conclusion or check.status
+            entry = f"- {emoji} {check.name} ({conclusion_str})"
+            if check.summary:
+                entry += f': "{check.summary}"'
+            lines.append(entry)
+
+        # Git health.
+        health = ctx.git_health
+        warnings: list[str] = []
+        if health.behind_by > 0:
+            warnings.append(f"Behind base by {health.behind_by} commits")
+        if health.has_merge_commits:
+            warnings.append("Contains merge commits")
+        if warnings:
+            lines.append("\n### Git Health")
+            for w in warnings:
+                lines.append(f"- {w}")
+
+        # Prior comments.
+        if ctx.comments:
+            lines.append(f"\n### Prior Comments ({len(ctx.comments)})")
+            for c in ctx.comments:
+                lines.append(f'- @{c.author} ({c.created_at}): "{c.body}"')
+
+        # Related items.
+        if ctx.related_items:
+            lines.append("\n### Related Issues")
+            for item in ctx.related_items:
+                lines.append(f'- #{item.number} ({item.state}): "{item.title}"')
+
+        # Description quality.
+        if not ctx.body or len(ctx.body.strip()) < 10:
+            lines.append("\n**Note:** PR description is missing or very short.")
+
+        return "\n".join(lines)
 
     def _to_review(self, output: ReviewOutput) -> Review:
         """Convert pydantic output to domain Review entity."""

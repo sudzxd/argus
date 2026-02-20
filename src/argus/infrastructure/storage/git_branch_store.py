@@ -249,6 +249,25 @@ class SelectiveGitBranchSync:
                 names.add(entry_path)
         return names
 
+    def embedding_blob_names(self) -> set[str]:
+        """Return filenames matching ``*_embeddings.json`` from cached tree.
+
+        Must be called after ``pull_manifest`` (which populates the cache).
+        Returns an empty set if no tree is cached.
+        """
+        if self._cached_tree is None:
+            return set()
+        names: set[str] = set()
+        for entry in self._cached_tree:
+            entry_path = entry.get("path")
+            if (
+                isinstance(entry_path, str)
+                and entry_path.endswith("_embeddings.json")
+                and entry.get("type") == "blob"
+            ):
+                names.add(entry_path)
+        return names
+
     def pull_all(self) -> int:
         """Download all artifacts (manifest + all shards + memory).
 
