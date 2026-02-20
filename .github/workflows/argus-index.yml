@@ -35,6 +35,7 @@ jobs:
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_ANALYZE_PATTERNS: "true"
           INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
 
       # On manual dispatch: full re-index from scratch.
@@ -48,4 +49,5 @@ jobs:
           INPUT_MAX_TOKENS: "1000000"
           INPUT_STORAGE_DIR: ".argus-artifacts"
           INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
