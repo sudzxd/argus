@@ -65,7 +65,10 @@ class LexicalRetrievalStrategy:
             score_val = float(score)
             if score_val <= 0.0:
                 continue
-            chunk = self.chunks[int(idx)]
+            chunk_idx = int(idx)
+            if chunk_idx < 0 or chunk_idx >= len(self.chunks):
+                continue
+            chunk = self.chunks[chunk_idx]
             if chunk.source in changed:
                 continue
             items.append(
