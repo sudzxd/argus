@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from argus.infrastructure.github.pr_context_collector import PRContextCollector
+from argus.shared.exceptions import PublishError
 
 
 def _make_pr_response(
@@ -286,6 +289,39 @@ def test_collect_merges_issue_and_review_comments() -> None:
     assert ctx.comments[0].body == "Nit: rename this var"
     assert ctx.comments[1].file_path is None
     assert ctx.comments[1].line is None
+
+
+# =============================================================================
+# Exception narrowing
+# =============================================================================
+
+
+def test_git_health_catches_publish_error_on_commits() -> None:
+    client = MagicMock()
+    client.get_pull_request.return_value = _make_pr_response()
+    client.get_check_runs.return_value = []
+    client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
+    client.get_pr_commits.side_effect = PublishError("API error")
+
+    collector = PRContextCollector(client=client)
+    ctx = collector.collect(pr_number=1, head_sha="abc123")
+
+    # Should not crash; merge commit check is skipped gracefully.
+    assert ctx.git_health.has_merge_commits is False
+
+
+def test_git_health_propagates_non_publish_error() -> None:
+    client = MagicMock()
+    client.get_pull_request.return_value = _make_pr_response()
+    client.get_check_runs.return_value = []
+    client.get_issue_comments.return_value = []
+    client.get_pr_review_comments.return_value = []
+    client.get_pr_commits.side_effect = TypeError("unexpected bug")
+
+    collector = PRContextCollector(client=client)
+    with pytest.raises(TypeError, match="unexpected bug"):
+        collector.collect(pr_number=1, head_sha="abc123")
 
 
 def test_collect_filters_bot_comments() -> None:

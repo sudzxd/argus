@@ -18,6 +18,7 @@ from argus.domain.review.value_objects import (
     RelatedItem,
 )
 from argus.infrastructure.github.client import GitHubClient
+from argus.shared.exceptions import PublishError
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +235,7 @@ class PRContextCollector:
                 if isinstance(parents, list) and len(parents) > 1:  # type: ignore[arg-type]
                     has_merge_commits = True
                     break
-        except Exception:
+        except PublishError:
             logger.debug("Could not fetch PR commits for merge commit check")
 
         return GitHealth(
@@ -265,7 +266,7 @@ class PRContextCollector:
                 if not isinstance(number, int) or number in seen_numbers:
                     continue
                 seen_numbers.add(number)
-        except Exception:
+        except PublishError:
             logger.debug("Issue search failed, continuing with linked refs only")
 
         # Fetch details for all discovered numbers.
@@ -290,7 +291,7 @@ class PRContextCollector:
                         body=body_str,
                     )
                 )
-            except Exception:
+            except PublishError:
                 logger.debug("Could not fetch details for #%d", number)
 
         return items
