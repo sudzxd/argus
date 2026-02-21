@@ -12,9 +12,14 @@ from argus.interfaces.sync_push import run
 class TestSyncPushRun:
     @patch("argus.interfaces.sync_push.SelectiveGitBranchSync")
     @patch("argus.interfaces.sync_push.GitHubClient")
+    @patch("argus.interfaces.sync_push.load_argus_config")
     def test_run_success(
-        self, mock_client_cls: MagicMock, mock_sync_cls: MagicMock
+        self,
+        mock_load_config: MagicMock,
+        mock_client_cls: MagicMock,
+        mock_sync_cls: MagicMock,
     ) -> None:
+        mock_load_config.return_value.storage_dir = ".argus-artifacts"
         with patch.dict(
             "os.environ",
             {"GITHUB_TOKEN": "tok", "GITHUB_REPOSITORY": "o/r"},

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
 
 from pathlib import Path
@@ -41,11 +40,8 @@ from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.git_branch_store import SelectiveGitBranchSync
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.bootstrap import get_parseable_extensions
-from argus.interfaces.env_utils import (
-    DEFAULT_INDEX_MAX_TOKENS,
-    DEFAULT_INDEX_MODEL,
-    require_env,
-)
+from argus.interfaces.env_utils import require_env
+from argus.interfaces.toml_config import ArgusConfig, load_argus_config
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET
 from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
@@ -88,10 +84,11 @@ def run() -> None:
 
 
 def _execute() -> None:
+    cfg = load_argus_config("index")
     token = require_env("GITHUB_TOKEN")
     repo = require_env("GITHUB_REPOSITORY")
     event_path = require_env("GITHUB_EVENT_PATH")
-    storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
+    storage_dir = Path(cfg.storage_dir)
 
     client = GitHubClient(token=token, repo=repo)
     parser = TreeSitterParser()
@@ -116,6 +113,7 @@ def _execute() -> None:
             sync,
             repo,
             after_sha,
+            cfg,
         )
         if changed_files is None:
             return
@@ -128,6 +126,7 @@ def _execute() -> None:
             manifest,
             repo,
             after_sha,
+            cfg,
         )
         if changed_files is None:
             return
@@ -135,6 +134,7 @@ def _execute() -> None:
     # 2. Optionally run incremental pattern analysis on changed files.
     if changed_files:
         _maybe_analyze_patterns(
+            cfg=cfg,
             sync=sync,
             storage_dir=storage_dir,
             repo=repo,
@@ -145,6 +145,7 @@ def _execute() -> None:
 
     # 2b. Optionally build embeddings for changed shards.
     _maybe_build_embeddings(
+        cfg=cfg,
         storage_dir=storage_dir,
         codebase_map=codebase_map,
         changed_files=changed_files or [],
@@ -163,6 +164,7 @@ def _handle_legacy_path(
     sync: SelectiveGitBranchSync,
     repo: str,
     after_sha: str,
+    cfg: ArgusConfig,
 ) -> tuple[list[FilePath] | None, CodebaseMap]:
     """Handle incremental update when no manifest exists (legacy format).
 
@@ -189,6 +191,7 @@ def _handle_legacy_path(
         repo,
         base_sha,
         after_sha,
+        cfg=cfg,
     )
     return changed_files, existing_map
 
@@ -201,6 +204,7 @@ def _handle_manifest_path(
     manifest: ShardedManifest,
     repo: str,
     after_sha: str,
+    cfg: ArgusConfig,
 ) -> tuple[list[FilePath] | None, CodebaseMap]:
     """Handle incremental update using existing manifest.
 
@@ -220,7 +224,7 @@ def _handle_manifest_path(
         return None, CodebaseMap(indexed_at=CommitSHA(""))
 
     changed_paths = client.compare_commits(base_sha, after_sha)
-    parseable = get_parseable_extensions()
+    parseable = get_parseable_extensions(cfg.extra_extensions)
     source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
 
     if not source_paths:
@@ -248,11 +252,13 @@ def _handle_manifest_path(
         base_sha,
         after_sha,
         existing_manifest=manifest,
+        cfg=cfg,
     )
     return changed_files, partial_map
 
 
 def _maybe_analyze_patterns(
+    cfg: ArgusConfig,
     sync: SelectiveGitBranchSync,
     storage_dir: Path,
     repo: str,
@@ -260,12 +266,9 @@ def _maybe_analyze_patterns(
     codebase_map: CodebaseMap,
     changed_files: list[FilePath],
 ) -> None:
-    """Run incremental pattern analysis if opted in via INPUT_ANALYZE_PATTERNS."""
-    if os.environ.get("INPUT_ANALYZE_PATTERNS", "false").lower() != "true":
+    """Run incremental pattern analysis if opted in via config."""
+    if not cfg.analyze_patterns:
         return
-
-    model = os.environ.get("INPUT_MODEL", DEFAULT_INDEX_MODEL)
-    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", str(DEFAULT_INDEX_MAX_TOKENS)))
 
     # Pull existing memory blobs.
     memory_blobs = sync.memory_blob_names()
@@ -291,8 +294,8 @@ def _maybe_analyze_patterns(
     )
 
     model_config = ModelConfig(
-        model=model,
-        max_tokens=TokenCount(max_tokens),
+        model=cfg.model,
+        max_tokens=TokenCount(cfg.max_tokens),
         temperature=0.0,
     )
     analyzer = LLMPatternAnalyzer(config=model_config)
@@ -322,6 +325,7 @@ def _maybe_analyze_patterns(
 
 
 def _maybe_build_embeddings(
+    cfg: ArgusConfig,
     storage_dir: Path,
     codebase_map: CodebaseMap,
     changed_files: list[FilePath],
@@ -329,8 +333,7 @@ def _maybe_build_embeddings(
     after_sha: str,
 ) -> None:
     """Build embedding indices for changed shards if embedding_model is configured."""
-    embedding_model = os.environ.get("INPUT_EMBEDDING_MODEL", "")
-    if not embedding_model:
+    if not cfg.embedding_model:
         return
 
     from argus.domain.context.value_objects import EmbeddingIndex, ShardId, shard_id_for
@@ -339,7 +342,7 @@ def _maybe_build_embeddings(
     from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 
     try:
-        provider = create_embedding_provider(embedding_model)
+        provider = create_embedding_provider(cfg.embedding_model)
     except Exception:
         logger.warning("Could not create embedding provider, skipping embeddings")
         return
@@ -378,7 +381,7 @@ def _maybe_build_embeddings(
                 embeddings=embeddings,
                 chunk_ids=chunk_ids,
                 dimension=provider.dimension,
-                model=embedding_model,
+                model=cfg.embedding_model,
             )
             store.save_embedding_index(index)
             logger.info("Built embeddings for shard %s: %d chunks", sid, len(texts))
@@ -395,6 +398,7 @@ def _incremental_update_sharded(
     before_sha: str,
     after_sha: str,
     existing_manifest: ShardedManifest | None = None,
+    cfg: ArgusConfig | None = None,
 ) -> list[FilePath]:
     """Update the codebase map and re-shard only dirty directories.
 
@@ -402,7 +406,8 @@ def _incremental_update_sharded(
         List of changed source file paths that were updated.
     """
     changed_paths = client.compare_commits(before_sha, after_sha)
-    parseable = get_parseable_extensions()
+    extra = cfg.extra_extensions if cfg is not None else None
+    parseable = get_parseable_extensions(extra)
     source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
 
     if not source_paths:

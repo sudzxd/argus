@@ -2,14 +2,12 @@
 
 Usage:
     GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/repo \
-    INPUT_STORAGE_DIR=.argus-artifacts \
     uv run python -m argus.interfaces.sync_push
 """
 
 from __future__ import annotations
 
 import logging
-import os
 import sys
 
 from pathlib import Path
@@ -18,6 +16,7 @@ from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.storage.git_branch_store import SelectiveGitBranchSync
 from argus.interfaces.env_utils import require_env
+from argus.interfaces.toml_config import load_argus_config
 from argus.shared.exceptions import ArgusError
 
 logger = logging.getLogger(__name__)
@@ -31,9 +30,10 @@ def run() -> None:
     )
 
     try:
+        cfg = load_argus_config("index")
         token = require_env("GITHUB_TOKEN")
         repo = require_env("GITHUB_REPOSITORY")
-        storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
+        storage_dir = Path(cfg.storage_dir)
 
         client = GitHubClient(token=token, repo=repo)
         sync = SelectiveGitBranchSync(
