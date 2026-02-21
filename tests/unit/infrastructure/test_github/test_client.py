@@ -102,3 +102,38 @@ def test_post_raises_publish_error_on_failure(client: GitHubClient) -> None:
 
     with _patch_httpx(response), pytest.raises(PublishError):
         client.post_issue_comment(42, "comment")
+
+
+# =============================================================================
+# URL encoding & tree truncation
+# =============================================================================
+
+
+def test_get_file_content_url_encodes_special_chars(client: GitHubClient) -> None:
+    response = _mock_response(text="file content")
+
+    with _patch_httpx(response) as mock_cls:
+        client.get_file_content("path with spaces/file#1.py", ref="main")
+
+    # Verify the URL was properly encoded.
+    mock_instance = mock_cls.return_value
+    call_args = mock_instance.get.call_args
+    url = str(call_args)
+    assert "path%20with%20spaces/file%231.py" in url
+    assert "path with spaces" not in url
+
+
+def test_get_tree_recursive_warns_on_truncation(
+    client: GitHubClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    response = _mock_response(
+        json_data={"tree": [{"path": "a.py", "type": "blob"}], "truncated": True}
+    )
+
+    import logging
+
+    with _patch_httpx(response), caplog.at_level(logging.WARNING):
+        result = client.get_tree_recursive("abc123")
+
+    assert len(result) == 1
+    assert "truncated" in caplog.text

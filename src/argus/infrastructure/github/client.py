@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import logging
+import urllib.parse
+
 from dataclasses import dataclass
 from typing import cast
 
@@ -11,6 +14,8 @@ from argus.infrastructure.constants import GitHubAPI
 from argus.shared.constants import DEFAULT_TIMEOUT_SECONDS
 from argus.shared.exceptions import PublishError
 from argus.shared.types import FilePath
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # CLIENT
@@ -52,7 +57,8 @@ class GitHubClient:
         Raises:
             PublishError: If the API call fails.
         """
-        url = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents/{path}?ref={ref}"
+        encoded_path = urllib.parse.quote(str(path), safe="/")
+        url = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents/{encoded_path}?ref={ref}"
         headers = self._headers()
         headers["accept"] = "application/vnd.github.v3.raw"
         response = self._request(url, headers)
@@ -114,6 +120,12 @@ class GitHubClient:
             PublishError: If the API call fails.
         """
         data = self._get(f"/repos/{self.repo}/git/trees/{sha}?recursive=1")
+        if data.get("truncated"):
+            logger.warning(
+                "GitHub tree response was truncated for SHA %s; "
+                "some files may be missing from the codebase map",
+                sha,
+            )
         tree = data.get("tree")
         if isinstance(tree, list):
             return tree  # type: ignore[return-value]
@@ -205,8 +217,6 @@ class GitHubClient:
         Raises:
             PublishError: If the API call fails.
         """
-        import urllib.parse
-
         encoded = urllib.parse.quote(f"{query} repo:{self.repo}")
         data = self._get(f"/search/issues?q={encoded}")
         items = data.get("items")
