@@ -9,7 +9,18 @@ order: 1
 - A GitHub repository
 - An API key from one of the supported LLM providers (Anthropic, OpenAI, or Google)
 
-## Step 1: Add the Review Workflow
+## Step 1: Configure Argus
+
+Add a `[tool.argus]` section to your `pyproject.toml` (or create one if you don't have a `pyproject.toml`):
+
+```toml
+[tool.argus]
+model = "anthropic:claude-sonnet-4-5-20250929"
+```
+
+See [Configuration](/argus/docs/configuration) for all available options.
+
+## Step 2: Add the Review Workflow
 
 Create `.github/workflows/argus-review.yml` in your repository:
 
@@ -29,11 +40,10 @@ jobs:
     steps:
       - uses: sudzxd/argus@v0
         with:
-          model: anthropic:claude-sonnet-4-5-20250929
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
-## Step 2: Add Your API Key
+## Step 3: Add Your API Key
 
 Go to **Settings > Secrets and variables > Actions** in your repository and add your LLM provider's API key:
 
@@ -41,7 +51,7 @@ Go to **Settings > Secrets and variables > Actions** in your repository and add 
 - `OPENAI_API_KEY` for GPT models
 - `GOOGLE_API_KEY` for Gemini models
 
-## Step 3: Bootstrap the Index (Optional)
+## Step 4: Bootstrap the Index (Optional)
 
 For the best review quality, bootstrap the codebase index before your first review. Add this workflow or run it manually:
 
@@ -65,14 +75,19 @@ jobs:
       - uses: sudzxd/argus@v0
         with:
           mode: ${{ github.event.inputs.mode || 'index' }}
-          model: anthropic:claude-sonnet-4-5-20250929
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          analyze_patterns: "true"
 ```
 
-Trigger it manually once with `mode: bootstrap` to build the full codebase map and pattern memory. After that, incremental indexing runs automatically on every push to main, with `analyze_patterns` enabled to keep pattern memory up to date.
+Enable pattern analysis in your `pyproject.toml`:
 
-## Step 4: Open a Pull Request
+```toml
+[tool.argus.index]
+analyze_patterns = true
+```
+
+Trigger it manually once with `mode: bootstrap` to build the full codebase map and pattern memory. After that, incremental indexing runs automatically on every push to main.
+
+## Step 5: Open a Pull Request
 
 That's it. Open a PR and Argus will post inline review comments within a few minutes.
 

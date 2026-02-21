@@ -117,7 +117,7 @@ flowchart LR
 
 1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Deterministic, instant, highest signal.
 2. **Lexical retrieval** — BM25 sparse search over AST-chunked code. Handles identifier lookups and pattern matching. Useful when the structural graph doesn't capture a relationship.
-3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`INPUT_EMBEDDING_MODEL`). Supports Google, OpenAI, and local (sentence-transformers) providers.
+3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`embedding_model`). Supports Google, OpenAI, and local (sentence-transformers) providers.
 4. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
 
 **Context Budgeting:**
@@ -199,7 +199,7 @@ The review generator prioritizes sections within the token budget: diff (always)
 
 Patterns can be analyzed in two ways:
 - **Bootstrap** (`bootstrap.py`) — Full rebuild: fetches the entire repository tree, parses all source files, renders a complete outline, and runs LLM pattern analysis. Sets `analyzed_at` to the current HEAD SHA.
-- **Index** (`sync_index.py`) — Incremental: when `INPUT_ANALYZE_PATTERNS` is `"true"`, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
+- **Index** (`sync_index.py`) — Incremental: when `analyze_patterns = true` in config, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
 
 Bootstrap uses `analyzed_at` (falling back to `indexed_at`) as the diff base for incremental analysis, ensuring no changes are missed even when index mode has advanced `indexed_at`.
 
@@ -248,9 +248,9 @@ argus-data branch:
 
 **Selective loading:**
 
-- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs. Optionally pulls embedding indices for semantic retrieval when `INPUT_EMBEDDING_MODEL` is configured.
-- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled. Optionally rebuilds embedding indices for changed shards when `INPUT_EMBEDDING_MODEL` is configured.
-- **Bootstrap** builds the full map, splits into shards, and saves everything. Optionally builds embedding indices for all shards when `INPUT_EMBEDDING_MODEL` is configured.
+- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs. Optionally pulls embedding indices for semantic retrieval when `embedding_model` is configured.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `analyze_patterns` is enabled. Optionally rebuilds embedding indices for changed shards when `embedding_model` is configured.
+- **Bootstrap** builds the full map, splits into shards, and saves everything. Optionally builds embedding indices for all shards when `embedding_model` is configured.
 
 `ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
 
@@ -262,7 +262,7 @@ AST parsing is an infrastructure concern. The domain defines a `SourceParser` pr
 
 ### Configuration
 
-All configurable values flow in from the action inputs at the boundary. The domain does not read environment variables. Configuration is assembled at the interfaces layer and injected as value objects.
+All configurable values live in `[tool.argus]` in `pyproject.toml`. The domain does not read environment variables or TOML files. Configuration is loaded at the interfaces layer (`toml_config.py`) and injected as value objects. Only secrets and GitHub runtime vars remain as environment variables.
 
 ---
 

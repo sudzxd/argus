@@ -18,9 +18,6 @@ jobs:
     steps:
       - uses: sudzxd/argus@v0
         with:
-          model: >-
-            anthropic:claude-sonnet-4-5-20250929
-          review_depth: standard
           anthropic_api_key: >-
             \${{ secrets.ANTHROPIC_API_KEY }}`;
 
