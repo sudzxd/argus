@@ -26,14 +26,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           INPUT_MODE: "review"
-          INPUT_MODEL: "google-gla:gemini-2.5-flash"
-          INPUT_MAX_TOKENS: "1000000"
-          INPUT_TEMPERATURE: "0.0"
-          INPUT_CONFIDENCE_THRESHOLD: "0.7"
-          INPUT_IGNORED_PATHS: ""
-          INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_ENABLE_AGENTIC: "false"
-          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
-          INPUT_SEARCH_RELATED_ISSUES: "true"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main

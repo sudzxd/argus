@@ -30,11 +30,6 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           INPUT_MODE: "index"
-          INPUT_MODEL: "google-gla:gemini-2.5-flash"
-          INPUT_MAX_TOKENS: "1000000"
-          INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_ANALYZE_PATTERNS: "true"
-          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main
 
@@ -45,9 +40,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           INPUT_MODE: "bootstrap"
-          INPUT_MODEL: "google-gla:gemini-2.5-flash"
-          INPUT_MAX_TOKENS: "1000000"
-          INPUT_STORAGE_DIR: ".argus-artifacts"
-          INPUT_EMBEDDING_MODEL: "local:all-MiniLM-L6-v2"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: uv run python -m argus.interfaces.main

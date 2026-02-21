@@ -10,58 +10,6 @@ inputs:
     description: "Operating mode: review (PR review), index (incremental update), bootstrap (full re-index)"
     required: false
     default: "review"
-  model:
-    description: "LLM model identifier (e.g. anthropic:claude-sonnet-4-5-20250929, openai:gpt-4o)"
-    required: false
-    default: "anthropic:claude-sonnet-4-5-20250929"
-  max_tokens:
-    description: "Maximum tokens for LLM response"
-    required: false
-    default: "128000"
-  temperature:
-    description: "LLM sampling temperature"
-    required: false
-    default: "0.0"
-  confidence_threshold:
-    description: "Minimum confidence score (0.0–1.0) for review comments"
-    required: false
-    default: "0.7"
-  ignored_paths:
-    description: "Comma-separated glob patterns to ignore (e.g. docs/**,*.md)"
-    required: false
-    default: ""
-  storage_dir:
-    description: "Directory for codebase map artifacts"
-    required: false
-    default: ".argus-artifacts"
-  enable_agentic:
-    description: "Enable agentic review mode"
-    required: false
-    default: "false"
-  review_depth:
-    description: "Review depth: quick (no memory), standard (outline), deep (outline + patterns)"
-    required: false
-    default: "standard"
-  extra_extensions:
-    description: "Comma-separated extra file extensions to parse (e.g. .vue,.svelte,.proto)"
-    required: false
-    default: ""
-  enable_pr_context:
-    description: "Include PR metadata, CI status, and git health in review"
-    required: false
-    default: "true"
-  search_related_issues:
-    description: "Search for related issues and PRs to include in review context"
-    required: false
-    default: "false"
-  embedding_model:
-    description: "Embedding model for semantic retrieval (e.g. google-emb:gemini-embedding-001, openai-emb:text-embedding-3-small, local:all-MiniLM-L6-v2)"
-    required: false
-    default: ""
-  analyze_patterns:
-    description: "Enable incremental pattern analysis during index mode"
-    required: false
-    default: "false"
   anthropic_api_key:
     description: "Anthropic API key (required for Anthropic models)"
     required: false
@@ -78,19 +26,6 @@ runs:
   env:
     GITHUB_TOKEN: ${{ github.token }}
     INPUT_MODE: ${{ inputs.mode }}
-    INPUT_MODEL: ${{ inputs.model }}
-    INPUT_MAX_TOKENS: ${{ inputs.max_tokens }}
-    INPUT_TEMPERATURE: ${{ inputs.temperature }}
-    INPUT_CONFIDENCE_THRESHOLD: ${{ inputs.confidence_threshold }}
-    INPUT_IGNORED_PATHS: ${{ inputs.ignored_paths }}
-    INPUT_STORAGE_DIR: ${{ inputs.storage_dir }}
-    INPUT_ENABLE_AGENTIC: ${{ inputs.enable_agentic }}
-    INPUT_REVIEW_DEPTH: ${{ inputs.review_depth }}
-    INPUT_EXTRA_EXTENSIONS: ${{ inputs.extra_extensions }}
-    INPUT_ENABLE_PR_CONTEXT: ${{ inputs.enable_pr_context }}
-    INPUT_SEARCH_RELATED_ISSUES: ${{ inputs.search_related_issues }}
-    INPUT_EMBEDDING_MODEL: ${{ inputs.embedding_model }}
-    INPUT_ANALYZE_PATTERNS: ${{ inputs.analyze_patterns }}
     ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
     OPENAI_API_KEY: ${{ inputs.openai_api_key }}
     GOOGLE_API_KEY: ${{ inputs.google_api_key }}
