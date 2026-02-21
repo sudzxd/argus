@@ -135,3 +135,19 @@ exclude_lines = [
     "Protocol",
     "@overload",
 ]
+
+# =============================================================================
+# Argus
+# =============================================================================
+
+[tool.argus]
+model = "google-gla:gemini-2.5-flash"
+max_tokens = 1000000
+storage_dir = ".argus-artifacts"
+embedding_model = "local:all-MiniLM-L6-v2"
+search_related_issues = true
+
+[tool.argus.index]
+model = "google-gla:gemini-2.5-flash"
+max_tokens = 1000000
+analyze_patterns = true
