@@ -44,7 +44,7 @@ class LocalEmbeddingProvider:
             msg = "sentence-transformers package required for local embeddings"
             raise ConfigurationError(msg) from e
 
-        if result:
+        if result and self._dimension == _DEFAULT_DIMENSION:
             self._dimension = len(result[0])
         return result
 

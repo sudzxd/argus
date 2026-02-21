@@ -188,3 +188,67 @@ def test_local_embed_import_error_raises_config_error(
     with pytest.raises(ConfigurationError, match="sentence-transformers"):
         provider.embed(["hello"])
     _model_cache.clear()
+
+
+# =============================================================================
+# Dimension set-once tests
+# =============================================================================
+
+
+@patch("argus.infrastructure.retrieval.embeddings.google_embeddings._call_embed_api")
+def test_google_dimension_not_mutated_on_second_call(mock_api: MagicMock) -> None:
+    from argus.infrastructure.retrieval.embeddings.google_embeddings import (
+        GoogleEmbeddingProvider,
+    )
+
+    mock_api.return_value = [[0.1, 0.2, 0.3]]
+    provider = GoogleEmbeddingProvider()
+    with patch.dict("os.environ", {"GOOGLE_API_KEY": "fake"}):
+        provider.embed(["first"])
+        assert provider.dimension == 3
+
+        # Second call returns different-length vectors — dimension stays 3.
+        mock_api.return_value = [[0.1, 0.2]]
+        provider.embed(["second"])
+        assert provider.dimension == 3
+
+
+@patch("argus.infrastructure.retrieval.embeddings.openai_embeddings._call_embed_api")
+def test_openai_dimension_not_mutated_on_second_call(mock_api: MagicMock) -> None:
+    from argus.infrastructure.retrieval.embeddings.openai_embeddings import (
+        OpenAIEmbeddingProvider,
+    )
+
+    mock_api.return_value = [[0.1, 0.2, 0.3]]
+    provider = OpenAIEmbeddingProvider()
+    with patch.dict("os.environ", {"OPENAI_API_KEY": "fake"}):
+        provider.embed(["first"])
+        assert provider.dimension == 3
+
+        mock_api.return_value = [[0.1, 0.2]]
+        provider.embed(["second"])
+        assert provider.dimension == 3
+
+
+@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._encode")
+@patch("argus.infrastructure.retrieval.embeddings.local_embeddings._get_model")
+def test_local_dimension_not_mutated_on_second_call(
+    mock_get_model: MagicMock, mock_encode: MagicMock
+) -> None:
+    from argus.infrastructure.retrieval.embeddings.local_embeddings import (
+        LocalEmbeddingProvider,
+        _model_cache,
+    )
+
+    _model_cache.clear()
+    mock_get_model.return_value = MagicMock()
+    mock_encode.return_value = [[0.1, 0.2, 0.3]]
+    provider = LocalEmbeddingProvider()
+
+    provider.embed(["first"])
+    assert provider.dimension == 3
+
+    mock_encode.return_value = [[0.1, 0.2]]
+    provider.embed(["second"])
+    assert provider.dimension == 3
+    _model_cache.clear()

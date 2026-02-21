@@ -41,7 +41,7 @@ class OpenAIEmbeddingProvider:
             msg = "openai package required for OpenAI embeddings"
             raise ConfigurationError(msg) from e
 
-        if embeddings:
+        if embeddings and self._dimension == _DEFAULT_DIMENSION:
             self._dimension = len(embeddings[0])
         return embeddings
 
