@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from argus.domain.context.value_objects import EmbeddingIndex, ShardId
 from argus.domain.retrieval.value_objects import RetrievalQuery
 from argus.infrastructure.parsing.chunker import CodeChunk
@@ -37,6 +39,13 @@ def test_cosine_similarity_zero_vector() -> None:
     a = [0.0, 0.0]
     b = [1.0, 0.0]
     assert _cosine_similarity(a, b) == 0.0
+
+
+def test_cosine_similarity_mismatched_dimensions_raises() -> None:
+    a = [1.0, 0.0, 0.0]
+    b = [1.0, 0.0]
+    with pytest.raises(ValueError, match="zip"):
+        _cosine_similarity(a, b)
 
 
 # =============================================================================
