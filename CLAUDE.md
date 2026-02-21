@@ -104,8 +104,15 @@ Scopes: `domain`, `infra`, `app`, `interfaces`, `shared`, `tests`, `ci`
 ```yaml
 - uses: sudzxd/argus@v0
   with:
-    model: anthropic:claude-sonnet-4-5-20250929
     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
-See `action.yml` for all inputs. See `.env.example` for environment variables.
+Configuration lives in `[tool.argus]` in `pyproject.toml`:
+
+```toml
+[tool.argus]
+model = "anthropic:claude-sonnet-4-5-20250929"
+max_tokens = 128000
+```
+
+See `action.yml` for action inputs. See `src/argus/interfaces/toml_config.py` for all config fields and defaults.
