@@ -6,28 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from argus.interfaces.sync_push import _require_env, run
-from argus.shared.exceptions import ConfigurationError
-
-
-class TestRequireEnv:
-    def test_returns_value_when_set(self) -> None:
-        with patch.dict("os.environ", {"MY_VAR": "hello"}):
-            assert _require_env("MY_VAR") == "hello"
-
-    def test_raises_when_missing(self) -> None:
-        with (
-            patch.dict("os.environ", {}, clear=True),
-            pytest.raises(ConfigurationError, match="MY_VAR"),
-        ):
-            _require_env("MY_VAR")
-
-    def test_raises_when_empty(self) -> None:
-        with (
-            patch.dict("os.environ", {"MY_VAR": ""}),
-            pytest.raises(ConfigurationError, match="MY_VAR"),
-        ):
-            _require_env("MY_VAR")
+from argus.interfaces.sync_push import run
 
 
 class TestSyncPushRun:

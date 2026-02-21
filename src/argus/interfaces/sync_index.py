@@ -41,18 +41,16 @@ from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.git_branch_store import SelectiveGitBranchSync
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.bootstrap import get_parseable_extensions
+from argus.interfaces.env_utils import (
+    DEFAULT_INDEX_MAX_TOKENS,
+    DEFAULT_INDEX_MODEL,
+    require_env,
+)
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET
 from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
-
-
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise ConfigurationError(f"Missing required env var: {name}")
-    return value
 
 
 def _is_parseable(path: str, extensions: frozenset[str]) -> bool:
@@ -90,9 +88,9 @@ def run() -> None:
 
 
 def _execute() -> None:
-    token = _require_env("GITHUB_TOKEN")
-    repo = _require_env("GITHUB_REPOSITORY")
-    event_path = _require_env("GITHUB_EVENT_PATH")
+    token = require_env("GITHUB_TOKEN")
+    repo = require_env("GITHUB_REPOSITORY")
+    event_path = require_env("GITHUB_EVENT_PATH")
     storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
 
     client = GitHubClient(token=token, repo=repo)
@@ -266,8 +264,8 @@ def _maybe_analyze_patterns(
     if os.environ.get("INPUT_ANALYZE_PATTERNS", "false").lower() != "true":
         return
 
-    model = os.environ.get("INPUT_MODEL", "google-gla:gemini-2.5-flash")
-    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", "1000000"))
+    model = os.environ.get("INPUT_MODEL", DEFAULT_INDEX_MODEL)
+    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", str(DEFAULT_INDEX_MAX_TOKENS)))
 
     # Pull existing memory blobs.
     memory_blobs = sync.memory_blob_names()

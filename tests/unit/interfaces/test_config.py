@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from argus.interfaces.config import ActionConfig
+from argus.interfaces.env_utils import DEFAULT_REVIEW_MAX_TOKENS, DEFAULT_REVIEW_MODEL
 from argus.shared.exceptions import ConfigurationError
 from argus.shared.types import ReviewDepth
 
@@ -19,8 +20,8 @@ class TestActionConfig:
 
         assert config.github_token == "tok"
         assert config.github_repository == "org/repo"
-        assert config.model == "anthropic:claude-sonnet-4-5-20250929"
-        assert config.max_tokens == 128_000
+        assert config.model == DEFAULT_REVIEW_MODEL
+        assert config.max_tokens == DEFAULT_REVIEW_MAX_TOKENS
         assert config.review_depth == ReviewDepth.STANDARD
         assert config.extra_extensions == []
 

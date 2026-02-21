@@ -26,8 +26,13 @@ from argus.infrastructure.memory.outline_renderer import OutlineRenderer
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
 from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.memory_store import FileMemoryStore
+from argus.interfaces.env_utils import (
+    DEFAULT_INDEX_MAX_TOKENS,
+    DEFAULT_INDEX_MODEL,
+    require_env,
+)
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET, MAX_FILE_SIZE_BYTES
-from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
+from argus.shared.exceptions import ArgusError, IndexingError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
@@ -71,13 +76,6 @@ def get_parseable_extensions() -> frozenset[str]:
     return PARSEABLE_EXTENSIONS | frozenset(extras)
 
 
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise ConfigurationError(f"Missing required env var: {name}")
-    return value
-
-
 def run() -> None:
     """Bootstrap codebase memory for a repository."""
     logging.basicConfig(
@@ -96,10 +94,10 @@ def run() -> None:
 
 
 def _execute_bootstrap() -> None:
-    token = _require_env("GITHUB_TOKEN")
-    repo = _require_env("GITHUB_REPOSITORY")
-    model = os.environ.get("INPUT_MODEL", "google-gla:gemini-2.5-flash")
-    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", "1000000"))
+    token = require_env("GITHUB_TOKEN")
+    repo = require_env("GITHUB_REPOSITORY")
+    model = os.environ.get("INPUT_MODEL", DEFAULT_INDEX_MODEL)
+    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", str(DEFAULT_INDEX_MAX_TOKENS)))
     storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
 
     client = GitHubClient(token=token, repo=repo)

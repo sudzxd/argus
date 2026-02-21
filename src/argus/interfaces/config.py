@@ -6,17 +6,13 @@ import os
 
 from dataclasses import dataclass, field
 
+from argus.interfaces.env_utils import (
+    DEFAULT_REVIEW_MAX_TOKENS,
+    DEFAULT_REVIEW_MODEL,
+    require_env,
+)
 from argus.shared.exceptions import ConfigurationError
 from argus.shared.types import ReviewDepth
-
-
-def _require_env(name: str) -> str:
-    """Read a required environment variable or raise."""
-    value = os.environ.get(name)
-    if not value:
-        msg = f"Missing required environment variable: {name}"
-        raise ConfigurationError(msg)
-    return value
 
 
 def _parse_int(name: str, raw: str) -> int:
@@ -44,8 +40,8 @@ class ActionConfig:
     github_token: str
     github_repository: str
     github_event_path: str
-    model: str = "anthropic:claude-sonnet-4-5-20250929"
-    max_tokens: int = 128_000
+    model: str = DEFAULT_REVIEW_MODEL
+    max_tokens: int = DEFAULT_REVIEW_MAX_TOKENS
     temperature: float = 0.0
     confidence_threshold: float = 0.7
     ignored_paths: list[str] = field(default_factory=list[str])
@@ -72,13 +68,13 @@ class ActionConfig:
         ignored = [p.strip() for p in raw_ignored.split(",") if p.strip()]
 
         return cls(
-            github_token=_require_env("GITHUB_TOKEN"),
-            github_repository=_require_env("GITHUB_REPOSITORY"),
-            github_event_path=_require_env("GITHUB_EVENT_PATH"),
-            model=os.environ.get("INPUT_MODEL", "anthropic:claude-sonnet-4-5-20250929"),
+            github_token=require_env("GITHUB_TOKEN"),
+            github_repository=require_env("GITHUB_REPOSITORY"),
+            github_event_path=require_env("GITHUB_EVENT_PATH"),
+            model=os.environ.get("INPUT_MODEL", DEFAULT_REVIEW_MODEL),
             max_tokens=_parse_int(
                 "INPUT_MAX_TOKENS",
-                os.environ.get("INPUT_MAX_TOKENS", "128000"),
+                os.environ.get("INPUT_MAX_TOKENS", str(DEFAULT_REVIEW_MAX_TOKENS)),
             ),
             temperature=_parse_float(
                 "INPUT_TEMPERATURE",
