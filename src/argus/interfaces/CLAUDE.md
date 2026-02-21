@@ -14,6 +14,7 @@ The only layer that imports from all other layers. Wires infrastructure into app
 | `action.py` | PR review entry point — parses GitHub event, constructs all infrastructure, wires use case, executes review pipeline |
 | `bootstrap.py` | Full rebuild — fetches full repo tree, parses all files, builds outline + patterns, sets `analyzed_at` |
 | `sync_index.py` | Incremental index on push — updates codebase map for changed files, optionally runs pattern analysis (`INPUT_ANALYZE_PATTERNS`) |
+| `env_utils.py` | `require_env()` shared helper + centralized default constants (`DEFAULT_REVIEW_MODEL`, `DEFAULT_INDEX_MODEL`, etc.) |
 | `sync_push.py` | Push artifacts to `argus-data` branch via Git Data API |
 
 ## Data Flow

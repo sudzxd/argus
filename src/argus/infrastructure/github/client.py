@@ -58,7 +58,8 @@ class GitHubClient:
             PublishError: If the API call fails.
         """
         encoded_path = urllib.parse.quote(str(path), safe="/")
-        url = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents/{encoded_path}?ref={ref}"
+        base = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents"
+        url = f"{base}/{encoded_path}?ref={ref}"
         headers = self._headers()
         headers["accept"] = "application/vnd.github.v3.raw"
         response = self._request(url, headers)
