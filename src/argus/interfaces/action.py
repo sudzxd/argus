@@ -64,7 +64,7 @@ def run() -> None:
     )
 
     try:
-        config = ActionConfig.from_env()
+        config = ActionConfig.from_toml()
         _execute_pipeline(config)
     except ArgusError as e:
         logger.error("Argus failed: %s", e)

@@ -1,36 +1,12 @@
-"""Configuration assembly from environment variables."""
+"""Configuration assembly — TOML config + environment secrets."""
 
 from __future__ import annotations
 
-import os
-
 from dataclasses import dataclass, field
 
-from argus.interfaces.env_utils import (
-    DEFAULT_REVIEW_MAX_TOKENS,
-    DEFAULT_REVIEW_MODEL,
-    require_env,
-)
-from argus.shared.exceptions import ConfigurationError
+from argus.interfaces.env_utils import require_env
+from argus.interfaces.toml_config import load_argus_config
 from argus.shared.types import ReviewDepth
-
-
-def _parse_int(name: str, raw: str) -> int:
-    """Parse an integer env var or raise with a clear message."""
-    try:
-        return int(raw)
-    except ValueError:
-        msg = f"Invalid integer for {name}: {raw!r}"
-        raise ConfigurationError(msg) from None
-
-
-def _parse_float(name: str, raw: str) -> float:
-    """Parse a float env var or raise with a clear message."""
-    try:
-        return float(raw)
-    except ValueError:
-        msg = f"Invalid float for {name}: {raw!r}"
-        raise ConfigurationError(msg) from None
 
 
 @dataclass(frozen=True)
@@ -40,8 +16,8 @@ class ActionConfig:
     github_token: str
     github_repository: str
     github_event_path: str
-    model: str = DEFAULT_REVIEW_MODEL
-    max_tokens: int = DEFAULT_REVIEW_MAX_TOKENS
+    model: str
+    max_tokens: int
     temperature: float = 0.0
     confidence_threshold: float = 0.7
     ignored_paths: list[str] = field(default_factory=list[str])
@@ -54,62 +30,29 @@ class ActionConfig:
     embedding_model: str = ""
 
     @classmethod
-    def from_env(cls) -> ActionConfig:
-        """Build config from environment variables.
+    def from_toml(cls, mode: str = "review") -> ActionConfig:
+        """Build config from ``[tool.argus]`` in pyproject.toml + env secrets.
 
-        Required:
-            GITHUB_TOKEN, GITHUB_REPOSITORY, GITHUB_EVENT_PATH
-
-        Optional (with defaults):
-            INPUT_MODEL, INPUT_MAX_TOKENS, INPUT_CONFIDENCE_THRESHOLD,
-            INPUT_IGNORED_PATHS, INPUT_STORAGE_DIR, INPUT_ENABLE_AGENTIC
+        TOML provides all configuration values.  Environment variables are
+        used only for GitHub runtime secrets (``GITHUB_TOKEN``,
+        ``GITHUB_REPOSITORY``, ``GITHUB_EVENT_PATH``).
         """
-        raw_ignored = os.environ.get("INPUT_IGNORED_PATHS", "")
-        ignored = [p.strip() for p in raw_ignored.split(",") if p.strip()]
+        cfg = load_argus_config(mode)
 
         return cls(
             github_token=require_env("GITHUB_TOKEN"),
             github_repository=require_env("GITHUB_REPOSITORY"),
             github_event_path=require_env("GITHUB_EVENT_PATH"),
-            model=os.environ.get("INPUT_MODEL", DEFAULT_REVIEW_MODEL),
-            max_tokens=_parse_int(
-                "INPUT_MAX_TOKENS",
-                os.environ.get("INPUT_MAX_TOKENS", str(DEFAULT_REVIEW_MAX_TOKENS)),
-            ),
-            temperature=_parse_float(
-                "INPUT_TEMPERATURE",
-                os.environ.get("INPUT_TEMPERATURE", "0.0"),
-            ),
-            confidence_threshold=_parse_float(
-                "INPUT_CONFIDENCE_THRESHOLD",
-                os.environ.get("INPUT_CONFIDENCE_THRESHOLD", "0.7"),
-            ),
-            ignored_paths=ignored,
-            storage_dir=os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"),
-            enable_agentic=os.environ.get("INPUT_ENABLE_AGENTIC", "false").lower()
-            == "true",
-            review_depth=ReviewDepth(os.environ.get("INPUT_REVIEW_DEPTH", "standard")),
-            extra_extensions=_parse_extensions(
-                os.environ.get("INPUT_EXTRA_EXTENSIONS", "")
-            ),
-            enable_pr_context=os.environ.get("INPUT_ENABLE_PR_CONTEXT", "true").lower()
-            == "true",
-            search_related_issues=os.environ.get(
-                "INPUT_SEARCH_RELATED_ISSUES", "false"
-            ).lower()
-            == "true",
-            embedding_model=os.environ.get("INPUT_EMBEDDING_MODEL", ""),
+            model=cfg.model,
+            max_tokens=cfg.max_tokens,
+            temperature=cfg.temperature,
+            confidence_threshold=cfg.confidence_threshold,
+            ignored_paths=cfg.ignored_paths,
+            storage_dir=cfg.storage_dir,
+            enable_agentic=cfg.enable_agentic,
+            review_depth=cfg.review_depth,
+            extra_extensions=cfg.extra_extensions,
+            enable_pr_context=cfg.enable_pr_context,
+            search_related_issues=cfg.search_related_issues,
+            embedding_model=cfg.embedding_model,
         )
-
-
-def _parse_extensions(raw: str) -> list[str]:
-    """Parse comma-separated extensions, ensuring each starts with '.'."""
-    exts: list[str] = []
-    for ext in raw.split(","):
-        ext = ext.strip()
-        if not ext:
-            continue
-        if not ext.startswith("."):
-            ext = f".{ext}"
-        exts.append(ext)
-    return exts

@@ -2,56 +2,76 @@
 
 from __future__ import annotations
 
+import textwrap
+
+from pathlib import Path
+from unittest.mock import patch
+
 import pytest
 
 from argus.interfaces.config import ActionConfig
-from argus.interfaces.env_utils import DEFAULT_REVIEW_MAX_TOKENS, DEFAULT_REVIEW_MODEL
 from argus.shared.exceptions import ConfigurationError
 from argus.shared.types import ReviewDepth
 
 
 class TestActionConfig:
-    def test_from_env_with_defaults(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_from_toml_with_defaults(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
         monkeypatch.setenv("GITHUB_TOKEN", "tok")
         monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
         monkeypatch.setenv("GITHUB_EVENT_PATH", "/tmp/event.json")
 
-        config = ActionConfig.from_env()
+        # No pyproject.toml → all defaults
+        with patch("argus.interfaces.toml_config.Path.cwd", return_value=tmp_path):
+            config = ActionConfig.from_toml()
 
         assert config.github_token == "tok"
         assert config.github_repository == "org/repo"
-        assert config.model == DEFAULT_REVIEW_MODEL
-        assert config.max_tokens == DEFAULT_REVIEW_MAX_TOKENS
+        assert config.model == "anthropic:claude-sonnet-4-5-20250929"
+        assert config.max_tokens == 128_000
         assert config.review_depth == ReviewDepth.STANDARD
         assert config.extra_extensions == []
 
-    def test_from_env_with_custom_review_depth(
-        self, monkeypatch: pytest.MonkeyPatch
+    def test_from_toml_with_custom_review_depth(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         monkeypatch.setenv("GITHUB_TOKEN", "tok")
         monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
         monkeypatch.setenv("GITHUB_EVENT_PATH", "/tmp/event.json")
-        monkeypatch.setenv("INPUT_REVIEW_DEPTH", "deep")
 
-        config = ActionConfig.from_env()
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent("""\
+                [tool.argus]
+                review_depth = "deep"
+            """)
+        )
+        with patch("argus.interfaces.toml_config.Path.cwd", return_value=tmp_path):
+            config = ActionConfig.from_toml()
 
         assert config.review_depth == ReviewDepth.DEEP
 
-    def test_from_env_with_extra_extensions(
-        self, monkeypatch: pytest.MonkeyPatch
+    def test_from_toml_with_extra_extensions(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         monkeypatch.setenv("GITHUB_TOKEN", "tok")
         monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
         monkeypatch.setenv("GITHUB_EVENT_PATH", "/tmp/event.json")
-        monkeypatch.setenv("INPUT_EXTRA_EXTENSIONS", ".vue, .svelte, proto")
 
-        config = ActionConfig.from_env()
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent("""\
+                [tool.argus]
+                extra_extensions = [".vue", ".svelte", "proto"]
+            """)
+        )
+        with patch("argus.interfaces.toml_config.Path.cwd", return_value=tmp_path):
+            config = ActionConfig.from_toml()
 
         assert ".vue" in config.extra_extensions
         assert ".svelte" in config.extra_extensions
         assert ".proto" in config.extra_extensions
 
-    def test_from_env_missing_required_raises(
+    def test_from_toml_missing_required_raises(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.delenv("GITHUB_TOKEN", raising=False)
@@ -59,4 +79,4 @@ class TestActionConfig:
         monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
 
         with pytest.raises(ConfigurationError, match="GITHUB_TOKEN"):
-            ActionConfig.from_env()
+            ActionConfig.from_toml()
