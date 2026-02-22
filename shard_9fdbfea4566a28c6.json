@@ -132,7 +132,7 @@
           "name": "_build_embeddings",
           "kind": "function",
           "line_start": 232,
-          "line_end": 305,
+          "line_end": 304,
           "signature": "def _build_embeddings("
         }
       ],
@@ -377,14 +377,14 @@
           "name": "_maybe_build_embeddings",
           "kind": "function",
           "line_start": 336,
-          "line_end": 414,
+          "line_end": 413,
           "signature": "def _maybe_build_embeddings("
         },
         {
           "name": "_incremental_update_sharded",
           "kind": "function",
-          "line_start": 417,
-          "line_end": 470,
+          "line_start": 416,
+          "line_end": 469,
           "signature": "def _incremental_update_sharded("
         }
       ],

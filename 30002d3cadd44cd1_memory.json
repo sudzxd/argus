@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 1,
+  "version": 2,
   "outline": {
     "version": 0,
     "entries": [
@@ -832,6 +832,15 @@
       ]
     },
     {
+      "category": "architecture",
+      "description": "The `src/argus/interfaces` directory serves as a dedicated layer for defining top-level application entry points or orchestration logic, typically exposing a `run()` function as the primary public interface for a given operation.",
+      "confidence": 0.8,
+      "examples": [
+        "src/argus/interfaces/bootstrap.py:run()",
+        "src/argus/interfaces/sync_index.py:run()"
+      ]
+    },
+    {
       "category": "style",
       "description": "The project consistently uses `StrEnum` and `IntEnum` for defining enumerations, providing type safety and clear representation for string and integer-backed enums.",
       "confidence": 0.7,
@@ -859,6 +868,15 @@
       ]
     },
     {
+      "category": "architecture",
+      "description": "The codebase incorporates explicit mechanisms, functions, and naming conventions (e.g., `legacy_`, `_handle_legacy_`, `_migrate_`) to manage and facilitate migration from older versions of data structures, storage formats, or application logic.",
+      "confidence": 0.7,
+      "examples": [
+        "src/argus/infrastructure/storage/artifact_store.py:legacy_artifact_path",
+        "src/argus/interfaces/sync_index.py:_handle_legacy_path"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -866,7 +884,16 @@
         "src/argus/domain/llm/value_objects.py: TokenBudget: def __post_init__(self) -> None",
         "src/argus/shared/types.py: LineRange: def __post_init__(self) -> None"
       ]
+    },
+    {
+      "category": "style",
+      "description": "Modules and classes consistently employ private helper methods (prefixed with `_`) to decompose complex public operations into smaller, more focused, and encapsulated units of logic, improving readability and maintainability.",
+      "confidence": 0.6,
+      "examples": [
+        "src/argus/infrastructure/storage/artifact_store.py:_atomic_write_text",
+        "src/argus/interfaces/sync_index.py:_execute"
+      ]
     }
   ],
-  "analyzed_at": "ceba7625704ae20d4041ea6eec4cdb694e823cfb"
+  "analyzed_at": "82f5cef638c0c74bfa2fd3cc9aae2c7add9df342"
 }

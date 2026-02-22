@@ -12,136 +12,153 @@
       "path": "src/argus/infrastructure/storage/artifact_store.py",
       "symbols": [
         {
+          "name": "_atomic_write_text",
+          "kind": "function",
+          "line_start": 30,
+          "line_end": 55,
+          "signature": "def _atomic_write_text(path"
+        },
+        {
           "name": "legacy_artifact_path",
           "kind": "function",
-          "line_start": 27,
-          "line_end": 30,
+          "line_start": 58,
+          "line_end": 61,
           "signature": "def legacy_artifact_path(storage_dir"
         },
         {
           "name": "FileArtifactStore",
           "kind": "class",
-          "line_start": 39,
-          "line_end": 69,
+          "line_start": 70,
+          "line_end": 100,
           "signature": "class FileArtifactStore"
         },
         {
           "name": "load",
           "kind": "method",
-          "line_start": 44,
-          "line_end": 59,
+          "line_start": 75,
+          "line_end": 90,
           "signature": "def load(self, repo_id"
         },
         {
           "name": "save",
           "kind": "method",
-          "line_start": 61,
-          "line_end": 66,
+          "line_start": 92,
+          "line_end": 97,
           "signature": "def save(self, repo_id"
         },
         {
           "name": "_path_for",
           "kind": "method",
-          "line_start": 68,
-          "line_end": 69,
+          "line_start": 99,
+          "line_end": 100,
           "signature": "def _path_for(self, repo_id"
         },
         {
           "name": "ShardedArtifactStore",
           "kind": "class",
-          "line_start": 78,
-          "line_end": 368,
+          "line_start": 109,
+          "line_end": 400,
           "signature": "class ShardedArtifactStore"
         },
         {
           "name": "load",
           "kind": "method",
-          "line_start": 95,
-          "line_end": 100,
+          "line_start": 126,
+          "line_end": 131,
           "signature": "def load(self, repo_id"
         },
         {
           "name": "save",
           "kind": "method",
-          "line_start": 102,
-          "line_end": 107,
+          "line_start": 133,
+          "line_end": 138,
           "signature": "def save(self, repo_id"
         },
         {
           "name": "load_manifest",
           "kind": "method",
-          "line_start": 113,
-          "line_end": 127,
+          "line_start": 144,
+          "line_end": 158,
           "signature": "def load_manifest(self, repo_id"
+        },
+        {
+          "name": "save_manifest",
+          "kind": "method",
+          "line_start": 160,
+          "line_end": 163,
+          "signature": "def save_manifest(self, manifest"
         },
         {
           "name": "load_shards",
           "kind": "method",
-          "line_start": 129,
-          "line_end": 152,
+          "line_start": 165,
+          "line_end": 188,
           "signature": "def load_shards("
         },
         {
           "name": "save_shards",
           "kind": "method",
-          "line_start": 154,
-          "line_end": 173,
+          "line_start": 190,
+          "line_end": 208,
           "signature": "def save_shards("
         },
         {
           "name": "save_shard_data",
           "kind": "method",
-          "line_start": 175,
-          "line_end": 186,
+          "line_start": 210,
+          "line_end": 220,
           "signature": "def save_shard_data(self, shard_data"
         },
         {
           "name": "load_full",
           "kind": "method",
-          "line_start": 188,
-          "line_end": 195,
+          "line_start": 222,
+          "line_end": 229,
           "signature": "def load_full(self, repo_id"
         },
         {
           "name": "load_or_migrate",
           "kind": "method",
-          "line_start": 197,
-          "line_end": 210,
+          "line_start": 231,
+          "line_end": 244,
           "signature": "def load_or_migrate(self, repo_id"
         },
         {
           "name": "save_full",
           "kind": "method",
-          "line_start": 212,
-          "line_end": 231,
+          "line_start": 246,
+          "line_end": 263,
           "signature": "def save_full(self, repo_id"
         },
         {
           "name": "save_incremental",
           "kind": "method",
-          "line_start": 233,
-          "line_end": 297,
+          "line_start": 265,
+          "line_end": 329,
           "signature": "def save_incremental("
         },
         {
           "name": "save_embedding_index",
           "kind": "method",
-          "line_start": 303,
-          "line_end": 327,
+          "line_start": 335,
+          "line_end": 359,
           "signature": "def save_embedding_index(self, index"
         },
         {
           "name": "load_embedding_indices",
           "kind": "method",
-          "line_start": 329,
-          "line_end": 368,
+          "line_start": 361,
+          "line_end": 400,
           "signature": "def load_embedding_indices("
         }
       ],
       "imports": [
+        "contextlib",
         "hashlib",
         "json",
         "logging",
+        "os",
+        "tempfile",
         "dataclasses",
         "pathlib",
         "typing",
@@ -150,6 +167,7 @@
         "argus.infrastructure.storage"
       ],
       "exports": [
+        "_atomic_write_text",
         "legacy_artifact_path"
       ],
       "last_indexed": "",

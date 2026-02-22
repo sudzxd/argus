@@ -501,111 +501,162 @@
         {
           "name": "_build_map",
           "kind": "function",
-          "line_start": 26,
-          "line_end": 60,
+          "line_start": 30,
+          "line_end": 64,
           "signature": "def _build_map() -> CodebaseMap"
         },
         {
           "name": "test_save_full_and_load_full",
           "kind": "function",
-          "line_start": 68,
-          "line_end": 79,
+          "line_start": 72,
+          "line_end": 83,
           "signature": "def test_save_full_and_load_full(tmp_path"
         },
         {
           "name": "test_save_full_creates_manifest",
           "kind": "function",
-          "line_start": 82,
-          "line_end": 88,
+          "line_start": 86,
+          "line_end": 92,
           "signature": "def test_save_full_creates_manifest(tmp_path"
         },
         {
           "name": "test_save_full_creates_shard_files",
           "kind": "function",
-          "line_start": 91,
-          "line_end": 96,
+          "line_start": 95,
+          "line_end": 100,
           "signature": "def test_save_full_creates_shard_files(tmp_path"
         },
         {
           "name": "test_load_manifest_returns_none_when_missing",
           "kind": "function",
-          "line_start": 104,
-          "line_end": 106,
+          "line_start": 108,
+          "line_end": 110,
           "signature": "def test_load_manifest_returns_none_when_missing(tmp_path"
         },
         {
           "name": "test_load_manifest_returns_none_when_corrupt",
           "kind": "function",
-          "line_start": 109,
-          "line_end": 114,
+          "line_start": 113,
+          "line_end": 118,
           "signature": "def test_load_manifest_returns_none_when_corrupt(tmp_path"
         },
         {
           "name": "test_load_shards_partial",
           "kind": "function",
-          "line_start": 122,
-          "line_end": 130,
+          "line_start": 126,
+          "line_end": 134,
           "signature": "def test_load_shards_partial(tmp_path"
         },
         {
           "name": "test_load_shards_missing_shard_skipped",
           "kind": "function",
-          "line_start": 133,
-          "line_end": 139,
+          "line_start": 137,
+          "line_end": 143,
           "signature": "def test_load_shards_missing_shard_skipped(tmp_path"
         },
         {
           "name": "test_load_or_migrate_sharded",
           "kind": "function",
-          "line_start": 147,
-          "line_end": 154,
+          "line_start": 151,
+          "line_end": 158,
           "signature": "def test_load_or_migrate_sharded(tmp_path"
         },
         {
           "name": "test_load_or_migrate_legacy",
           "kind": "function",
-          "line_start": 157,
-          "line_end": 176,
+          "line_start": 161,
+          "line_end": 180,
           "signature": "def test_load_or_migrate_legacy(tmp_path"
         },
         {
           "name": "test_load_or_migrate_nothing",
           "kind": "function",
-          "line_start": 179,
-          "line_end": 181,
+          "line_start": 183,
+          "line_end": 185,
           "signature": "def test_load_or_migrate_nothing(tmp_path"
         },
         {
           "name": "test_save_full_removes_legacy",
           "kind": "function",
-          "line_start": 189,
-          "line_end": 200,
+          "line_start": 193,
+          "line_end": 204,
           "signature": "def test_save_full_removes_legacy(tmp_path"
         },
         {
           "name": "test_save_and_load_empty_map",
           "kind": "function",
-          "line_start": 208,
-          "line_end": 217,
+          "line_start": 212,
+          "line_end": 221,
           "signature": "def test_save_and_load_empty_map(tmp_path"
         },
         {
           "name": "test_save_incremental_returns_orphaned_blobs",
           "kind": "function",
-          "line_start": 225,
-          "line_end": 261,
+          "line_start": 229,
+          "line_end": 265,
           "signature": "def test_save_incremental_returns_orphaned_blobs(tmp_path"
         },
         {
           "name": "test_save_incremental_no_orphans_when_unchanged",
           "kind": "function",
-          "line_start": 264,
-          "line_end": 276,
+          "line_start": 268,
+          "line_end": 280,
           "signature": "def test_save_incremental_no_orphans_when_unchanged(tmp_path"
+        },
+        {
+          "name": "test_atomic_write_creates_valid_file",
+          "kind": "function",
+          "line_start": 288,
+          "line_end": 299,
+          "signature": "def test_atomic_write_creates_valid_file(tmp_path"
+        },
+        {
+          "name": "test_atomic_write_no_temp_files_left",
+          "kind": "function",
+          "line_start": 302,
+          "line_end": 308,
+          "signature": "def test_atomic_write_no_temp_files_left(tmp_path"
+        },
+        {
+          "name": "test_save_full_uses_atomic_write",
+          "kind": "function",
+          "line_start": 311,
+          "line_end": 325,
+          "signature": "def test_save_full_uses_atomic_write(tmp_path"
+        },
+        {
+          "name": "test_save_incremental_orphan_deletion_after_manifest",
+          "kind": "function",
+          "line_start": 328,
+          "line_end": 391,
+          "signature": "def test_save_incremental_orphan_deletion_after_manifest(tmp_path"
+        },
+        {
+          "name": "tracking_replace",
+          "kind": "function",
+          "line_start": 363,
+          "line_end": 369,
+          "signature": "def tracking_replace(self_path"
+        },
+        {
+          "name": "tracking_unlink",
+          "kind": "function",
+          "line_start": 371,
+          "line_end": 377,
+          "signature": "def tracking_unlink("
+        },
+        {
+          "name": "test_save_manifest_public_method",
+          "kind": "function",
+          "line_start": 394,
+          "line_end": 412,
+          "signature": "def test_save_manifest_public_method(tmp_path"
         }
       ],
       "imports": [
+        "json",
         "pathlib",
+        "unittest.mock",
         "argus.domain.context.entities",
         "argus.domain.context.value_objects",
         "argus.infrastructure.storage.artifact_store",
@@ -626,7 +677,12 @@
         "test_save_full_removes_legacy",
         "test_save_and_load_empty_map",
         "test_save_incremental_returns_orphaned_blobs",
-        "test_save_incremental_no_orphans_when_unchanged"
+        "test_save_incremental_no_orphans_when_unchanged",
+        "test_atomic_write_creates_valid_file",
+        "test_atomic_write_no_temp_files_left",
+        "test_save_full_uses_atomic_write",
+        "test_save_incremental_orphan_deletion_after_manifest",
+        "test_save_manifest_public_method"
       ],
       "last_indexed": "",
       "summary": null
