@@ -269,6 +269,7 @@ def _execute_pipeline(config: ActionConfig) -> None:
             # Load embedding indices for needed shards.
             embedding_indices = sharded_store.load_embedding_indices(
                 loaded_shard_ids,
+                model=config.embedding_model,
             )
             if embedding_indices:
                 emb_provider = create_embedding_provider(config.embedding_model)

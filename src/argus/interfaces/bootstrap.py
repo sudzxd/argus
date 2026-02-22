@@ -218,6 +218,7 @@ def _execute_bootstrap() -> None:
             codebase_map=codebase_map,
             file_contents=file_contents,
             sharded_store=sharded_store,
+            repo=repo,
         )
 
     logger.info(
@@ -233,9 +234,15 @@ def _build_embeddings(
     codebase_map: CodebaseMap,
     file_contents: dict[FilePath, str],
     sharded_store: ShardedArtifactStore,
+    repo: str = "",
 ) -> None:
     """Build embedding indices for all shards."""
-    from argus.domain.context.value_objects import EmbeddingIndex, ShardId, shard_id_for
+    from argus.domain.context.value_objects import (
+        EmbeddingDescriptor,
+        EmbeddingIndex,
+        ShardId,
+        shard_id_for,
+    )
     from argus.infrastructure.parsing.chunker import Chunker
     from argus.infrastructure.retrieval.embeddings import create_embedding_provider
 
@@ -254,6 +261,7 @@ def _build_embeddings(
         shard_files.setdefault(sid, []).append(path)
 
     built = 0
+    descriptors: dict[ShardId, EmbeddingDescriptor] = {}
     for sid, paths in shard_files.items():
         texts: list[str] = []
         chunk_ids: list[str] = []
@@ -280,10 +288,19 @@ def _build_embeddings(
                 dimension=provider.dimension,
                 model=embedding_model,
             )
-            sharded_store.save_embedding_index(index)
+            desc = sharded_store.save_embedding_index(index)
+            descriptors[sid] = desc
             built += 1
         except Exception:
             logger.warning("Failed to build embeddings for shard %s", sid)
+
+    # Update manifest with embedding descriptors.
+    if descriptors and repo:
+        manifest = sharded_store.load_manifest(repo)
+        if manifest is not None:
+            manifest.embedding_indices.update(descriptors)
+            manifest_path = sharded_store.storage_dir / "manifest.json"
+            manifest_path.write_text(manifest.to_json(), encoding="utf-8")
 
     logger.info("Built embeddings for %d shards", built)
 

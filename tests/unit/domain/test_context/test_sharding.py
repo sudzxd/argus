@@ -7,6 +7,7 @@ import pytest
 from argus.domain.context.value_objects import (
     CrossShardEdge,
     EdgeKind,
+    EmbeddingDescriptor,
     ShardDescriptor,
     ShardedManifest,
     ShardId,
@@ -190,3 +191,39 @@ def test_manifest_round_trip_empty() -> None:
     assert restored.indexed_at == CommitSHA("empty")
     assert len(restored.shards) == 0
     assert len(restored.cross_shard_edges) == 0
+
+
+# =============================================================================
+# Embedding descriptors in manifest
+# =============================================================================
+
+
+def test_manifest_embedding_indices_round_trip() -> None:
+    """EmbeddingDescriptor entries survive serialization round-trip."""
+    m = ShardedManifest(indexed_at=CommitSHA("sha1"))
+    m.embedding_indices[ShardId("src")] = EmbeddingDescriptor(
+        shard_id=ShardId("src"),
+        model="test-model",
+        dimension=384,
+        blob_name="abc_embeddings.json",
+    )
+
+    restored = ShardedManifest.from_json(m.to_json())
+
+    assert ShardId("src") in restored.embedding_indices
+    desc = restored.embedding_indices[ShardId("src")]
+    assert desc.model == "test-model"
+    assert desc.dimension == 384
+    assert desc.blob_name == "abc_embeddings.json"
+
+
+def test_manifest_from_dict_without_embedding_indices() -> None:
+    """Old manifests without embedding_indices deserialize cleanly."""
+    data: dict[str, object] = {
+        "version": 2,
+        "indexed_at": "sha1",
+        "shards": {},
+        "cross_shard_edges": [],
+    }
+    m = ShardedManifest.from_dict(data)
+    assert m.embedding_indices == {}

@@ -267,3 +267,29 @@ def test_incremental_update_skips_unparseable_keeps_old_entry(
 
     # Old entry preserved when reparse fails
     assert result.get(FilePath("a.py")) is old_entry
+
+
+def test_incremental_update_mutates_in_place(
+    service: IndexingService,
+) -> None:
+    """incremental_update returns the same object (mutated in-place)."""
+    existing = CodebaseMap(indexed_at=CommitSHA("old"))
+    existing.upsert(
+        FileEntry(
+            path=FilePath("a.py"),
+            symbols=[],
+            imports=[],
+            exports=[],
+            last_indexed=CommitSHA("old"),
+        )
+    )
+
+    result = service.incremental_update(
+        codebase_map=existing,
+        commit_sha=CommitSHA("new"),
+        file_contents={FilePath("b.py"): "def b(): pass"},
+    )
+
+    # The returned object IS the same object passed in.
+    assert result is existing
+    assert existing.indexed_at == CommitSHA("new")

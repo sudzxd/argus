@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 
 from dataclasses import dataclass, field
@@ -12,6 +13,8 @@ from argus.domain.retrieval.value_objects import ContextItem, RetrievalQuery
 from argus.infrastructure.constants import CHARS_PER_TOKEN
 from argus.infrastructure.parsing.chunker import CodeChunk
 from argus.shared.types import FilePath, TokenCount
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -55,7 +58,18 @@ class SemanticRetrievalStrategy:
         query_embedding = self.provider.embed([query_text])[0]
 
         scored: list[tuple[float, str]] = []
+        query_dim = len(query_embedding)
         for index in self.embedding_indices:
+            if index.dimension != query_dim:
+                logger.warning(
+                    "Dimension mismatch: query=%d, index=%d "
+                    "(shard=%s, model=%s), skipping",
+                    query_dim,
+                    index.dimension,
+                    index.shard_id,
+                    index.model,
+                )
+                continue
             for i, chunk_id in enumerate(index.chunk_ids):
                 if i < len(index.embeddings):
                     score = _cosine_similarity(query_embedding, index.embeddings[i])
