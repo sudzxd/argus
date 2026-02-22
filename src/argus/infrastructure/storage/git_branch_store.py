@@ -87,7 +87,7 @@ class GitBranchSync:
             return
 
         # Create blobs for each file.
-        tree_entries: list[dict[str, str]] = []
+        tree_entries: list[dict[str, str | None]] = []
         for file_path in files:
             content_b64 = base64.b64encode(file_path.read_bytes()).decode()
             blob_sha = self.client.create_blob(content_b64)
@@ -249,6 +249,25 @@ class SelectiveGitBranchSync:
                 names.add(entry_path)
         return names
 
+    def embedding_blob_names(self) -> set[str]:
+        """Return filenames matching ``*_embeddings.json`` from cached tree.
+
+        Must be called after ``pull_manifest`` (which populates the cache).
+        Returns an empty set if no tree is cached.
+        """
+        if self._cached_tree is None:
+            return set()
+        names: set[str] = set()
+        for entry in self._cached_tree:
+            entry_path = entry.get("path")
+            if (
+                isinstance(entry_path, str)
+                and entry_path.endswith("_embeddings.json")
+                and entry.get("type") == "blob"
+            ):
+                names.add(entry_path)
+        return names
+
     def pull_all(self) -> int:
         """Download all artifacts (manifest + all shards + memory).
 
@@ -283,22 +302,26 @@ class SelectiveGitBranchSync:
         logger.info("Pulled %d artifacts from %s", count, self.branch)
         return count
 
-    def push(self) -> None:
+    def push(self, delete_blobs: set[str] | None = None) -> None:
         """Upload JSON artifacts from storage_dir to the branch.
 
         Uses ``base_tree`` when the branch already exists so that
         blobs not present locally (e.g. shards from other directories)
         are preserved on the branch.  Only local files are added or
-        overwritten; nothing is deleted.
+        overwritten.
+
+        Args:
+            delete_blobs: Optional set of blob filenames to remove from
+                the branch tree (e.g. orphaned shard blobs).
 
         Clears the cached tree since branch state has changed.
         """
         files = sorted(self.storage_dir.glob("*.json"))
-        if not files:
+        if not files and not delete_blobs:
             logger.info("No artifacts to push, skipping")
             return
 
-        tree_entries: list[dict[str, str]] = []
+        tree_entries: list[dict[str, str | None]] = []
         for file_path in files:
             content_b64 = base64.b64encode(file_path.read_bytes()).decode()
             blob_sha = self.client.create_blob(content_b64)
@@ -308,6 +331,19 @@ class SelectiveGitBranchSync:
                     "mode": "100644",
                     "type": "blob",
                     "sha": blob_sha,
+                }
+            )
+
+        # Delete orphaned blobs by setting sha to None (JSON null).
+        # GitHub's Git Data API treats a null sha as a deletion when
+        # used with base_tree.
+        for blob_name in delete_blobs or set():
+            tree_entries.append(
+                {
+                    "path": blob_name,
+                    "mode": "100644",
+                    "type": "blob",
+                    "sha": None,
                 }
             )
 
@@ -333,6 +369,9 @@ class SelectiveGitBranchSync:
         else:
             self.client.update_ref(f"heads/{self.branch}", commit_sha)
             logger.info("Updated branch %s with %d artifacts", self.branch, len(files))
+
+        if delete_blobs:
+            logger.info("Deleted %d orphaned blobs from branch", len(delete_blobs))
 
         # Invalidate cached tree — branch state has changed.
         self._cached_tree = None

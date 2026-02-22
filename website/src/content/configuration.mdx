@@ -1,47 +1,72 @@
 ---
 title: Configuration
-description: All available inputs and configuration options for the Argus GitHub Action.
+description: All available configuration options for the Argus GitHub Action.
 order: 2
 ---
 
-## Action Inputs
+## TOML Configuration
 
-Configure Argus through the `with` block in your workflow file.
+All Argus configuration lives in `[tool.argus]` in your `pyproject.toml`. If you don't have a `pyproject.toml`, create one — or simply omit the section and all defaults will apply.
+
+```toml
+[tool.argus]
+model = "anthropic:claude-sonnet-4-5-20250929"
+max_tokens = 128000
+temperature = 0.0
+confidence_threshold = 0.7
+review_depth = "standard"
+storage_dir = ".argus-artifacts"
+
+[tool.argus.index]
+model = "google-gla:gemini-2.5-flash"
+max_tokens = 1000000
+analyze_patterns = true
+```
+
+The `[tool.argus]` section provides defaults for all modes. The `[tool.argus.index]` subsection overrides values only when running in `index` or `bootstrap` mode.
 
 ### Core Settings
 
-| Input | Default | Description |
-|-------|---------|-------------|
-| `mode` | `review` | Operating mode: `review`, `index`, or `bootstrap` |
+| Key | Default | Description |
+|-----|---------|-------------|
 | `model` | `anthropic:claude-sonnet-4-5-20250929` | LLM model identifier |
 | `max_tokens` | `128000` | Maximum tokens for LLM response |
-| `temperature` | `0.0` | LLM sampling temperature |
+| `temperature` | `0.0` | LLM sampling temperature (0.0–2.0) |
 
 ### Review Settings
 
-| Input | Default | Description |
-|-------|---------|-------------|
+| Key | Default | Description |
+|-----|---------|-------------|
 | `confidence_threshold` | `0.7` | Minimum confidence (0.0–1.0) for posting a comment |
-| `review_depth` | `standard` | Review depth: `quick`, `standard`, or `deep` |
+| `review_depth` | `"standard"` | Review depth: `"quick"`, `"standard"`, or `"deep"` |
 | `enable_agentic` | `false` | Enable agentic review mode for deeper analysis |
-| `ignored_paths` | `""` | Comma-separated glob patterns to skip (e.g. `docs/**,*.md`) |
-| `extra_extensions` | `""` | Extra file extensions to parse (e.g. `.vue,.svelte,.proto`) |
+| `ignored_paths` | `[]` | Glob patterns to skip (e.g. `["docs/**", "*.md"]`) |
+| `extra_extensions` | `[]` | Extra file extensions to parse (e.g. `[".vue", ".svelte"]`) |
+| `enable_pr_context` | `true` | Include PR metadata, CI status, and git health in review |
+| `search_related_issues` | `false` | Search for related issues and PRs in review context |
+
+### Index Settings
+
+| Key | Default | Description |
+|-----|---------|-------------|
 | `analyze_patterns` | `false` | Enable incremental pattern analysis during index mode |
+| `embedding_model` | `""` | Embedding model for semantic retrieval (e.g. `"local:all-MiniLM-L6-v2"`) |
 
 ### Storage
 
-| Input | Default | Description |
-|-------|---------|-------------|
-| `storage_dir` | `.argus-artifacts` | Directory name for codebase map artifacts |
+| Key | Default | Description |
+|-----|---------|-------------|
+| `storage_dir` | `".argus-artifacts"` | Directory name for codebase map artifacts |
 
 Artifacts are stored on an orphan branch (`argus-data`) in your repository using the Git Data API. No external storage required.
 
-### API Keys
+## Action Inputs
 
-Provide the key for your chosen model provider:
+The GitHub Action itself only accepts secrets and the operating mode:
 
 | Input | Description |
 |-------|-------------|
+| `mode` | Operating mode: `review` (default), `index`, or `bootstrap` |
 | `anthropic_api_key` | Required for `anthropic:*` models |
 | `openai_api_key` | Required for `openai:*` models |
 | `google_api_key` | Required for `google-gla:*` models |
@@ -68,7 +93,7 @@ google-gla:gemini-2.5-flash
 Pulls the latest codebase artifacts, retrieves context for each changed file, generates reviews via LLM, and posts inline PR comments.
 
 ### index
-Incrementally updates the codebase map for files changed since the last indexed commit. Purely structural analysis by default. With `analyze_patterns: true`, also runs incremental pattern analysis via LLM to keep pattern memory current.
+Incrementally updates the codebase map for files changed since the last indexed commit. Purely structural analysis by default. With `analyze_patterns = true`, also runs incremental pattern analysis via LLM to keep pattern memory current.
 
 ### bootstrap
 Full rebuild of the codebase map and pattern memory. Run this once when first setting up Argus, or after major refactors.

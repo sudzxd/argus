@@ -86,8 +86,11 @@ class TreeSitterParser:
         except (ValueError, ImportError) as e:
             raise IndexingError(path, f"failed to load grammar: {e}") from e
 
-        parser = Parser(ts_lang)
-        tree = parser.parse(content.encode())
+        try:
+            parser = Parser(ts_lang)
+            tree = parser.parse(content.encode("utf-8", errors="replace"))
+        except Exception as e:
+            raise IndexingError(path, f"parse failed: {e}") from e
         root = tree.root_node
 
         symbols = self._extract_symbols(root)

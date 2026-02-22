@@ -46,9 +46,9 @@ class FileMemoryStore:
                 fcntl.flock(f, fcntl.LOCK_SH)
                 try:
                     data = json.load(f)
+                    return _deserialize(data)
                 finally:
                     fcntl.flock(f, fcntl.LOCK_UN)
-            return _deserialize(data)
         except (json.JSONDecodeError, KeyError, ValueError) as e:
             logger.warning("Corrupt memory file %s: %s", path, e)
             return None

@@ -35,10 +35,27 @@ class RetrievalOrchestrator:
 
         Returns:
             Ranked, deduplicated, budget-constrained retrieval result.
+
+        Raises:
+            ValueError: If strategy_budgets length doesn't match strategies.
         """
+        if self.strategy_budgets is not None and len(self.strategy_budgets) != len(
+            self.strategies
+        ):
+            msg = (
+                f"strategy_budgets length ({len(self.strategy_budgets)}) "
+                f"must match strategies length ({len(self.strategies)})"
+            )
+            raise ValueError(msg)
+
+        budgets: list[TokenCount | None]
+        if self.strategy_budgets is not None:
+            budgets = list(self.strategy_budgets)
+        else:
+            budgets = [None] * len(self.strategies)
+
         all_items: list[ContextItem] = []
-        for i, strategy in enumerate(self.strategies):
-            strat_budget = self.strategy_budgets[i] if self.strategy_budgets else None
-            all_items.extend(strategy.retrieve(query, budget=strat_budget))
+        for strategy, budget in zip(self.strategies, budgets, strict=True):
+            all_items.extend(strategy.retrieve(query, budget=budget))
 
         return self._ranker.rank(all_items, self.budget)

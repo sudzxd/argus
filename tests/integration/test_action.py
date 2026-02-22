@@ -29,6 +29,7 @@ from argus.interfaces.action import (
     _load_event,
 )
 from argus.interfaces.review_generator import LLMReviewGenerator, ReviewOutput
+from argus.shared.exceptions import ConfigurationError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 
@@ -73,12 +74,22 @@ class TestEventParsing:
         event = _load_event(str(github_event))
         assert "pull_request" in event
 
+    def test_load_event_missing_file_raises(self) -> None:
+        with pytest.raises(ConfigurationError, match="Event file not found"):
+            _load_event("/nonexistent/path/event.json")
+
+    def test_load_event_invalid_json_raises(self, tmp_path: Path) -> None:
+        bad_file = tmp_path / "bad.json"
+        bad_file.write_text("not valid json{{{")
+        with pytest.raises(ConfigurationError, match="Invalid event JSON"):
+            _load_event(str(bad_file))
+
     def test_extract_pr_number(self) -> None:
         event = {"pull_request": {"number": 42, "head": {"sha": "abc"}}}
         assert _extract_pr_number(event) == 42
 
     def test_extract_pr_number_missing_raises(self) -> None:
-        with pytest.raises(ValueError, match="PR number"):
+        with pytest.raises(ConfigurationError, match="PR number"):
             _extract_pr_number({})
 
     def test_extract_head_sha(self) -> None:
@@ -86,7 +97,7 @@ class TestEventParsing:
         assert _extract_head_sha(event) == "abc123"
 
     def test_extract_head_sha_missing_raises(self) -> None:
-        with pytest.raises(ValueError, match="head SHA"):
+        with pytest.raises(ConfigurationError, match="head SHA"):
             _extract_head_sha({})
 
     def test_extract_changed_files(self, sample_diff: str) -> None:
@@ -97,6 +108,16 @@ class TestEventParsing:
         diff = "+++ b/a.py\n+++ b/b.py\n+++ b/c.py\n"
         files = _extract_changed_files(diff)
         assert len(files) == 3
+
+    def test_extract_changed_files_rejects_path_traversal(self) -> None:
+        diff = "+++ b/../../../etc/passwd\n+++ b/safe.py\n"
+        files = _extract_changed_files(diff)
+        assert files == [FilePath("safe.py")]
+
+    def test_extract_changed_files_rejects_absolute_path(self) -> None:
+        diff = "+++ b//etc/passwd\n+++ b/safe.py\n"
+        files = _extract_changed_files(diff)
+        assert files == [FilePath("safe.py")]
 
 
 # =============================================================================

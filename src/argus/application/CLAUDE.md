@@ -9,7 +9,7 @@ Use cases that orchestrate domain services. Imports from `domain/` and `shared/`
 | File | What it does |
 |------|-------------|
 | `dto.py` | `IndexCodebaseCommand`/`Result`, `ReviewPullRequestCommand`/`Result` — command/result objects |
-| `index_codebase.py` | Indexes source files into a `CodebaseMap` (full or incremental) |
+| `index_codebase.py` | Indexes source files into a `CodebaseMap` (full or incremental). Note: `IndexingService.incremental_update()` mutates the map in-place. |
 | `review_pull_request.py` | Full pipeline: index → retrieve context → generate review → filter noise → publish |
 
 ## Rules

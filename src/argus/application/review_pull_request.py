@@ -132,6 +132,7 @@ class ReviewPullRequest:
             context=retrieval_result,
             codebase_outline_text=outline_text,
             codebase_patterns_text=patterns_text,
+            pr_context=cmd.pr_context,
         )
         review, generation_usage = self.review_generator.generate(request)
 

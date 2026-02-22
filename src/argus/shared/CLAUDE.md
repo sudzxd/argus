@@ -8,7 +8,7 @@ The foundation layer imported by every other layer. Has zero internal imports.
 
 | File | What's in it |
 |------|-------------|
-| `types.py` | `FilePath`, `CommitSHA`, `TokenCount`, `LineRange`, `Severity`, `Category` |
+| `types.py` | `FilePath`, `CommitSHA`, `TokenCount` (supports `__radd__`/`__rsub__` for `sum()` compatibility), `LineRange`, `Severity`, `Category` |
 | `exceptions.py` | `ArgusError` hierarchy — 11 typed exception classes |
 | `constants.py` | Token budgets, retrieval splits, indexing limits, review defaults, supported languages |
 

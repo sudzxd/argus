@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import logging
+import re
+import urllib.parse
+
 from dataclasses import dataclass
 from typing import cast
 
@@ -11,6 +15,18 @@ from argus.infrastructure.constants import GitHubAPI
 from argus.shared.constants import DEFAULT_TIMEOUT_SECONDS
 from argus.shared.exceptions import PublishError
 from argus.shared.types import FilePath
+
+logger = logging.getLogger(__name__)
+
+_LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
+
+
+def _next_page_url(response: httpx.Response) -> str | None:
+    """Extract the next page URL from a GitHub ``Link`` header."""
+    link = response.headers.get("link", "")
+    match = _LINK_NEXT_RE.search(link)
+    return match.group(1) if match else None
+
 
 # =============================================================================
 # CLIENT
@@ -52,7 +68,9 @@ class GitHubClient:
         Raises:
             PublishError: If the API call fails.
         """
-        url = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents/{path}?ref={ref}"
+        encoded_path = urllib.parse.quote(str(path), safe="/")
+        base = f"{GitHubAPI.BASE_URL}/repos/{self.repo}/contents"
+        url = f"{base}/{encoded_path}?ref={ref}"
         headers = self._headers()
         headers["accept"] = "application/vnd.github.v3.raw"
         response = self._request(url, headers)
@@ -114,6 +132,12 @@ class GitHubClient:
             PublishError: If the API call fails.
         """
         data = self._get(f"/repos/{self.repo}/git/trees/{sha}?recursive=1")
+        if data.get("truncated"):
+            logger.warning(
+                "GitHub tree response was truncated for SHA %s; "
+                "some files may be missing from the codebase map",
+                sha,
+            )
         tree = data.get("tree")
         if isinstance(tree, list):
             return tree  # type: ignore[return-value]
@@ -143,6 +167,74 @@ class GitHubClient:
             if isinstance(filename, str):
                 paths.append(filename)
         return paths
+
+    # =================================================================
+    # PR metadata helpers
+    # =================================================================
+
+    def get_check_runs(self, commit_sha: str) -> list[dict[str, object]]:
+        """Fetch check runs for a commit.
+
+        Returns:
+            List of check-run dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        data = self._get(f"/repos/{self.repo}/commits/{commit_sha}/check-runs")
+        runs = data.get("check_runs")
+        if isinstance(runs, list):
+            return runs  # type: ignore[return-value]
+        return []
+
+    def get_issue_comments(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch issue comments on a PR.
+
+        Returns:
+            List of comment dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/issues/{pr_number}/comments")
+
+    def get_pr_review_comments(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch review comments (inline code annotations) on a PR.
+
+        Returns:
+            List of review comment dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/pulls/{pr_number}/comments")
+
+    def get_pr_commits(self, pr_number: int) -> list[dict[str, object]]:
+        """Fetch commits on a PR.
+
+        Returns:
+            List of commit dicts.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        return self._get_list(f"/repos/{self.repo}/pulls/{pr_number}/commits")
+
+    def search_issues(self, query: str) -> list[dict[str, object]]:
+        """Search issues and PRs by query.
+
+        Returns:
+            List of issue/PR dicts from search results.
+
+        Raises:
+            PublishError: If the API call fails.
+        """
+        encoded = urllib.parse.quote(f"{query} repo:{self.repo}")
+        data = self._get(f"/search/issues?q={encoded}")
+        items = data.get("items")
+        if isinstance(items, list):
+            return items  # type: ignore[return-value]
+        return []
 
     # =================================================================
     # Git Data API — low-level tree / blob / commit manipulation
@@ -235,13 +327,14 @@ class GitHubClient:
 
     def create_tree(
         self,
-        entries: list[dict[str, str]],
+        entries: list[dict[str, str | None]],
         base_tree: str | None = None,
     ) -> str:
         """Create a tree object.
 
         Args:
             entries: List of tree entry dicts with path, mode, type, sha.
+                Set sha to None to delete an entry when using base_tree.
             base_tree: Optional base tree SHA for incremental updates.
 
         Returns:
@@ -314,6 +407,17 @@ class GitHubClient:
         url = f"{GitHubAPI.BASE_URL}{path}"
         response = self._request(url, self._headers())
         return response.json()  # type: ignore[no-any-return]
+
+    def _get_list(self, path: str) -> list[dict[str, object]]:
+        url: str | None = f"{GitHubAPI.BASE_URL}{path}"
+        all_items: list[dict[str, object]] = []
+        while url is not None:
+            response = self._request(url, self._headers())
+            data = response.json()
+            if isinstance(data, list):
+                all_items.extend(cast(list[dict[str, object]], data))
+            url = _next_page_url(response)
+        return all_items
 
     def _post(self, url: str, payload: dict[str, object]) -> None:
         try:

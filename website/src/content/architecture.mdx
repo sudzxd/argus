@@ -34,7 +34,7 @@ src/argus/
 ├── application/      # Use-case orchestrators
 ├── infrastructure/
 │   ├── parsing/      # Tree-sitter AST parser + code chunker
-│   ├── retrieval/    # Structural, lexical (BM25), agentic strategies
+│   ├── retrieval/    # Structural, lexical (BM25), semantic (embeddings), agentic strategies
 │   ├── memory/       # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/# pydantic-ai Agent factory
 │   ├── storage/      # Sharded codebase map + memory JSON persistence
@@ -48,7 +48,7 @@ src/argus/
 2. **Interfaces** layer reads config from environment, builds the dependency graph
 3. **Application** orchestrator pulls codebase artifacts from the `argus-data` branch
 4. For each changed file in the PR diff:
-   - **Retrieval** strategies find relevant context (structural neighbors, BM25 matches)
+   - **Retrieval** strategies find relevant context (structural neighbors, BM25 matches, embedding similarity)
    - **Ranker** scores and selects the top context chunks
 5. The diff + context bundle goes to the **LLM provider** for review
 6. **Noise filter** drops low-confidence or redundant comments
@@ -60,9 +60,10 @@ Argus stores its codebase map and pattern memory on an orphan branch (`argus-dat
 
 The codebase map is **sharded per directory** for efficient incremental updates:
 
-- **manifest.json** — DAG index with shard descriptors, cross-shard edges, and `indexed_at` commit SHA
+- **manifest.json** — DAG index with shard descriptors, cross-shard edges, `indexed_at` commit SHA, and `embedding_indices` (maps shard IDs to `EmbeddingDescriptor` with model, dimension, and blob name)
 - **shard_\<hash\>.json** — One per leaf directory, containing parsed entries and internal edges
 - **\<hash\>_memory.json** — Pattern memory per shard with learned conventions, outline, and `analyzed_at` commit SHA
+- **\<hash\>_embeddings.json** — Pre-computed embedding vectors per shard (hash derived from `shard_id:model`)
 
 During review, only the shards relevant to the changed files (plus their 1-hop neighbors) are loaded, keeping memory usage proportional to the diff size.
 
@@ -88,4 +89,5 @@ Uses `compare_commits` to detect changed files since the last indexed commit. On
 
 - **Structural** — Follows import/export relationships and call graphs from the codebase map
 - **Lexical (BM25)** — Token-based search across the indexed codebase for relevant terms
+- **Semantic** (optional) — Embedding-based cosine similarity against pre-computed indices. Requires `embedding_model` to be configured. Validates dimension compatibility between query and stored embeddings.
 - **Agentic** (optional) — LLM-guided exploration when structural and lexical retrieval isn't sufficient

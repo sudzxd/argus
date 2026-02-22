@@ -66,17 +66,22 @@ class IndexingService:
     ) -> CodebaseMap:
         """Update an existing CodebaseMap with changed files only.
 
+        **Warning:** This method mutates ``codebase_map`` in-place.  The
+        same object is returned for convenience, but callers should not
+        rely on the original reference being unchanged.  Copy the map
+        before calling if the original must be preserved.
+
         Unchanged files are preserved. Changed files are reparsed and their
         graph edges are rebuilt. If a file fails to parse, its old entry
         is kept.
 
         Args:
-            codebase_map: The existing map to update.
+            codebase_map: The existing map to update (mutated in-place).
             commit_sha: The new commit SHA.
             file_contents: Changed files and their new content.
 
         Returns:
-            The updated CodebaseMap.
+            The same ``codebase_map`` instance, updated.
         """
         codebase_map.indexed_at = commit_sha
 

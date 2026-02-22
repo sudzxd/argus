@@ -101,9 +101,18 @@ def test_handles_empty_corpus_gracefully() -> None:
         diff_text="login user",
     )
 
+    assert strategy._empty is True
     items = strategy.retrieve(query)
-
     assert items == []
+
+
+def test_non_empty_corpus_sets_empty_false() -> None:
+    chunks = [
+        _make_chunk("auth.py", "login", "def login_user(): ..."),
+    ]
+    strategy = LexicalRetrievalStrategy(chunks=chunks)
+
+    assert strategy._empty is False
 
 
 def test_handles_empty_query_gracefully() -> None:
@@ -170,6 +179,27 @@ def test_budget_none_uses_default_top_k() -> None:
 
     items = strategy.retrieve(query, budget=None)
     assert isinstance(items, list)
+
+
+def test_lexical_out_of_bounds_index_skipped_gracefully() -> None:
+    chunks = [
+        _make_chunk("auth.py", "login", "def login_user(username, password): ..."),
+    ]
+    strategy = LexicalRetrievalStrategy(chunks=chunks)
+    query = _make_query(
+        changed_symbols=["login_user"],
+        diff_text="login username password",
+    )
+
+    # Monkey-patch BM25 to return an out-of-range index.
+    import numpy as np
+
+    oob_results = np.array([[999]])
+    oob_scores = np.array([[1.5]])
+    strategy._index.retrieve = lambda *_args, **_kwargs: (oob_results, oob_scores)  # type: ignore[method-assign]
+
+    items = strategy.retrieve(query)
+    assert items == []
 
 
 def test_token_cost_preserved_from_chunks() -> None:

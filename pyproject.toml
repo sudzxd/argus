@@ -1,6 +1,6 @@
 [project]
 name = "argus"
-version = "0.2.0"
+version = "0.3.0"
 description = "AI-powered pull request reviews that understand your codebase."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -24,6 +24,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
 dev = [
     "ruff>=0.15",
     "pyright>=1.1.408",
@@ -132,3 +135,19 @@ exclude_lines = [
     "Protocol",
     "@overload",
 ]
+
+# =============================================================================
+# Argus
+# =============================================================================
+
+[tool.argus]
+model = "google-gla:gemini-2.5-flash"
+max_tokens = 1000000
+storage_dir = ".argus-artifacts"
+embedding_model = "local:all-MiniLM-L6-v2"
+search_related_issues = true
+
+[tool.argus.index]
+model = "google-gla:gemini-2.5-flash"
+max_tokens = 1000000
+analyze_patterns = true

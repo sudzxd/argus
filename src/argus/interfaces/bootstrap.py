@@ -2,14 +2,12 @@
 
 Usage:
     GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/repo \
-    INPUT_MODEL=google-gla:gemini-2.5-flash \
     uv run python -m argus.interfaces.bootstrap
 """
 
 from __future__ import annotations
 
 import logging
-import os
 import sys
 
 from pathlib import Path
@@ -26,8 +24,10 @@ from argus.infrastructure.memory.outline_renderer import OutlineRenderer
 from argus.infrastructure.parsing.tree_sitter_parser import TreeSitterParser
 from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.memory_store import FileMemoryStore
+from argus.interfaces.env_utils import require_env
+from argus.interfaces.toml_config import load_argus_config
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET, MAX_FILE_SIZE_BYTES
-from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
+from argus.shared.exceptions import ArgusError, IndexingError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
@@ -57,11 +57,14 @@ PARSEABLE_EXTENSIONS = frozenset(
 )
 
 
-def get_parseable_extensions() -> frozenset[str]:
+def get_parseable_extensions(
+    extra: list[str] | None = None,
+) -> frozenset[str]:
     """Build the set of parseable extensions, including user extras."""
-    raw = os.environ.get("INPUT_EXTRA_EXTENSIONS", "")
+    if not extra:
+        return PARSEABLE_EXTENSIONS
     extras: set[str] = set()
-    for ext in raw.split(","):
+    for ext in extra:
         ext = ext.strip()
         if not ext:
             continue
@@ -69,13 +72,6 @@ def get_parseable_extensions() -> frozenset[str]:
             ext = f".{ext}"
         extras.add(ext)
     return PARSEABLE_EXTENSIONS | frozenset(extras)
-
-
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise ConfigurationError(f"Missing required env var: {name}")
-    return value
 
 
 def run() -> None:
@@ -96,11 +92,10 @@ def run() -> None:
 
 
 def _execute_bootstrap() -> None:
-    token = _require_env("GITHUB_TOKEN")
-    repo = _require_env("GITHUB_REPOSITORY")
-    model = os.environ.get("INPUT_MODEL", "google-gla:gemini-2.5-flash")
-    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", "1000000"))
-    storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
+    cfg = load_argus_config("bootstrap")
+    token = require_env("GITHUB_TOKEN")
+    repo = require_env("GITHUB_REPOSITORY")
+    storage_dir = Path(cfg.storage_dir)
 
     client = GitHubClient(token=token, repo=repo)
     parser = TreeSitterParser()
@@ -113,7 +108,7 @@ def _execute_bootstrap() -> None:
     tree_entries = client.get_tree_recursive(head_sha)
 
     # 2. Filter to parseable source files.
-    parseable = get_parseable_extensions()
+    parseable = get_parseable_extensions(cfg.extra_extensions)
     source_paths: list[str] = []
     for entry in tree_entries:
         if entry.get("type") != "blob":
@@ -158,8 +153,8 @@ def _execute_bootstrap() -> None:
     outline_renderer = OutlineRenderer(token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET)
 
     model_config = ModelConfig(
-        model=model,
-        max_tokens=TokenCount(max_tokens),
+        model=cfg.model,
+        max_tokens=TokenCount(cfg.max_tokens),
         temperature=0.0,
     )
     analyzer = LLMPatternAnalyzer(config=model_config)
@@ -216,12 +211,97 @@ def _execute_bootstrap() -> None:
     )
     memory_store.save(memory)
 
+    # 7. Optionally build embedding indices.
+    if cfg.embedding_model:
+        _build_embeddings(
+            embedding_model=cfg.embedding_model,
+            codebase_map=codebase_map,
+            file_contents=file_contents,
+            sharded_store=sharded_store,
+            repo=repo,
+        )
+
     logger.info(
         "Bootstrap complete: %d files, %d patterns (version %d)",
         memory.outline.file_count,
         len(memory.patterns),
         memory.version,
     )
+
+
+def _build_embeddings(
+    embedding_model: str,
+    codebase_map: CodebaseMap,
+    file_contents: dict[FilePath, str],
+    sharded_store: ShardedArtifactStore,
+    repo: str = "",
+) -> None:
+    """Build embedding indices for all shards."""
+    from argus.domain.context.value_objects import (
+        EmbeddingDescriptor,
+        EmbeddingIndex,
+        ShardId,
+        shard_id_for,
+    )
+    from argus.infrastructure.parsing.chunker import Chunker
+    from argus.infrastructure.retrieval.embeddings import create_embedding_provider
+
+    try:
+        provider = create_embedding_provider(embedding_model)
+    except Exception:
+        logger.warning("Could not create embedding provider, skipping embeddings")
+        return
+
+    chunker = Chunker()
+
+    # Group files by shard.
+    shard_files: dict[ShardId, list[FilePath]] = {}
+    for path in codebase_map.files():
+        sid = shard_id_for(path)
+        shard_files.setdefault(sid, []).append(path)
+
+    built = 0
+    descriptors: dict[ShardId, EmbeddingDescriptor] = {}
+    for sid, paths in shard_files.items():
+        texts: list[str] = []
+        chunk_ids: list[str] = []
+
+        for path in paths:
+            content = file_contents.get(path)
+            if content is None or path not in codebase_map:
+                continue
+            entry = codebase_map.get(path)
+            file_chunks = chunker.chunk(path, content, entry.symbols)
+            for chunk in file_chunks:
+                texts.append(chunk.content)
+                chunk_ids.append(f"{chunk.source}:{chunk.symbol_name}")
+
+        if not texts:
+            continue
+
+        try:
+            embeddings = provider.embed(texts)
+            index = EmbeddingIndex(
+                shard_id=sid,
+                embeddings=embeddings,
+                chunk_ids=chunk_ids,
+                dimension=provider.dimension,
+                model=embedding_model,
+            )
+            desc = sharded_store.save_embedding_index(index)
+            descriptors[sid] = desc
+            built += 1
+        except Exception:
+            logger.warning("Failed to build embeddings for shard %s", sid)
+
+    # Update manifest with embedding descriptors.
+    if descriptors and repo:
+        manifest = sharded_store.load_manifest(repo)
+        if manifest is not None:
+            manifest.embedding_indices.update(descriptors)
+            sharded_store.save_manifest(manifest)
+
+    logger.info("Built embeddings for %d shards", built)
 
 
 if __name__ == "__main__":

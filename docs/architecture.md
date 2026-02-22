@@ -67,14 +67,14 @@ classDiagram
 - **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA. A partial map assembled from selected shards is indistinguishable from a full map with fewer files.
 - **FileEntry** — An entity representing a single source file. Holds its AST-derived structure (functions, classes, exports) and its relationships to other files.
 - **DependencyGraph** — A value object representing the directed graph of relationships between symbols: imports, calls, extends, implements. Built entirely from AST parsing — no LLM required.
-- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
+- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Also tracks `embedding_indices` mapping shard IDs to `EmbeddingDescriptor` (model, dimension, blob_name). Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
 - **ShardId** — A `NewType` over `str`, derived deterministically as the POSIX parent directory of a file path.
 - **Checkpoint** — A value object that snapshots the CodebaseMap at a specific version.
 
 **Behaviors:**
 
 - **Full index** — Walks the entire repository, parses every file, builds the complete map. Triggered when no prior context exists.
-- **Incremental update** — Given a set of changed files (from the PR diff), re-parses only those files and updates their entries and edges in the graph. The rest of the map is preserved.
+- **Incremental update** — Given a set of changed files (from the PR diff), re-parses only those files and updates their entries and edges in the graph. The rest of the map is preserved. **Note:** `incremental_update()` mutates the `CodebaseMap` in-place and returns the same object. Callers must copy the map beforehand if the original must be preserved.
 
 **Invariants:**
 
@@ -93,15 +93,18 @@ flowchart LR
     D[PR Diff] --> Q[RetrievalQuery]
     Q --> S1[Structural]
     Q --> S2[Lexical]
-    Q --> S3[Agentic]
+    Q --> S3[Semantic]
+    Q --> S4[Agentic]
     S1 --> R[Ranker]
     S2 --> R
     S3 --> R
+    S4 --> R
     R -->|budget + dedup| OUT[RetrievalResult]
 
     style S1 fill:#bbf,stroke:#333
     style S2 fill:#bbf,stroke:#333
-    style S3 fill:#fbb,stroke:#333
+    style S3 fill:#bbf,stroke:#333
+    style S4 fill:#fbb,stroke:#333
 ```
 
 **Core Concepts:**
@@ -114,7 +117,8 @@ flowchart LR
 
 1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Deterministic, instant, highest signal.
 2. **Lexical retrieval** — BM25 sparse search over AST-chunked code. Handles identifier lookups and pattern matching. Useful when the structural graph doesn't capture a relationship.
-3. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
+3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`embedding_model`). Supports Google, OpenAI, and local (sentence-transformers) providers. Validates dimension compatibility between query embeddings and stored indices — mismatches are logged and skipped.
+4. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
 
 **Context Budgeting:**
 
@@ -148,14 +152,15 @@ flowchart LR
 
 **Core Concepts:**
 
-- **ReviewRequest** — Bundles the PR diff and retrieved context.
+- **PRContext** — Enriched PR metadata: title, body, author, labels, CI status (check runs), git health (behind-by, merge commits, days open), prior comments, and optionally related issues/PRs. Collected by `PRContextCollector` in infrastructure and passed through to the review prompt.
+- **ReviewRequest** — Bundles the PR diff, retrieved context, and optional PR context.
 - **Review** — The aggregate root. Contains a summary and a collection of review comments.
 - **ReviewComment** — A single finding with location (file, line range), severity (critical, warning, suggestion, praise), category (bug, security, performance, style, architecture), confidence score, and suggested fix.
 - **ReviewSummary** — High-level assessment: what the PR does, risks, strengths, and verdict.
 
 **Behaviors:**
 
-- **Generation** — Diff + context assembled into a prompt, sent to LLM, response parsed into structured `ReviewOutput`.
+- **Generation** — Diff + PR context + retrieved context assembled into a prompt, sent to LLM, response parsed into structured `ReviewOutput`. PR context enables holistic assessment: CI failures, stale PRs, unaddressed reviewer feedback, and poor descriptions.
 - **Noise filtering** — Comments below confidence threshold are dropped. Findings on ignored paths are dropped.
 - **Severity calibration** — Explicit severity classification distinguishes "this will break production" from "consider renaming this variable."
 
@@ -188,13 +193,13 @@ Memory inclusion is controlled by review depth:
 
 **Budget-Aware Prompt Assembly:**
 
-The review generator prioritizes sections within the token budget: diff (always) > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
+The review generator prioritizes sections within the token budget: diff (always) > PR context > retrieved context > outline > patterns. Lower-priority sections are dropped with logging when they'd exceed the budget.
 
 **Pattern Analysis:**
 
 Patterns can be analyzed in two ways:
 - **Bootstrap** (`bootstrap.py`) — Full rebuild: fetches the entire repository tree, parses all source files, renders a complete outline, and runs LLM pattern analysis. Sets `analyzed_at` to the current HEAD SHA.
-- **Index** (`sync_index.py`) — Incremental: when `INPUT_ANALYZE_PATTERNS` is `"true"`, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
+- **Index** (`sync_index.py`) — Incremental: when `analyze_patterns = true` in config, after updating the codebase map, pulls existing memory, renders a scoped outline for changed files (used for LLM analysis only), preserves the full existing outline in storage, and runs incremental pattern analysis. Sets `analyzed_at` to the push HEAD SHA.
 
 Bootstrap uses `analyzed_at` (falling back to `indexed_at`) as the diff base for incremental analysis, ensuring no changes are missed even when index mode has advanced `indexed_at`.
 
@@ -231,24 +236,25 @@ The CodebaseMap is persisted between runs using **sharded DAG storage**. The dom
 
 ```
 argus-data branch:
-  manifest.json              # DAG index: shard descriptors + cross-shard edges
+  manifest.json              # DAG index: shard descriptors + cross-shard edges + embedding descriptors
   shard_<content_hash>.json  # One per leaf directory
   <hash>_memory.json         # Patterns + outline (unchanged)
+  <hash>_embeddings.json     # Pre-computed embedding vectors per shard (hash = shard_id:model)
 ```
 
-- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name) and tracks cross-shard dependency edges.
+- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name), tracks cross-shard dependency edges, and stores `embedding_indices` mapping shard IDs to `EmbeddingDescriptor` (model, dimension, blob_name). Embedding blob names use a model-keyed hash (`shard_id:model`) to prevent silent overwrites when switching embedding models.
 - **Shard files** — Each contains the serialized `FileEntry` objects and internal edges for files in one directory.
 - **Shard ID** — Derived deterministically from `PurePosixPath(file_path).parent`.
 
 **Selective loading:**
 
-- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs.
-- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `INPUT_ANALYZE_PATTERNS` is enabled.
-- **Bootstrap** builds the full map, splits into shards, and saves everything.
+- **Review** pulls only the manifest, computes needed shards (changed files + 1-hop dependency neighbors via BFS on cross-shard edges), and downloads only those shard blobs. Optionally pulls embedding indices for semantic retrieval when `embedding_model` is configured.
+- **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `analyze_patterns` is enabled. Optionally rebuilds embedding indices for changed shards when `embedding_model` is configured.
+- **Bootstrap** builds the full map, splits into shards, and saves everything. Optionally builds embedding indices for all shards when `embedding_model` is configured.
 
-`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
+`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save. Orphan blob deletion during push uses `sha: None` (JSON null) in tree entries — the GitHub Git Data API rejects the all-zero SHA string.
 
-Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
+Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with `fcntl` file locking for concurrent access. Deserialization runs inside the shared lock scope to prevent TOCTOU races. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
 
 ### Parsing
 
@@ -256,7 +262,7 @@ AST parsing is an infrastructure concern. The domain defines a `SourceParser` pr
 
 ### Configuration
 
-All configurable values flow in from the action inputs at the boundary. The domain does not read environment variables. Configuration is assembled at the interfaces layer and injected as value objects.
+All configurable values live in `[tool.argus]` in `pyproject.toml`. The domain does not read environment variables or TOML files. Configuration is loaded at the interfaces layer (`toml_config.py`) and injected as value objects. Only secrets and GitHub runtime vars remain as environment variables.
 
 ---
 
@@ -303,16 +309,17 @@ sequenceDiagram
 
     GH->>ACT: PR webhook event
     ACT->>GH: Fetch diff + file contents
+    ACT->>GH: Collect PR context (metadata, CI, comments, git health)
     ACT->>GH: Pull manifest.json from argus-data
     ACT->>ACT: Compute needed shards (changed files + 1-hop neighbors)
-    ACT->>GH: Pull only needed shard blobs + memory
+    ACT->>GH: Pull only needed shard blobs + memory + embeddings
     ACT->>CTX: Parse changed files, build/update partial CodebaseMap
     CTX-->>ACT: CodebaseMap + Chunks
-    ACT->>RET: Retrieve context (structural → lexical → agentic)
+    ACT->>RET: Retrieve context (structural → lexical → semantic → agentic)
     RET-->>ACT: Ranked ContextItems
     ACT->>MEM: Render outline + load/build patterns (based on review depth)
     MEM-->>ACT: Outline text + Patterns text
-    ACT->>LLM: Generate review (diff + context + outline + patterns)
+    ACT->>LLM: Generate review (diff + PR context + context + outline + patterns)
     LLM-->>ACT: Structured ReviewOutput
     ACT->>ACT: Noise filter (confidence + ignored paths)
     ACT->>PUB: Post inline comments (diff-position mapped)
@@ -335,7 +342,7 @@ src/argus/
 ├── application/                     # Use cases — orchestrates domain services
 ├── infrastructure/                  # Concrete implementations of domain protocols
 │   ├── parsing/                     # Tree-sitter AST parser + code chunker
-│   ├── retrieval/                   # Structural, lexical, agentic strategies
+│   ├── retrieval/                   # Structural, lexical, semantic, agentic strategies
 │   ├── memory/                      # Outline renderer + LLM pattern analyzer
 │   ├── llm_providers/              # pydantic-ai Agent factory
 │   ├── storage/                     # Sharded codebase map + memory persistence

@@ -2,19 +2,57 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import json
 import logging
+import os
+import tempfile
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from argus.domain.context.entities import CodebaseMap
-from argus.domain.context.value_objects import ShardedManifest, ShardId
+from argus.domain.context.value_objects import (
+    EmbeddingDescriptor,
+    EmbeddingIndex,
+    ShardedManifest,
+    ShardId,
+)
 from argus.infrastructure.storage import serializer, shard_serializer
 
 logger = logging.getLogger(__name__)
 
 MANIFEST_FILENAME = "manifest.json"
+
+
+def _atomic_write_text(path: Path, data: str) -> None:
+    """Write *data* to *path* atomically via a temp file + ``Path.replace``.
+
+    The temp file is created in the same directory so the rename is
+    guaranteed to be atomic on POSIX (same filesystem).
+    """
+    tmp_path: Path | None = None
+    try:
+        fd = tempfile.NamedTemporaryFile(  # noqa: SIM115
+            mode="w",
+            dir=path.parent,
+            suffix=".tmp",
+            delete=False,
+            encoding="utf-8",
+        )
+        tmp_path = Path(fd.name)
+        with fd:
+            fd.write(data)
+            fd.flush()
+            os.fsync(fd.fileno())
+        tmp_path.replace(path)
+    except BaseException:
+        if tmp_path is not None:
+            with contextlib.suppress(OSError):
+                tmp_path.unlink()
+        raise
 
 
 def legacy_artifact_path(storage_dir: Path, repo_id: str) -> Path:
@@ -119,6 +157,11 @@ class ShardedArtifactStore:
             logger.warning("Corrupt manifest for %s, returning None", repo_id)
             return None
 
+    def save_manifest(self, manifest: ShardedManifest) -> None:
+        """Atomically persist a manifest to disk."""
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
+
     def load_shards(
         self,
         repo_id: str,
@@ -162,8 +205,7 @@ class ShardedArtifactStore:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
 
         # Save manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
 
     def save_shard_data(self, shard_data: dict[ShardId, str]) -> None:
         """Write shard JSON files to disk."""
@@ -175,8 +217,7 @@ class ShardedArtifactStore:
             # Compute blob name from content hash.
             content_hash = hashlib.sha256(json_str.encode()).hexdigest()[:16]
             blob_name = f"shard_{content_hash}.json"
-            blob_path = self.storage_dir / blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / blob_name, json_str)
 
     def load_full(self, repo_id: str) -> CodebaseMap | None:
         """Load the complete CodebaseMap by loading all shards."""
@@ -210,12 +251,10 @@ class ShardedArtifactStore:
         # Write shard files.
         for sid, json_str in shard_data.items():
             desc = manifest.shards[sid]
-            blob_path = self.storage_dir / desc.blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / desc.blob_name, json_str)
 
         # Write manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
 
         # Clean up legacy flat file if it exists.
         legacy_path = legacy_artifact_path(self.storage_dir, repo_id)
@@ -227,16 +266,26 @@ class ShardedArtifactStore:
         self,
         existing_manifest: ShardedManifest,
         partial_map: CodebaseMap,
-    ) -> None:
+    ) -> set[str]:
         """Re-shard a partial map and merge into the existing manifest.
 
         Only the shards present in ``partial_map`` are re-serialized and
         written to disk.  The existing manifest's shard descriptors are
         preserved for directories not in the partial map, and the updated
         descriptors replace the old ones for dirty directories.
+
+        Returns:
+            Set of old blob filenames that were replaced (orphaned).
         """
         new_manifest, shard_data = shard_serializer.split_into_shards(partial_map)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+        # Detect orphaned blobs: old blob names replaced by new ones.
+        orphaned_blobs: set[str] = set()
+        for sid, new_desc in new_manifest.shards.items():
+            old_desc = existing_manifest.shards.get(sid)
+            if old_desc is not None and old_desc.blob_name != new_desc.blob_name:
+                orphaned_blobs.add(old_desc.blob_name)
 
         # Merge: start from existing, override with new.
         merged_shards = dict(existing_manifest.shards)
@@ -263,9 +312,89 @@ class ShardedArtifactStore:
         # Write only the changed shard files.
         for sid, json_str in shard_data.items():
             desc = new_manifest.shards[sid]
-            blob_path = self.storage_dir / desc.blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / desc.blob_name, json_str)
 
-        # Write merged manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(merged.to_json(), encoding="utf-8")
+        # Write merged manifest BEFORE deleting orphans.  A crash after
+        # this point leaves unreferenced old blobs (harmless, cleaned up
+        # next run) instead of a manifest referencing deleted files.
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, merged.to_json())
+
+        # Delete orphaned blob files from local storage.
+        for blob_name in orphaned_blobs:
+            orphan_path = self.storage_dir / blob_name
+            if orphan_path.exists():
+                orphan_path.unlink()
+                logger.info("Removed orphaned shard blob %s", blob_name)
+
+        return orphaned_blobs
+
+    # ------------------------------------------------------------------
+    # Embedding index persistence
+    # ------------------------------------------------------------------
+
+    def save_embedding_index(self, index: EmbeddingIndex) -> EmbeddingDescriptor:
+        """Persist an embedding index for a shard.
+
+        Returns:
+            Descriptor for tracking in the manifest.
+        """
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        data: dict[str, object] = {
+            "shard_id": str(index.shard_id),
+            "embeddings": index.embeddings,
+            "chunk_ids": index.chunk_ids,
+            "dimension": index.dimension,
+            "model": index.model,
+        }
+        json_str = json.dumps(data)
+        hash_input = f"{index.shard_id}:{index.model}"
+        content_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
+        blob_name = f"{content_hash}_embeddings.json"
+        _atomic_write_text(self.storage_dir / blob_name, json_str)
+        return EmbeddingDescriptor(
+            shard_id=index.shard_id,
+            model=index.model,
+            dimension=index.dimension,
+            blob_name=blob_name,
+        )
+
+    def load_embedding_indices(
+        self,
+        shard_ids: set[ShardId],
+        model: str = "",
+    ) -> list[EmbeddingIndex]:
+        """Load embedding indices for the given shard IDs.
+
+        Args:
+            shard_ids: Shard IDs to load embeddings for.
+            model: Embedding model name (used to locate the blob file).
+        """
+        indices: list[EmbeddingIndex] = []
+        for sid in shard_ids:
+            hash_input = f"{sid}:{model}" if model else str(sid)
+            content_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
+            blob_name = f"{content_hash}_embeddings.json"
+            path = self.storage_dir / blob_name
+            if not path.exists():
+                continue
+            try:
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                raw_data = cast(dict[str, object], raw)
+                embeddings_raw = raw_data.get("embeddings")
+                chunk_ids_raw = raw_data.get("chunk_ids")
+                if not isinstance(embeddings_raw, list) or not isinstance(
+                    chunk_ids_raw, list
+                ):
+                    continue
+                indices.append(
+                    EmbeddingIndex(
+                        shard_id=ShardId(str(raw_data.get("shard_id", ""))),
+                        embeddings=cast(list[list[float]], embeddings_raw),
+                        chunk_ids=cast(list[str], chunk_ids_raw),
+                        dimension=int(str(raw_data.get("dimension", 0))),
+                        model=str(raw_data.get("model", "")),
+                    )
+                )
+            except (ValueError, KeyError):
+                logger.warning("Corrupt embedding index for %s", sid)
+        return indices

@@ -8,6 +8,7 @@ from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.value_objects import Checkpoint
 from argus.domain.llm.value_objects import LLMUsage
 from argus.domain.review.entities import Review
+from argus.domain.review.value_objects import PRContext
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
 # =============================================================================
@@ -49,6 +50,7 @@ class ReviewPullRequestCommand:
     file_contents: dict[FilePath, str]
     review_depth: ReviewDepth = ReviewDepth.STANDARD
     preloaded_map: CodebaseMap | None = None
+    pr_context: PRContext | None = None
 
 
 @dataclass(frozen=True)

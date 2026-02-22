@@ -26,9 +26,19 @@ class TokenCount(int):
             return TokenCount(int.__add__(self, other))
         return NotImplemented
 
+    def __radd__(self, other: object) -> TokenCount:
+        if isinstance(other, int):
+            return TokenCount(int.__add__(other, self))
+        return NotImplemented
+
     def __sub__(self, other: object) -> TokenCount:
         if isinstance(other, int):
             return TokenCount(int.__sub__(self, other))
+        return NotImplemented
+
+    def __rsub__(self, other: object) -> TokenCount:
+        if isinstance(other, int):
+            return TokenCount(int.__sub__(other, self))
         return NotImplemented
 
 

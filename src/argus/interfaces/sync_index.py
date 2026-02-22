@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
 
 from pathlib import Path
@@ -41,18 +40,13 @@ from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
 from argus.infrastructure.storage.git_branch_store import SelectiveGitBranchSync
 from argus.infrastructure.storage.memory_store import FileMemoryStore
 from argus.interfaces.bootstrap import get_parseable_extensions
+from argus.interfaces.env_utils import require_env
+from argus.interfaces.toml_config import ArgusConfig, load_argus_config
 from argus.shared.constants import DEFAULT_OUTLINE_TOKEN_BUDGET
 from argus.shared.exceptions import ArgusError, ConfigurationError, IndexingError
 from argus.shared.types import CommitSHA, FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
-
-
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise ConfigurationError(f"Missing required env var: {name}")
-    return value
 
 
 def _is_parseable(path: str, extensions: frozenset[str]) -> bool:
@@ -63,8 +57,13 @@ def _is_parseable(path: str, extensions: frozenset[str]) -> bool:
 
 def _extract_after_sha(event_path: str) -> str:
     """Extract the HEAD (after) SHA from a push event payload."""
-    with Path(event_path).open() as f:
-        event: dict[str, object] = json.load(f)
+    try:
+        with Path(event_path).open() as f:
+            event: dict[str, object] = json.load(f)
+    except FileNotFoundError as e:
+        raise ConfigurationError(f"Event file not found: {event_path}") from e
+    except json.JSONDecodeError as e:
+        raise ConfigurationError(f"Invalid event JSON: {e}") from e
     after = event.get("after")
     if not isinstance(after, str):
         msg = "Cannot extract 'after' SHA from push event"
@@ -90,10 +89,11 @@ def run() -> None:
 
 
 def _execute() -> None:
-    token = _require_env("GITHUB_TOKEN")
-    repo = _require_env("GITHUB_REPOSITORY")
-    event_path = _require_env("GITHUB_EVENT_PATH")
-    storage_dir = Path(os.environ.get("INPUT_STORAGE_DIR", ".argus-artifacts"))
+    cfg = load_argus_config("index")
+    token = require_env("GITHUB_TOKEN")
+    repo = require_env("GITHUB_REPOSITORY")
+    event_path = require_env("GITHUB_EVENT_PATH")
+    storage_dir = Path(cfg.storage_dir)
 
     client = GitHubClient(token=token, repo=repo)
     parser = TreeSitterParser()
@@ -110,19 +110,21 @@ def _execute() -> None:
 
     after_sha = _extract_after_sha(event_path)
 
+    orphaned_blobs: set[str] = set()
     if manifest is None:
-        changed_files, codebase_map = _handle_legacy_path(
+        changed_files, codebase_map, orphaned_blobs = _handle_legacy_path(
             client,
             parser,
             sharded_store,
             sync,
             repo,
             after_sha,
+            cfg,
         )
         if changed_files is None:
             return
     else:
-        changed_files, codebase_map = _handle_manifest_path(
+        changed_files, codebase_map, orphaned_blobs = _handle_manifest_path(
             client,
             parser,
             sharded_store,
@@ -130,6 +132,7 @@ def _execute() -> None:
             manifest,
             repo,
             after_sha,
+            cfg,
         )
         if changed_files is None:
             return
@@ -137,6 +140,7 @@ def _execute() -> None:
     # 2. Optionally run incremental pattern analysis on changed files.
     if changed_files:
         _maybe_analyze_patterns(
+            cfg=cfg,
             sync=sync,
             storage_dir=storage_dir,
             repo=repo,
@@ -145,8 +149,19 @@ def _execute() -> None:
             changed_files=changed_files,
         )
 
+    # 2b. Optionally build embeddings for changed shards.
+    _maybe_build_embeddings(
+        cfg=cfg,
+        storage_dir=storage_dir,
+        codebase_map=codebase_map,
+        changed_files=changed_files or [],
+        client=client,
+        after_sha=after_sha,
+        repo=repo,
+    )
+
     # 3. Push updated artifacts (merges with existing via base_tree).
-    sync.push()
+    sync.push(delete_blobs=orphaned_blobs or None)
 
 
 def _handle_legacy_path(
@@ -156,12 +171,14 @@ def _handle_legacy_path(
     sync: SelectiveGitBranchSync,
     repo: str,
     after_sha: str,
-) -> tuple[list[FilePath] | None, CodebaseMap]:
+    cfg: ArgusConfig,
+) -> tuple[list[FilePath] | None, CodebaseMap, set[str]]:
     """Handle incremental update when no manifest exists (legacy format).
 
     Returns:
-        Tuple of (changed_files, codebase_map). changed_files is None
-        if the caller should return early (bootstrap fallback or no map).
+        Tuple of (changed_files, codebase_map, orphaned_blobs).
+        changed_files is None if the caller should return early
+        (bootstrap fallback or no map).
     """
     sync.pull_all()
     existing_map = sharded_store.load_or_migrate(repo)
@@ -171,10 +188,10 @@ def _handle_legacy_path(
 
         bootstrap_run()
         sync.push()
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     base_sha = str(existing_map.indexed_at)
-    changed_files = _incremental_update_sharded(
+    changed_files, orphaned_blobs = _incremental_update_sharded(
         client,
         parser,
         sharded_store,
@@ -182,8 +199,9 @@ def _handle_legacy_path(
         repo,
         base_sha,
         after_sha,
+        cfg=cfg,
     )
-    return changed_files, existing_map
+    return changed_files, existing_map, orphaned_blobs
 
 
 def _handle_manifest_path(
@@ -194,12 +212,14 @@ def _handle_manifest_path(
     manifest: ShardedManifest,
     repo: str,
     after_sha: str,
-) -> tuple[list[FilePath] | None, CodebaseMap]:
+    cfg: ArgusConfig,
+) -> tuple[list[FilePath] | None, CodebaseMap, set[str]]:
     """Handle incremental update using existing manifest.
 
     Returns:
-        Tuple of (changed_files, codebase_map). changed_files is None
-        if the caller should return early (already up to date or no changes).
+        Tuple of (changed_files, codebase_map, orphaned_blobs).
+        changed_files is None if the caller should return early
+        (already up to date or no changes).
     """
     base_sha = str(manifest.indexed_at)
     logger.info(
@@ -210,15 +230,15 @@ def _handle_manifest_path(
 
     if base_sha == after_sha:
         logger.info("Already up to date at %s", after_sha[:8])
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     changed_paths = client.compare_commits(base_sha, after_sha)
-    parseable = get_parseable_extensions()
+    parseable = get_parseable_extensions(cfg.extra_extensions)
     source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
 
     if not source_paths:
         logger.info("No parseable files changed, skipping update")
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     dirty_shard_ids = manifest.dirty_shards(
         [FilePath(p) for p in source_paths],
@@ -232,7 +252,7 @@ def _handle_manifest_path(
 
     partial_map = sharded_store.load_shards(repo, dirty_shard_ids)
 
-    changed_files = _incremental_update_sharded(
+    changed_files, orphaned_blobs = _incremental_update_sharded(
         client,
         parser,
         sharded_store,
@@ -241,11 +261,13 @@ def _handle_manifest_path(
         base_sha,
         after_sha,
         existing_manifest=manifest,
+        cfg=cfg,
     )
-    return changed_files, partial_map
+    return changed_files, partial_map, orphaned_blobs
 
 
 def _maybe_analyze_patterns(
+    cfg: ArgusConfig,
     sync: SelectiveGitBranchSync,
     storage_dir: Path,
     repo: str,
@@ -253,12 +275,9 @@ def _maybe_analyze_patterns(
     codebase_map: CodebaseMap,
     changed_files: list[FilePath],
 ) -> None:
-    """Run incremental pattern analysis if opted in via INPUT_ANALYZE_PATTERNS."""
-    if os.environ.get("INPUT_ANALYZE_PATTERNS", "false").lower() != "true":
+    """Run incremental pattern analysis if opted in via config."""
+    if not cfg.analyze_patterns:
         return
-
-    model = os.environ.get("INPUT_MODEL", "google-gla:gemini-2.5-flash")
-    max_tokens = int(os.environ.get("INPUT_MAX_TOKENS", "1000000"))
 
     # Pull existing memory blobs.
     memory_blobs = sync.memory_blob_names()
@@ -284,8 +303,8 @@ def _maybe_analyze_patterns(
     )
 
     model_config = ModelConfig(
-        model=model,
-        max_tokens=TokenCount(max_tokens),
+        model=cfg.model,
+        max_tokens=TokenCount(cfg.max_tokens),
         temperature=0.0,
     )
     analyzer = LLMPatternAnalyzer(config=model_config)
@@ -314,6 +333,86 @@ def _maybe_analyze_patterns(
     )
 
 
+def _maybe_build_embeddings(
+    cfg: ArgusConfig,
+    storage_dir: Path,
+    codebase_map: CodebaseMap,
+    changed_files: list[FilePath],
+    client: GitHubClient,
+    after_sha: str,
+    repo: str = "",
+) -> None:
+    """Build embedding indices for changed shards if embedding_model is configured."""
+    if not cfg.embedding_model:
+        return
+
+    from argus.domain.context.value_objects import (
+        EmbeddingDescriptor,
+        EmbeddingIndex,
+        ShardId,
+        shard_id_for,
+    )
+    from argus.infrastructure.parsing.chunker import Chunker
+    from argus.infrastructure.retrieval.embeddings import create_embedding_provider
+    from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
+
+    try:
+        provider = create_embedding_provider(cfg.embedding_model)
+    except Exception:
+        logger.warning("Could not create embedding provider, skipping embeddings")
+        return
+
+    chunker = Chunker()
+    store = ShardedArtifactStore(storage_dir=storage_dir)
+
+    # Determine changed shard IDs.
+    changed_shard_ids: set[ShardId] = {shard_id_for(f) for f in changed_files}
+
+    descriptors: dict[ShardId, EmbeddingDescriptor] = {}
+    for sid in changed_shard_ids:
+        texts: list[str] = []
+        chunk_ids: list[str] = []
+        for path in codebase_map.files():
+            if shard_id_for(path) != sid:
+                continue
+            if path not in codebase_map:
+                continue
+            entry = codebase_map.get(path)
+            try:
+                content = client.get_file_content(path, ref=after_sha)
+                file_chunks = chunker.chunk(path, content, entry.symbols)
+                for chunk in file_chunks:
+                    texts.append(chunk.content)
+                    chunk_ids.append(f"{chunk.source}:{chunk.symbol_name}")
+            except Exception:
+                logger.debug("Could not fetch/chunk %s for embeddings", path)
+
+        if not texts:
+            continue
+
+        try:
+            embeddings = provider.embed(texts)
+            index = EmbeddingIndex(
+                shard_id=sid,
+                embeddings=embeddings,
+                chunk_ids=chunk_ids,
+                dimension=provider.dimension,
+                model=cfg.embedding_model,
+            )
+            desc = store.save_embedding_index(index)
+            descriptors[sid] = desc
+            logger.info("Built embeddings for shard %s: %d chunks", sid, len(texts))
+        except Exception:
+            logger.warning("Failed to build embeddings for shard %s", sid)
+
+    # Update manifest with embedding descriptors.
+    if descriptors and repo:
+        manifest = store.load_manifest(repo)
+        if manifest is not None:
+            manifest.embedding_indices.update(descriptors)
+            store.save_manifest(manifest)
+
+
 def _incremental_update_sharded(
     client: GitHubClient,
     parser: TreeSitterParser,
@@ -323,19 +422,21 @@ def _incremental_update_sharded(
     before_sha: str,
     after_sha: str,
     existing_manifest: ShardedManifest | None = None,
-) -> list[FilePath]:
+    cfg: ArgusConfig | None = None,
+) -> tuple[list[FilePath], set[str]]:
     """Update the codebase map and re-shard only dirty directories.
 
     Returns:
-        List of changed source file paths that were updated.
+        Tuple of (changed source file paths, orphaned blob names).
     """
     changed_paths = client.compare_commits(before_sha, after_sha)
-    parseable = get_parseable_extensions()
+    extra = cfg.extra_extensions if cfg is not None else None
+    parseable = get_parseable_extensions(extra)
     source_paths = [p for p in changed_paths if _is_parseable(p, parseable)]
 
     if not source_paths:
         logger.info("No parseable files changed, skipping update")
-        return []
+        return [], set()
 
     logger.info(
         "Incrementally updating %d changed files (of %d total changed)",
@@ -357,14 +458,15 @@ def _incremental_update_sharded(
     codebase_map.indexed_at = CommitSHA(after_sha)
     logger.info("Updated %d files in codebase map", updated)
 
+    orphaned_blobs: set[str] = set()
     if existing_manifest is not None:
         # Incremental save: merge new shard descriptors into existing manifest.
-        store.save_incremental(existing_manifest, codebase_map)
+        orphaned_blobs = store.save_incremental(existing_manifest, codebase_map)
     else:
         # Full save (legacy migration path).
         store.save_full(repo, codebase_map)
 
-    return [FilePath(p) for p in source_paths]
+    return [FilePath(p) for p in source_paths], orphaned_blobs
 
 
 if __name__ == "__main__":
