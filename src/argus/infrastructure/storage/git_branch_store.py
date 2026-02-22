@@ -87,7 +87,7 @@ class GitBranchSync:
             return
 
         # Create blobs for each file.
-        tree_entries: list[dict[str, str]] = []
+        tree_entries: list[dict[str, str | None]] = []
         for file_path in files:
             content_b64 = base64.b64encode(file_path.read_bytes()).decode()
             blob_sha = self.client.create_blob(content_b64)
@@ -321,7 +321,7 @@ class SelectiveGitBranchSync:
             logger.info("No artifacts to push, skipping")
             return
 
-        tree_entries: list[dict[str, str]] = []
+        tree_entries: list[dict[str, str | None]] = []
         for file_path in files:
             content_b64 = base64.b64encode(file_path.read_bytes()).decode()
             blob_sha = self.client.create_blob(content_b64)
@@ -334,17 +334,16 @@ class SelectiveGitBranchSync:
                 }
             )
 
-        # Delete orphaned blobs by setting their SHA to the null hash.
-        # GitHub's Git Data API treats a tree entry with an all-zero SHA
-        # as a deletion when used with base_tree.
-        _NULL_SHA = "0" * 40  # noqa: N806
+        # Delete orphaned blobs by setting sha to None (JSON null).
+        # GitHub's Git Data API treats a null sha as a deletion when
+        # used with base_tree.
         for blob_name in delete_blobs or set():
             tree_entries.append(
                 {
                     "path": blob_name,
                     "mode": "100644",
                     "type": "blob",
-                    "sha": _NULL_SHA,
+                    "sha": None,
                 }
             )
 

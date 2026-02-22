@@ -327,13 +327,14 @@ class GitHubClient:
 
     def create_tree(
         self,
-        entries: list[dict[str, str]],
+        entries: list[dict[str, str | None]],
         base_tree: str | None = None,
     ) -> str:
         """Create a tree object.
 
         Args:
             entries: List of tree entry dicts with path, mode, type, sha.
+                Set sha to None to delete an entry when using base_tree.
             base_tree: Optional base tree SHA for incremental updates.
 
         Returns:

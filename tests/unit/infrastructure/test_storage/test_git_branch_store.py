@@ -9,7 +9,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from argus.infrastructure.storage.git_branch_store import GitBranchSync
+from argus.infrastructure.storage.git_branch_store import (
+    GitBranchSync,
+    SelectiveGitBranchSync,
+)
 
 
 @pytest.fixture
@@ -157,3 +160,35 @@ def test_push_multiple_files_sorted(
     tree_entries = client.create_tree.call_args[0][0]
     assert tree_entries[0]["path"] == "a_memory.json"
     assert tree_entries[1]["path"] == "b_map.json"
+
+
+# =============================================================================
+# SelectiveGitBranchSync push tests
+# =============================================================================
+
+
+@pytest.fixture
+def selective_sync(client: MagicMock, tmp_path: Path) -> SelectiveGitBranchSync:
+    return SelectiveGitBranchSync(
+        client=client, branch="argus-data", storage_dir=tmp_path
+    )
+
+
+def test_selective_push_delete_blobs_uses_null_sha(
+    selective_sync: SelectiveGitBranchSync, client: MagicMock, tmp_path: Path
+) -> None:
+    """Orphan blob deletion entries use sha=None (JSON null), not a zero hash."""
+    (tmp_path / "manifest.json").write_text("{}")
+    client.get_ref_sha.return_value = "existing_sha"
+    client.get_commit_tree_sha.return_value = "base_tree_sha"
+    client.create_blob.return_value = "blob_sha"
+    client.create_tree.return_value = "tree_sha"
+    client.create_commit.return_value = "commit_sha"
+
+    selective_sync.push(delete_blobs={"shard_old.json"})
+
+    tree_entries = client.create_tree.call_args[0][0]
+    delete_entries = [e for e in tree_entries if e["sha"] is None]
+    assert len(delete_entries) == 1
+    assert delete_entries[0]["path"] == "shard_old.json"
+    assert delete_entries[0]["sha"] is None
