@@ -67,14 +67,14 @@ classDiagram
 - **CodebaseMap** — The aggregate root. Represents the complete semantic understanding of a repository at a point in time. Contains file entries and the dependency graph. Versioned by commit SHA. A partial map assembled from selected shards is indistinguishable from a full map with fewer files.
 - **FileEntry** — An entity representing a single source file. Holds its AST-derived structure (functions, classes, exports) and its relationships to other files.
 - **DependencyGraph** — A value object representing the directed graph of relationships between symbols: imports, calls, extends, implements. Built entirely from AST parsing — no LLM required.
-- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
+- **ShardedManifest** — DAG index for sharded storage. Maps shard IDs (directory paths) to descriptors and tracks cross-shard dependency edges. Also tracks `embedding_indices` mapping shard IDs to `EmbeddingDescriptor` (model, dimension, blob_name). Provides `shards_for_files()`, `adjacent_shards()` (BFS), and `dirty_shards()` for selective loading.
 - **ShardId** — A `NewType` over `str`, derived deterministically as the POSIX parent directory of a file path.
 - **Checkpoint** — A value object that snapshots the CodebaseMap at a specific version.
 
 **Behaviors:**
 
 - **Full index** — Walks the entire repository, parses every file, builds the complete map. Triggered when no prior context exists.
-- **Incremental update** — Given a set of changed files (from the PR diff), re-parses only those files and updates their entries and edges in the graph. The rest of the map is preserved.
+- **Incremental update** — Given a set of changed files (from the PR diff), re-parses only those files and updates their entries and edges in the graph. The rest of the map is preserved. **Note:** `incremental_update()` mutates the `CodebaseMap` in-place and returns the same object. Callers must copy the map beforehand if the original must be preserved.
 
 **Invariants:**
 
@@ -117,7 +117,7 @@ flowchart LR
 
 1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Deterministic, instant, highest signal.
 2. **Lexical retrieval** — BM25 sparse search over AST-chunked code. Handles identifier lookups and pattern matching. Useful when the structural graph doesn't capture a relationship.
-3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`embedding_model`). Supports Google, OpenAI, and local (sentence-transformers) providers.
+3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`embedding_model`). Supports Google, OpenAI, and local (sentence-transformers) providers. Validates dimension compatibility between query embeddings and stored indices — mismatches are logged and skipped.
 4. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
 
 **Context Budgeting:**
@@ -236,13 +236,13 @@ The CodebaseMap is persisted between runs using **sharded DAG storage**. The dom
 
 ```
 argus-data branch:
-  manifest.json              # DAG index: shard descriptors + cross-shard edges
+  manifest.json              # DAG index: shard descriptors + cross-shard edges + embedding descriptors
   shard_<content_hash>.json  # One per leaf directory
   <hash>_memory.json         # Patterns + outline (unchanged)
-  <hash>_embeddings.json     # Pre-computed embedding vectors per shard
+  <hash>_embeddings.json     # Pre-computed embedding vectors per shard (hash = shard_id:model)
 ```
 
-- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name) and tracks cross-shard dependency edges.
+- **manifest.json** — Maps shard IDs (directory paths) to descriptors (file count, content hash, blob name), tracks cross-shard dependency edges, and stores `embedding_indices` mapping shard IDs to `EmbeddingDescriptor` (model, dimension, blob_name). Embedding blob names use a model-keyed hash (`shard_id:model`) to prevent silent overwrites when switching embedding models.
 - **Shard files** — Each contains the serialized `FileEntry` objects and internal edges for files in one directory.
 - **Shard ID** — Derived deterministically from `PurePosixPath(file_path).parent`.
 
@@ -252,9 +252,9 @@ argus-data branch:
 - **Index** pulls the manifest, determines dirty shards from changed files, downloads only those, updates, and re-shards. Optionally pulls memory blobs and runs incremental pattern analysis when `analyze_patterns` is enabled. Optionally rebuilds embedding indices for changed shards when `embedding_model` is configured.
 - **Bootstrap** builds the full map, splits into shards, and saves everything. Optionally builds embedding indices for all shards when `embedding_model` is configured.
 
-`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save.
+`ShardedArtifactStore` also satisfies `CodebaseMapRepository` via `load()` / `save()` methods, which delegate to `load_or_migrate()` (tries sharded, falls back to legacy flat format) and `save_full()` (always writes sharded). Legacy flat artifacts are cleaned up on first sharded save. Orphan blob deletion during push uses `sha: None` (JSON null) in tree entries — the GitHub Git Data API rejects the all-zero SHA string.
 
-Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with file locking for concurrent access. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
+Codebase memory (outlines + patterns) is persisted separately via `FileMemoryStore` with `fcntl` file locking for concurrent access. Deserialization runs inside the shared lock scope to prevent TOCTOU races. The `analyzed_at` field on `CodebaseMemory` is serialized/deserialized alongside patterns and outline, enabling index mode to track where it last analyzed without conflating with `indexed_at`.
 
 ### Parsing
 

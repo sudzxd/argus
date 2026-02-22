@@ -10,12 +10,12 @@ Concrete implementations of domain protocols. Imports from `domain/` and `shared
 |--------|-----------|-----|
 | `parsing/tree_sitter_parser.py` | `SourceParser` protocol | Tree-sitter AST parsing for 11 languages |
 | `parsing/chunker.py` | — | Splits source files into semantic `CodeChunk`s around symbols |
-| `storage/artifact_store.py` | `CodebaseMapRepository` protocol | Sharded JSON persistence (`ShardedArtifactStore`) with legacy flat format fallback (`FileArtifactStore`) |
-| `storage/git_branch_store.py` | — | `SelectiveGitBranchSync` (manifest-first pull, selective blob download, base_tree push) and `GitBranchSync` (legacy full pull/push) |
-| `storage/memory_store.py` | `CodebaseMemoryRepository` protocol | JSON file persistence with file locking; serializes `analyzed_at` field |
+| `storage/artifact_store.py` | `CodebaseMapRepository` protocol | Sharded JSON persistence (`ShardedArtifactStore`) with legacy flat format fallback (`FileArtifactStore`). `save_embedding_index()` returns `EmbeddingDescriptor` and uses model-keyed hash (`shard_id:model`) to prevent silent overwrites on model switch. |
+| `storage/git_branch_store.py` | — | `SelectiveGitBranchSync` (manifest-first pull, selective blob download, base_tree push) and `GitBranchSync` (legacy full pull/push). Orphan blob deletion uses `sha: None` (JSON null) in tree entries. |
+| `storage/memory_store.py` | `CodebaseMemoryRepository` protocol | JSON file persistence with `fcntl` file locking; `_deserialize()` runs inside the shared lock scope. Serializes `analyzed_at` field. |
 | `retrieval/structural.py` | `RetrievalStrategy` protocol | Graph-walk over `CodebaseMap` symbol dependencies |
 | `retrieval/lexical.py` | `RetrievalStrategy` protocol | BM25 sparse retrieval using `bm25s` |
-| `retrieval/semantic.py` | `RetrievalStrategy` protocol | Embedding-based cosine similarity against pre-computed indices |
+| `retrieval/semantic.py` | `RetrievalStrategy` protocol | Embedding-based cosine similarity against pre-computed indices. Skips indices with dimension mismatch (logs warning) instead of crashing. |
 | `retrieval/embeddings/` | `EmbeddingProvider` protocol | Embedding providers: Google (`text-embedding-004`), OpenAI (`text-embedding-3-small`), local (`sentence-transformers`) |
 | `retrieval/agentic.py` | `RetrievalStrategy` protocol | LLM-guided iterative retrieval via pydantic-ai `Agent` |
 | `llm_providers/factory.py` | — | `create_agent()` builds pydantic-ai `Agent` from `ModelConfig` |
@@ -38,9 +38,9 @@ All LLM calls go through **pydantic-ai**. The domain defines `ModelConfig`; the 
 ## Storage Architecture
 
 Artifacts live on the `argus-data` orphan branch:
-- `manifest.json` — DAG index with shard descriptors + cross-shard edges + `indexed_at`
+- `manifest.json` — DAG index with shard descriptors + cross-shard edges + `indexed_at` + `embedding_indices` (maps shard IDs to `EmbeddingDescriptor` with model, dimension, blob_name)
 - `shard_<hash>.json` — one per leaf directory (entries + internal edges)
 - `<hash>_memory.json` — patterns + outline + `analyzed_at`
-- `<hash>_embeddings.json` — pre-computed embedding vectors per shard
+- `<hash>_embeddings.json` — pre-computed embedding vectors per shard, hash derived from `shard_id:model`
 
-`SelectiveGitBranchSync` caches tree entries after `pull_manifest()` to avoid redundant API calls. `memory_blob_names()` discovers memory files and `embedding_blob_names()` discovers embedding files from the cached tree. Push uses `base_tree` for incremental tree updates.
+`SelectiveGitBranchSync` caches tree entries after `pull_manifest()` to avoid redundant API calls. `memory_blob_names()` discovers memory files and `embedding_blob_names()` discovers embedding files from the cached tree. Push uses `base_tree` for incremental tree updates. Orphan blobs are deleted by sending `sha: None` (JSON null) in tree entries — the GitHub API rejects the all-zero SHA string.
