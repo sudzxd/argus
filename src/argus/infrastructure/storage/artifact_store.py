@@ -229,16 +229,26 @@ class ShardedArtifactStore:
         self,
         existing_manifest: ShardedManifest,
         partial_map: CodebaseMap,
-    ) -> None:
+    ) -> set[str]:
         """Re-shard a partial map and merge into the existing manifest.
 
         Only the shards present in ``partial_map`` are re-serialized and
         written to disk.  The existing manifest's shard descriptors are
         preserved for directories not in the partial map, and the updated
         descriptors replace the old ones for dirty directories.
+
+        Returns:
+            Set of old blob filenames that were replaced (orphaned).
         """
         new_manifest, shard_data = shard_serializer.split_into_shards(partial_map)
         self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+        # Detect orphaned blobs: old blob names replaced by new ones.
+        orphaned_blobs: set[str] = set()
+        for sid, new_desc in new_manifest.shards.items():
+            old_desc = existing_manifest.shards.get(sid)
+            if old_desc is not None and old_desc.blob_name != new_desc.blob_name:
+                orphaned_blobs.add(old_desc.blob_name)
 
         # Merge: start from existing, override with new.
         merged_shards = dict(existing_manifest.shards)
@@ -268,9 +278,18 @@ class ShardedArtifactStore:
             blob_path = self.storage_dir / desc.blob_name
             blob_path.write_text(json_str, encoding="utf-8")
 
+        # Delete orphaned blob files from local storage.
+        for blob_name in orphaned_blobs:
+            orphan_path = self.storage_dir / blob_name
+            if orphan_path.exists():
+                orphan_path.unlink()
+                logger.info("Removed orphaned shard blob %s", blob_name)
+
         # Write merged manifest.
         manifest_path = self.storage_dir / MANIFEST_FILENAME
         manifest_path.write_text(merged.to_json(), encoding="utf-8")
+
+        return orphaned_blobs
 
     # ------------------------------------------------------------------
     # Embedding index persistence

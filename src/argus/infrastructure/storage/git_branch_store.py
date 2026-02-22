@@ -302,18 +302,22 @@ class SelectiveGitBranchSync:
         logger.info("Pulled %d artifacts from %s", count, self.branch)
         return count
 
-    def push(self) -> None:
+    def push(self, delete_blobs: set[str] | None = None) -> None:
         """Upload JSON artifacts from storage_dir to the branch.
 
         Uses ``base_tree`` when the branch already exists so that
         blobs not present locally (e.g. shards from other directories)
         are preserved on the branch.  Only local files are added or
-        overwritten; nothing is deleted.
+        overwritten.
+
+        Args:
+            delete_blobs: Optional set of blob filenames to remove from
+                the branch tree (e.g. orphaned shard blobs).
 
         Clears the cached tree since branch state has changed.
         """
         files = sorted(self.storage_dir.glob("*.json"))
-        if not files:
+        if not files and not delete_blobs:
             logger.info("No artifacts to push, skipping")
             return
 
@@ -327,6 +331,20 @@ class SelectiveGitBranchSync:
                     "mode": "100644",
                     "type": "blob",
                     "sha": blob_sha,
+                }
+            )
+
+        # Delete orphaned blobs by setting their SHA to the null hash.
+        # GitHub's Git Data API treats a tree entry with an all-zero SHA
+        # as a deletion when used with base_tree.
+        _NULL_SHA = "0" * 40  # noqa: N806
+        for blob_name in delete_blobs or set():
+            tree_entries.append(
+                {
+                    "path": blob_name,
+                    "mode": "100644",
+                    "type": "blob",
+                    "sha": _NULL_SHA,
                 }
             )
 
@@ -352,6 +370,9 @@ class SelectiveGitBranchSync:
         else:
             self.client.update_ref(f"heads/{self.branch}", commit_sha)
             logger.info("Updated branch %s with %d artifacts", self.branch, len(files))
+
+        if delete_blobs:
+            logger.info("Deleted %d orphaned blobs from branch", len(delete_blobs))
 
         # Invalidate cached tree — branch state has changed.
         self._cached_tree = None

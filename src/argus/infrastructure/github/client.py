@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import urllib.parse
 
 from dataclasses import dataclass
@@ -16,6 +17,16 @@ from argus.shared.exceptions import PublishError
 from argus.shared.types import FilePath
 
 logger = logging.getLogger(__name__)
+
+_LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
+
+
+def _next_page_url(response: httpx.Response) -> str | None:
+    """Extract the next page URL from a GitHub ``Link`` header."""
+    link = response.headers.get("link", "")
+    match = _LINK_NEXT_RE.search(link)
+    return match.group(1) if match else None
+
 
 # =============================================================================
 # CLIENT
@@ -397,12 +408,15 @@ class GitHubClient:
         return response.json()  # type: ignore[no-any-return]
 
     def _get_list(self, path: str) -> list[dict[str, object]]:
-        url = f"{GitHubAPI.BASE_URL}{path}"
-        response = self._request(url, self._headers())
-        data = response.json()
-        if isinstance(data, list):
-            return cast(list[dict[str, object]], data)
-        return []
+        url: str | None = f"{GitHubAPI.BASE_URL}{path}"
+        all_items: list[dict[str, object]] = []
+        while url is not None:
+            response = self._request(url, self._headers())
+            data = response.json()
+            if isinstance(data, list):
+                all_items.extend(cast(list[dict[str, object]], data))
+            url = _next_page_url(response)
+        return all_items
 
     def _post(self, url: str, payload: dict[str, object]) -> None:
         try:

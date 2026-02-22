@@ -21,13 +21,15 @@ def client() -> GitHubClient:
 
 def _mock_response(
     status_code: int = 200,
-    json_data: dict[str, object] | None = None,
+    json_data: dict[str, object] | list[dict[str, object]] | None = None,
     text: str = "",
+    headers: dict[str, str] | None = None,
 ) -> MagicMock:
     resp = MagicMock()
     resp.status_code = status_code
-    resp.json.return_value = json_data or {}
+    resp.json.return_value = json_data if json_data is not None else {}
     resp.text = text
+    resp.headers = headers or {}
     return resp
 
 
@@ -137,3 +139,61 @@ def test_get_tree_recursive_warns_on_truncation(
 
     assert len(result) == 1
     assert "truncated" in caplog.text
+
+
+# =============================================================================
+# Pagination
+# =============================================================================
+
+
+def test_get_list_follows_pagination(client: GitHubClient) -> None:
+    """_get_list should follow Link header pagination."""
+    page1 = _mock_response(
+        json_data=[{"id": 1}, {"id": 2}],
+        headers={"link": '<https://api.github.com/next?page=2>; rel="next"'},
+    )
+    page2 = _mock_response(
+        json_data=[{"id": 3}],
+        headers={},
+    )
+
+    mock_client = MagicMock()
+    mock_client.get.side_effect = [page1, page2]
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "argus.infrastructure.github.client.httpx.Client",
+        return_value=mock_client,
+    ):
+        result = client.get_issue_comments(42)
+
+    assert len(result) == 3
+    assert result[0]["id"] == 1
+    assert result[2]["id"] == 3
+
+
+def test_get_list_single_page(client: GitHubClient) -> None:
+    """_get_list returns single page when no Link header."""
+    response = _mock_response(
+        json_data=[{"id": 1}],
+        headers={},
+    )
+
+    with _patch_httpx(response):
+        result = client.get_issue_comments(42)
+
+    assert len(result) == 1
+
+
+def test_get_list_empty_response(client: GitHubClient) -> None:
+    """_get_list handles empty list response."""
+    response = _mock_response(
+        json_data=[],
+        headers={},
+    )
+
+    with _patch_httpx(response):
+        result = client.get_issue_comments(42)
+
+    assert result == []

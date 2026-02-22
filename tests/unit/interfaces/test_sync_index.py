@@ -101,7 +101,7 @@ def test_incremental_update_sharded_processes_changed_files(
     store = ShardedArtifactStore(storage_dir=tmp_path)
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
-    _incremental_update_sharded(
+    _changed, orphaned = _incremental_update_sharded(
         client,
         parser,
         store,
@@ -124,6 +124,9 @@ def test_incremental_update_sharded_processes_changed_files(
     loaded = store.load_full("owner/repo")
     assert loaded is not None
 
+    # No orphans on fresh save (no existing manifest)
+    assert orphaned == set()
+
 
 def test_incremental_update_sharded_no_parseable_changes_skips(
     tmp_path: Path,
@@ -136,7 +139,7 @@ def test_incremental_update_sharded_no_parseable_changes_skips(
     store = ShardedArtifactStore(storage_dir=tmp_path)
     codebase_map = CodebaseMap(indexed_at=CommitSHA("aaa111"))
 
-    _incremental_update_sharded(
+    _changed_files, orphaned = _incremental_update_sharded(
         client,
         parser,
         store,
@@ -150,3 +153,5 @@ def test_incremental_update_sharded_no_parseable_changes_skips(
     parser.parse.assert_not_called()
     # indexed_at unchanged
     assert codebase_map.indexed_at == CommitSHA("aaa111")
+    assert _changed_files == []
+    assert orphaned == set()

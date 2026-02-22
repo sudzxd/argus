@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import pytest
+
 from argus.domain.retrieval.services import RetrievalOrchestrator
 from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.retrieval.value_objects import (
@@ -180,3 +182,17 @@ def test_orchestrator_passes_none_without_strategy_budgets(
     orchestrator.retrieve(simple_query)
 
     assert received_budgets == [None]
+
+
+def test_orchestrator_raises_on_budget_length_mismatch(
+    simple_query: RetrievalQuery,
+) -> None:
+    """Mismatched strategy_budgets length raises ValueError."""
+    orchestrator = RetrievalOrchestrator(
+        strategies=[_make_strategy("a.py", 0.9, 50), _make_strategy("b.py", 0.8, 50)],
+        budget=TokenCount(500),
+        strategy_budgets=[TokenCount(200)],  # only 1, but 2 strategies
+    )
+
+    with pytest.raises(ValueError, match="strategy_budgets length"):
+        orchestrator.retrieve(simple_query)
