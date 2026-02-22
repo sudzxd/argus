@@ -6,7 +6,8 @@ import json
 import logging
 import sys
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from posixpath import normpath
 from typing import cast
 
 import httpx
@@ -50,7 +51,12 @@ from argus.shared.constants import (
     SEMANTIC_BUDGET_RATIO,
     STRUCTURAL_BUDGET_RATIO,
 )
-from argus.shared.exceptions import ArgusError, IndexingError, PublishError
+from argus.shared.exceptions import (
+    ArgusError,
+    ConfigurationError,
+    IndexingError,
+    PublishError,
+)
 from argus.shared.types import CommitSHA, FilePath, ReviewDepth, TokenCount
 
 logger = logging.getLogger(__name__)
@@ -387,9 +393,14 @@ def _execute_pipeline(config: ActionConfig) -> None:
 
 def _load_event(event_path: str) -> dict[str, object]:
     """Load the GitHub event JSON file."""
-    with Path(event_path).open() as f:
-        result: dict[str, object] = json.load(f)
-        return result
+    try:
+        with Path(event_path).open() as f:
+            result: dict[str, object] = json.load(f)
+            return result
+    except FileNotFoundError as e:
+        raise ConfigurationError(f"Event file not found: {event_path}") from e
+    except json.JSONDecodeError as e:
+        raise ConfigurationError(f"Invalid event JSON: {e}") from e
 
 
 def _extract_pr_number(event: dict[str, object]) -> int:
@@ -401,11 +412,11 @@ def _extract_pr_number(event: dict[str, object]) -> int:
         if isinstance(number, int):
             return number
         msg = "Cannot extract PR number from event payload"
-        raise ValueError(msg)
+        raise ConfigurationError(msg)
     if isinstance(pr, int):
         return pr
     msg = "Cannot extract PR number from event payload"
-    raise ValueError(msg)
+    raise ConfigurationError(msg)
 
 
 def _extract_head_sha(event: dict[str, object]) -> str:
@@ -413,18 +424,18 @@ def _extract_head_sha(event: dict[str, object]) -> str:
     pr: object = event.get("pull_request")
     if not isinstance(pr, dict):
         msg = "Cannot extract head SHA from event payload"
-        raise ValueError(msg)
+        raise ConfigurationError(msg)
     pr_data = cast(dict[str, object], pr)
     head: object = pr_data.get("head")
     if not isinstance(head, dict):
         msg = "Cannot extract head SHA from event payload"
-        raise ValueError(msg)
+        raise ConfigurationError(msg)
     head_data = cast(dict[str, object], head)
     sha: object = head_data.get("sha")
     if isinstance(sha, str):
         return sha
     msg = "Cannot extract head SHA from event payload"
-    raise ValueError(msg)
+    raise ConfigurationError(msg)
 
 
 def _extract_changed_files(diff: str) -> list[FilePath]:
@@ -433,6 +444,10 @@ def _extract_changed_files(diff: str) -> list[FilePath]:
     for line in diff.splitlines():
         if line.startswith("+++ b/"):
             path = line[6:]
+            normalized = normpath(path)
+            if normalized.startswith("..") or PurePosixPath(normalized).is_absolute():
+                logger.warning("Skipping suspicious path: %s", path)
+                continue
             files.append(FilePath(path))
     return files
 

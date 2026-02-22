@@ -73,6 +73,19 @@ def test_retrieval_result_empty() -> None:
     assert result.total_tokens == TokenCount(0)
 
 
+def test_retrieval_result_total_tokens_returns_token_count_type(
+    context_item_high: ContextItem,
+    context_item_medium: ContextItem,
+) -> None:
+    result = RetrievalResult(items=[context_item_high, context_item_medium])
+    assert isinstance(result.total_tokens, TokenCount)
+
+
+def test_retrieval_result_empty_total_tokens_returns_token_count_type() -> None:
+    result = RetrievalResult(items=[])
+    assert isinstance(result.total_tokens, TokenCount)
+
+
 def test_retrieval_result_is_immutable(
     context_item_high: ContextItem,
 ) -> None:

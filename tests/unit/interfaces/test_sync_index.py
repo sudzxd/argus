@@ -59,6 +59,18 @@ def test_extract_after_sha_missing_field(tmp_path: Path) -> None:
         _extract_after_sha(str(event_path))
 
 
+def test_extract_after_sha_missing_file() -> None:
+    with pytest.raises(ConfigurationError, match="Event file not found"):
+        _extract_after_sha("/nonexistent/path/event.json")
+
+
+def test_extract_after_sha_invalid_json(tmp_path: Path) -> None:
+    bad_file = tmp_path / "bad.json"
+    bad_file.write_text("not valid json{{{")
+    with pytest.raises(ConfigurationError, match="Invalid event JSON"):
+        _extract_after_sha(str(bad_file))
+
+
 # =============================================================================
 # _incremental_update_sharded tests
 # =============================================================================

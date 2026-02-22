@@ -39,4 +39,4 @@ class RetrievalResult:
     @property
     def total_tokens(self) -> TokenCount:
         """Total token cost of all items."""
-        return TokenCount(sum(item.token_cost for item in self.items))
+        return sum((item.token_cost for item in self.items), start=TokenCount(0))
