@@ -145,6 +145,16 @@ class ShardDescriptor:
 
 
 @dataclass(frozen=True)
+class EmbeddingDescriptor:
+    """Metadata for an embedding index stored in the manifest."""
+
+    shard_id: ShardId
+    model: str
+    dimension: int
+    blob_name: str
+
+
+@dataclass(frozen=True)
 class CrossShardEdge:
     """A dependency edge that crosses shard boundaries."""
 
@@ -170,6 +180,9 @@ class ShardedManifest:
     )
     cross_shard_edges: list[CrossShardEdge] = field(
         default_factory=list[CrossShardEdge],
+    )
+    embedding_indices: dict[ShardId, EmbeddingDescriptor] = field(
+        default_factory=dict[ShardId, EmbeddingDescriptor],
     )
 
     def shards_for_files(self, paths: list[FilePath]) -> set[ShardId]:
@@ -242,11 +255,21 @@ class ShardedManifest:
                 }
             )
 
+        embeddings: dict[str, dict[str, object]] = {}
+        for sid, desc in self.embedding_indices.items():
+            embeddings[sid] = {
+                "shard_id": desc.shard_id,
+                "model": desc.model,
+                "dimension": desc.dimension,
+                "blob_name": desc.blob_name,
+            }
+
         return {
             "version": 2,
             "indexed_at": str(self.indexed_at),
             "shards": shards,
             "cross_shard_edges": edges,
+            "embedding_indices": embeddings,
         }
 
     def to_json(self) -> str:
@@ -292,10 +315,27 @@ class ShardedManifest:
                     )
                 )
 
+        embedding_indices: dict[ShardId, EmbeddingDescriptor] = {}
+        raw_embeddings = data.get("embedding_indices", {})
+        if isinstance(raw_embeddings, dict):
+            emb_dict = cast(dict[str, object], raw_embeddings)
+            for sid_str, desc_obj in emb_dict.items():
+                if not isinstance(desc_obj, dict):
+                    continue
+                desc_data = cast(dict[str, object], desc_obj)
+                sid = ShardId(sid_str)
+                embedding_indices[sid] = EmbeddingDescriptor(
+                    shard_id=ShardId(str(desc_data["shard_id"])),
+                    model=str(desc_data["model"]),
+                    dimension=int(str(desc_data["dimension"])),
+                    blob_name=str(desc_data["blob_name"]),
+                )
+
         return cls(
             indexed_at=indexed_at,
             shards=shards,
             cross_shard_edges=cross_shard_edges,
+            embedding_indices=embedding_indices,
         )
 
     @classmethod

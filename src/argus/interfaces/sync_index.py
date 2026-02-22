@@ -157,6 +157,7 @@ def _execute() -> None:
         changed_files=changed_files or [],
         client=client,
         after_sha=after_sha,
+        repo=repo,
     )
 
     # 3. Push updated artifacts (merges with existing via base_tree).
@@ -339,12 +340,18 @@ def _maybe_build_embeddings(
     changed_files: list[FilePath],
     client: GitHubClient,
     after_sha: str,
+    repo: str = "",
 ) -> None:
     """Build embedding indices for changed shards if embedding_model is configured."""
     if not cfg.embedding_model:
         return
 
-    from argus.domain.context.value_objects import EmbeddingIndex, ShardId, shard_id_for
+    from argus.domain.context.value_objects import (
+        EmbeddingDescriptor,
+        EmbeddingIndex,
+        ShardId,
+        shard_id_for,
+    )
     from argus.infrastructure.parsing.chunker import Chunker
     from argus.infrastructure.retrieval.embeddings import create_embedding_provider
     from argus.infrastructure.storage.artifact_store import ShardedArtifactStore
@@ -361,6 +368,7 @@ def _maybe_build_embeddings(
     # Determine changed shard IDs.
     changed_shard_ids: set[ShardId] = {shard_id_for(f) for f in changed_files}
 
+    descriptors: dict[ShardId, EmbeddingDescriptor] = {}
     for sid in changed_shard_ids:
         texts: list[str] = []
         chunk_ids: list[str] = []
@@ -391,10 +399,19 @@ def _maybe_build_embeddings(
                 dimension=provider.dimension,
                 model=cfg.embedding_model,
             )
-            store.save_embedding_index(index)
+            desc = store.save_embedding_index(index)
+            descriptors[sid] = desc
             logger.info("Built embeddings for shard %s: %d chunks", sid, len(texts))
         except Exception:
             logger.warning("Failed to build embeddings for shard %s", sid)
+
+    # Update manifest with embedding descriptors.
+    if descriptors and repo:
+        manifest = store.load_manifest(repo)
+        if manifest is not None:
+            manifest.embedding_indices.update(descriptors)
+            manifest_path = store.storage_dir / "manifest.json"
+            manifest_path.write_text(manifest.to_json(), encoding="utf-8")
 
 
 def _incremental_update_sharded(

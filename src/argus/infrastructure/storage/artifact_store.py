@@ -11,7 +11,12 @@ from pathlib import Path
 from typing import cast
 
 from argus.domain.context.entities import CodebaseMap
-from argus.domain.context.value_objects import EmbeddingIndex, ShardedManifest, ShardId
+from argus.domain.context.value_objects import (
+    EmbeddingDescriptor,
+    EmbeddingIndex,
+    ShardedManifest,
+    ShardId,
+)
 from argus.infrastructure.storage import serializer, shard_serializer
 
 logger = logging.getLogger(__name__)
@@ -295,11 +300,11 @@ class ShardedArtifactStore:
     # Embedding index persistence
     # ------------------------------------------------------------------
 
-    def save_embedding_index(self, index: EmbeddingIndex) -> str:
+    def save_embedding_index(self, index: EmbeddingIndex) -> EmbeddingDescriptor:
         """Persist an embedding index for a shard.
 
         Returns:
-            The blob filename written (e.g. ``<hash>_embeddings.json``).
+            Descriptor for tracking in the manifest.
         """
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         data: dict[str, object] = {
@@ -310,16 +315,32 @@ class ShardedArtifactStore:
             "model": index.model,
         }
         json_str = json.dumps(data)
-        content_hash = hashlib.sha256(index.shard_id.encode()).hexdigest()[:16]
+        hash_input = f"{index.shard_id}:{index.model}"
+        content_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
         blob_name = f"{content_hash}_embeddings.json"
         (self.storage_dir / blob_name).write_text(json_str, encoding="utf-8")
-        return blob_name
+        return EmbeddingDescriptor(
+            shard_id=index.shard_id,
+            model=index.model,
+            dimension=index.dimension,
+            blob_name=blob_name,
+        )
 
-    def load_embedding_indices(self, shard_ids: set[ShardId]) -> list[EmbeddingIndex]:
-        """Load embedding indices for the given shard IDs."""
+    def load_embedding_indices(
+        self,
+        shard_ids: set[ShardId],
+        model: str = "",
+    ) -> list[EmbeddingIndex]:
+        """Load embedding indices for the given shard IDs.
+
+        Args:
+            shard_ids: Shard IDs to load embeddings for.
+            model: Embedding model name (used to locate the blob file).
+        """
         indices: list[EmbeddingIndex] = []
         for sid in shard_ids:
-            content_hash = hashlib.sha256(sid.encode()).hexdigest()[:16]
+            hash_input = f"{sid}:{model}" if model else str(sid)
+            content_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
             blob_name = f"{content_hash}_embeddings.json"
             path = self.storage_dir / blob_name
             if not path.exists():

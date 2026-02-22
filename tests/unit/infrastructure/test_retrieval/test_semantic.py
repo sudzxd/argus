@@ -165,3 +165,41 @@ def test_retrieve_empty_query() -> None:
     )
     items = strategy.retrieve(query)
     assert items == []
+
+
+def test_retrieve_skips_mismatched_dimension(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Indices with a different dimension than the query are skipped."""
+    import logging
+
+    chunk = _make_chunk("a.py", "func", "def func(): pass")
+
+    # Index has dimension 2, but query embedding will be dimension 3.
+    index = EmbeddingIndex(
+        shard_id=ShardId("."),
+        embeddings=[[1.0, 0.0]],
+        chunk_ids=["a.py:func"],
+        dimension=2,
+        model="old-model",
+    )
+
+    provider = FakeEmbeddingProvider(embeddings=[[1.0, 0.0, 0.0]])
+
+    strategy = SemanticRetrievalStrategy(
+        provider=provider,
+        embedding_indices=[index],
+        chunks=[chunk],
+    )
+
+    query = RetrievalQuery(
+        changed_files=[FilePath("b.py")],
+        changed_symbols=["sym"],
+        diff_text="diff",
+    )
+
+    with caplog.at_level(logging.WARNING):
+        items = strategy.retrieve(query)
+
+    assert items == []
+    assert "Dimension mismatch" in caplog.text
