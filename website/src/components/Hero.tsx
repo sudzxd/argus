@@ -158,7 +158,7 @@ export default function Hero() {
             style={{ fontFamily: "var(--font-mono)" }}
           >
             <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
-            v0.2.0 &mdash; incremental pattern analysis
+            v0.3.0 &mdash; TOML config, semantic retrieval, atomic storage
           </motion.div>
 
           <motion.h1

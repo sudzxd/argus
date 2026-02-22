@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-23
+
+### Added
+
+- **TOML-based configuration** — All configuration moved from environment
+  variables to `[tool.argus]` in `pyproject.toml`. Mode-specific overrides
+  via `[tool.argus.index]` subsection. Supports non-Python repos (missing
+  file or section → all defaults apply).
+- **Semantic retrieval** — Embedding-based cosine similarity retrieval
+  strategy using pre-computed indices. Supports Google (`text-embedding-004`),
+  OpenAI (`text-embedding-3-small`), and local (`sentence-transformers`)
+  embedding providers.
+- **PR context collection** — Reviews now include PR metadata, CI status,
+  review comments, git health, and optionally related issues/PRs.
+- **Suggestion fences** — Review comments can include fenced code
+  suggestions for GitHub's suggestion UI.
+
+### Changed
+
+- **Configuration source** — Environment variables replaced by
+  `[tool.argus]` TOML section. Only secrets (`ANTHROPIC_API_KEY`, etc.)
+  and GitHub runtime vars remain as env vars.
+- **CI embeddings** — Switched to local `sentence-transformers`
+  (`all-MiniLM-L6-v2`) for embedding generation in CI.
+
 ## [0.2.0] - 2026-02-19
 
 ### Added
