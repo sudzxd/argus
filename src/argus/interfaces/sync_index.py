@@ -110,8 +110,9 @@ def _execute() -> None:
 
     after_sha = _extract_after_sha(event_path)
 
+    orphaned_blobs: set[str] = set()
     if manifest is None:
-        changed_files, codebase_map = _handle_legacy_path(
+        changed_files, codebase_map, orphaned_blobs = _handle_legacy_path(
             client,
             parser,
             sharded_store,
@@ -123,7 +124,7 @@ def _execute() -> None:
         if changed_files is None:
             return
     else:
-        changed_files, codebase_map = _handle_manifest_path(
+        changed_files, codebase_map, orphaned_blobs = _handle_manifest_path(
             client,
             parser,
             sharded_store,
@@ -159,7 +160,7 @@ def _execute() -> None:
     )
 
     # 3. Push updated artifacts (merges with existing via base_tree).
-    sync.push()
+    sync.push(delete_blobs=orphaned_blobs or None)
 
 
 def _handle_legacy_path(
@@ -170,12 +171,13 @@ def _handle_legacy_path(
     repo: str,
     after_sha: str,
     cfg: ArgusConfig,
-) -> tuple[list[FilePath] | None, CodebaseMap]:
+) -> tuple[list[FilePath] | None, CodebaseMap, set[str]]:
     """Handle incremental update when no manifest exists (legacy format).
 
     Returns:
-        Tuple of (changed_files, codebase_map). changed_files is None
-        if the caller should return early (bootstrap fallback or no map).
+        Tuple of (changed_files, codebase_map, orphaned_blobs).
+        changed_files is None if the caller should return early
+        (bootstrap fallback or no map).
     """
     sync.pull_all()
     existing_map = sharded_store.load_or_migrate(repo)
@@ -185,10 +187,10 @@ def _handle_legacy_path(
 
         bootstrap_run()
         sync.push()
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     base_sha = str(existing_map.indexed_at)
-    changed_files = _incremental_update_sharded(
+    changed_files, orphaned_blobs = _incremental_update_sharded(
         client,
         parser,
         sharded_store,
@@ -198,7 +200,7 @@ def _handle_legacy_path(
         after_sha,
         cfg=cfg,
     )
-    return changed_files, existing_map
+    return changed_files, existing_map, orphaned_blobs
 
 
 def _handle_manifest_path(
@@ -210,12 +212,13 @@ def _handle_manifest_path(
     repo: str,
     after_sha: str,
     cfg: ArgusConfig,
-) -> tuple[list[FilePath] | None, CodebaseMap]:
+) -> tuple[list[FilePath] | None, CodebaseMap, set[str]]:
     """Handle incremental update using existing manifest.
 
     Returns:
-        Tuple of (changed_files, codebase_map). changed_files is None
-        if the caller should return early (already up to date or no changes).
+        Tuple of (changed_files, codebase_map, orphaned_blobs).
+        changed_files is None if the caller should return early
+        (already up to date or no changes).
     """
     base_sha = str(manifest.indexed_at)
     logger.info(
@@ -226,7 +229,7 @@ def _handle_manifest_path(
 
     if base_sha == after_sha:
         logger.info("Already up to date at %s", after_sha[:8])
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     changed_paths = client.compare_commits(base_sha, after_sha)
     parseable = get_parseable_extensions(cfg.extra_extensions)
@@ -234,7 +237,7 @@ def _handle_manifest_path(
 
     if not source_paths:
         logger.info("No parseable files changed, skipping update")
-        return None, CodebaseMap(indexed_at=CommitSHA(""))
+        return None, CodebaseMap(indexed_at=CommitSHA("")), set()
 
     dirty_shard_ids = manifest.dirty_shards(
         [FilePath(p) for p in source_paths],
@@ -248,7 +251,7 @@ def _handle_manifest_path(
 
     partial_map = sharded_store.load_shards(repo, dirty_shard_ids)
 
-    changed_files = _incremental_update_sharded(
+    changed_files, orphaned_blobs = _incremental_update_sharded(
         client,
         parser,
         sharded_store,
@@ -259,7 +262,7 @@ def _handle_manifest_path(
         existing_manifest=manifest,
         cfg=cfg,
     )
-    return changed_files, partial_map
+    return changed_files, partial_map, orphaned_blobs
 
 
 def _maybe_analyze_patterns(
@@ -404,11 +407,11 @@ def _incremental_update_sharded(
     after_sha: str,
     existing_manifest: ShardedManifest | None = None,
     cfg: ArgusConfig | None = None,
-) -> list[FilePath]:
+) -> tuple[list[FilePath], set[str]]:
     """Update the codebase map and re-shard only dirty directories.
 
     Returns:
-        List of changed source file paths that were updated.
+        Tuple of (changed source file paths, orphaned blob names).
     """
     changed_paths = client.compare_commits(before_sha, after_sha)
     extra = cfg.extra_extensions if cfg is not None else None
@@ -417,7 +420,7 @@ def _incremental_update_sharded(
 
     if not source_paths:
         logger.info("No parseable files changed, skipping update")
-        return []
+        return [], set()
 
     logger.info(
         "Incrementally updating %d changed files (of %d total changed)",
@@ -439,14 +442,15 @@ def _incremental_update_sharded(
     codebase_map.indexed_at = CommitSHA(after_sha)
     logger.info("Updated %d files in codebase map", updated)
 
+    orphaned_blobs: set[str] = set()
     if existing_manifest is not None:
         # Incremental save: merge new shard descriptors into existing manifest.
-        store.save_incremental(existing_manifest, codebase_map)
+        orphaned_blobs = store.save_incremental(existing_manifest, codebase_map)
     else:
         # Full save (legacy migration path).
         store.save_full(repo, codebase_map)
 
-    return [FilePath(p) for p in source_paths]
+    return [FilePath(p) for p in source_paths], orphaned_blobs
 
 
 if __name__ == "__main__":

@@ -215,3 +215,62 @@ def test_save_and_load_empty_map(tmp_path: Path) -> None:
     assert loaded is not None
     assert len(loaded) == 0
     assert loaded.indexed_at == CommitSHA("empty")
+
+
+# =============================================================================
+# save_incremental orphan cleanup
+# =============================================================================
+
+
+def test_save_incremental_returns_orphaned_blobs(tmp_path: Path) -> None:
+    """When a shard's content changes, the old blob name is returned."""
+    store = ShardedArtifactStore(storage_dir=tmp_path)
+    cbm = _build_map()
+    store.save_full("org/repo", cbm)
+
+    # Record old blob names.
+    manifest = store.load_manifest("org/repo")
+    assert manifest is not None
+    old_blob_names = {desc.blob_name for desc in manifest.shards.values()}
+
+    # Modify a file so the shard content changes.
+    cbm.upsert(
+        FileEntry(
+            path=FilePath("src/main.py"),
+            symbols=[
+                Symbol(
+                    name="main_v2",
+                    kind=SymbolKind.FUNCTION,
+                    line_range=LineRange(start=1, end=10),
+                ),
+            ],
+            imports=[],
+            exports=["main_v2"],
+            last_indexed=CommitSHA("sha456"),
+        )
+    )
+
+    orphaned = store.save_incremental(manifest, cbm)
+
+    # At least the src shard should have a new blob name.
+    assert len(orphaned) >= 1
+    # Orphaned blobs should be from the old set.
+    assert orphaned <= old_blob_names
+    # Old orphan files should be deleted from disk.
+    for blob_name in orphaned:
+        assert not (tmp_path / blob_name).exists()
+
+
+def test_save_incremental_no_orphans_when_unchanged(tmp_path: Path) -> None:
+    """When shard content doesn't change, no orphans are returned."""
+    store = ShardedArtifactStore(storage_dir=tmp_path)
+    cbm = _build_map()
+    store.save_full("org/repo", cbm)
+
+    manifest = store.load_manifest("org/repo")
+    assert manifest is not None
+
+    # Save same content — no changes.
+    orphaned = store.save_incremental(manifest, cbm)
+
+    assert orphaned == set()
