@@ -1,0 +1,607 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/interfaces/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_config.py",
+      "symbols": [
+        {
+          "name": "TestActionConfig",
+          "kind": "class",
+          "line_start": 17,
+          "line_end": 82,
+          "signature": "class TestActionConfig"
+        },
+        {
+          "name": "test_from_toml_with_defaults",
+          "kind": "method",
+          "line_start": 18,
+          "line_end": 34,
+          "signature": "def test_from_toml_with_defaults("
+        },
+        {
+          "name": "test_from_toml_with_custom_review_depth",
+          "kind": "method",
+          "line_start": 36,
+          "line_end": 52,
+          "signature": "def test_from_toml_with_custom_review_depth("
+        },
+        {
+          "name": "test_from_toml_with_extra_extensions",
+          "kind": "method",
+          "line_start": 54,
+          "line_end": 72,
+          "signature": "def test_from_toml_with_extra_extensions("
+        },
+        {
+          "name": "test_from_toml_missing_required_raises",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 82,
+          "signature": "def test_from_toml_missing_required_raises("
+        }
+      ],
+      "imports": [
+        "textwrap",
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.interfaces.config",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "TestActionConfig"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_env_utils.py",
+      "symbols": [
+        {
+          "name": "test_require_env_returns_value",
+          "kind": "function",
+          "line_start": 11,
+          "line_end": 13,
+          "signature": "def test_require_env_returns_value(monkeypatch"
+        },
+        {
+          "name": "test_require_env_raises_on_missing",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 19,
+          "signature": "def test_require_env_raises_on_missing(monkeypatch"
+        },
+        {
+          "name": "test_require_env_raises_on_empty",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 25,
+          "signature": "def test_require_env_raises_on_empty(monkeypatch"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.interfaces.env_utils",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "test_require_env_returns_value",
+        "test_require_env_raises_on_missing",
+        "test_require_env_raises_on_empty"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_main.py",
+      "symbols": [
+        {
+          "name": "TestMainDispatch",
+          "kind": "class",
+          "line_start": 12,
+          "line_end": 63,
+          "signature": "class TestMainDispatch"
+        },
+        {
+          "name": "test_valid_modes_set",
+          "kind": "method",
+          "line_start": 13,
+          "line_end": 14,
+          "signature": "def test_valid_modes_set(self) -> None"
+        },
+        {
+          "name": "test_dispatch_review",
+          "kind": "method",
+          "line_start": 18,
+          "line_end": 22,
+          "signature": "def test_dispatch_review(self, mock_run"
+        },
+        {
+          "name": "test_dispatch_index",
+          "kind": "method",
+          "line_start": 26,
+          "line_end": 30,
+          "signature": "def test_dispatch_index(self, mock_run"
+        },
+        {
+          "name": "test_dispatch_bootstrap",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 42,
+          "signature": "def test_dispatch_bootstrap(self, mock_push"
+        },
+        {
+          "name": "test_default_mode_is_review",
+          "kind": "method",
+          "line_start": 46,
+          "line_end": 50,
+          "signature": "def test_default_mode_is_review(self, mock_run"
+        },
+        {
+          "name": "test_invalid_mode_exits",
+          "kind": "method",
+          "line_start": 53,
+          "line_end": 55,
+          "signature": "def test_invalid_mode_exits(self) -> None"
+        },
+        {
+          "name": "test_mode_is_stripped_and_lowered",
+          "kind": "method",
+          "line_start": 59,
+          "line_end": 63,
+          "signature": "def test_mode_is_stripped_and_lowered(self, mock_run"
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.interfaces.main"
+      ],
+      "exports": [
+        "TestMainDispatch"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_review_generator.py",
+      "symbols": [
+        {
+          "name": "model_config",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 38,
+          "signature": "def model_config() -> ModelConfig"
+        },
+        {
+          "name": "review_request",
+          "kind": "function",
+          "line_start": 42,
+          "line_end": 55,
+          "signature": "def review_request() -> ReviewRequest"
+        },
+        {
+          "name": "sample_review_output",
+          "kind": "function",
+          "line_start": 59,
+          "line_end": 77,
+          "signature": "def sample_review_output() -> ReviewOutput"
+        },
+        {
+          "name": "TestLLMReviewGenerator",
+          "kind": "class",
+          "line_start": 80,
+          "line_end": 271,
+          "signature": "class TestLLMReviewGenerator"
+        },
+        {
+          "name": "test_generate_returns_review_and_usage",
+          "kind": "method",
+          "line_start": 84,
+          "line_end": 123,
+          "signature": "def test_generate_returns_review_and_usage("
+        },
+        {
+          "name": "test_generate_with_no_comments",
+          "kind": "method",
+          "line_start": 126,
+          "line_end": 149,
+          "signature": "def test_generate_with_no_comments("
+        },
+        {
+          "name": "test_generate_maps_all_severities",
+          "kind": "method",
+          "line_start": 152,
+          "line_end": 193,
+          "signature": "def test_generate_maps_all_severities("
+        },
+        {
+          "name": "test_prompt_includes_diff_and_context",
+          "kind": "method",
+          "line_start": 196,
+          "line_end": 215,
+          "signature": "def test_prompt_includes_diff_and_context("
+        },
+        {
+          "name": "test_prompt_includes_pr_context",
+          "kind": "method",
+          "line_start": 218,
+          "line_end": 271,
+          "signature": "def test_prompt_includes_pr_context("
+        },
+        {
+          "name": "TestFormatPrContext",
+          "kind": "class",
+          "line_start": 274,
+          "line_end": 372,
+          "signature": "class TestFormatPrContext"
+        },
+        {
+          "name": "test_format_includes_all_sections",
+          "kind": "method",
+          "line_start": 277,
+          "line_end": 308,
+          "signature": "def test_format_includes_all_sections(self, model_config"
+        },
+        {
+          "name": "test_format_flags_missing_description",
+          "kind": "method",
+          "line_start": 310,
+          "line_end": 325,
+          "signature": "def test_format_flags_missing_description(self, model_config"
+        },
+        {
+          "name": "test_format_review_comments_with_file_and_line",
+          "kind": "method",
+          "line_start": 327,
+          "line_end": 372,
+          "signature": "def test_format_review_comments_with_file_and_line("
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.domain.llm.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.domain.review.value_objects",
+        "argus.interfaces.review_generator",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "TestLLMReviewGenerator",
+        "TestFormatPrContext"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_sync_index.py",
+      "symbols": [
+        {
+          "name": "test_is_parseable_python_file",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 28,
+          "signature": "def test_is_parseable_python_file() -> None"
+        },
+        {
+          "name": "test_is_parseable_unknown_extension",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 32,
+          "signature": "def test_is_parseable_unknown_extension() -> None"
+        },
+        {
+          "name": "test_is_parseable_no_extension",
+          "kind": "function",
+          "line_start": 35,
+          "line_end": 36,
+          "signature": "def test_is_parseable_no_extension() -> None"
+        },
+        {
+          "name": "test_extract_after_sha_valid",
+          "kind": "function",
+          "line_start": 44,
+          "line_end": 50,
+          "signature": "def test_extract_after_sha_valid(tmp_path"
+        },
+        {
+          "name": "test_extract_after_sha_missing_field",
+          "kind": "function",
+          "line_start": 53,
+          "line_end": 59,
+          "signature": "def test_extract_after_sha_missing_field(tmp_path"
+        },
+        {
+          "name": "test_extract_after_sha_missing_file",
+          "kind": "function",
+          "line_start": 62,
+          "line_end": 64,
+          "signature": "def test_extract_after_sha_missing_file() -> None"
+        },
+        {
+          "name": "test_extract_after_sha_invalid_json",
+          "kind": "function",
+          "line_start": 67,
+          "line_end": 71,
+          "signature": "def test_extract_after_sha_invalid_json(tmp_path"
+        },
+        {
+          "name": "test_incremental_update_sharded_processes_changed_files",
+          "kind": "function",
+          "line_start": 79,
+          "line_end": 128,
+          "signature": "def test_incremental_update_sharded_processes_changed_files("
+        },
+        {
+          "name": "test_incremental_update_sharded_no_parseable_changes_skips",
+          "kind": "function",
+          "line_start": 131,
+          "line_end": 157,
+          "signature": "def test_incremental_update_sharded_no_parseable_changes_skips("
+        }
+      ],
+      "imports": [
+        "json",
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.interfaces.sync_index",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_is_parseable_python_file",
+        "test_is_parseable_unknown_extension",
+        "test_is_parseable_no_extension",
+        "test_extract_after_sha_valid",
+        "test_extract_after_sha_missing_field",
+        "test_extract_after_sha_missing_file",
+        "test_extract_after_sha_invalid_json",
+        "test_incremental_update_sharded_processes_changed_files",
+        "test_incremental_update_sharded_no_parseable_changes_skips"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_sync_push.py",
+      "symbols": [
+        {
+          "name": "TestSyncPushRun",
+          "kind": "class",
+          "line_start": 12,
+          "line_end": 36,
+          "signature": "class TestSyncPushRun"
+        },
+        {
+          "name": "test_run_success",
+          "kind": "method",
+          "line_start": 16,
+          "line_end": 29,
+          "signature": "def test_run_success("
+        },
+        {
+          "name": "test_run_missing_env_exits",
+          "kind": "method",
+          "line_start": 31,
+          "line_end": 36,
+          "signature": "def test_run_missing_env_exits(self) -> None"
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.interfaces.sync_push"
+      ],
+      "exports": [
+        "TestSyncPushRun"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/interfaces/test_toml_config.py",
+      "symbols": [
+        {
+          "name": "_write_toml",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 20,
+          "signature": "def _write_toml(tmp_path"
+        },
+        {
+          "name": "TestDefaults",
+          "kind": "class",
+          "line_start": 28,
+          "line_end": 77,
+          "signature": "class TestDefaults"
+        },
+        {
+          "name": "test_load_no_pyproject_uses_review_defaults",
+          "kind": "method",
+          "line_start": 29,
+          "line_end": 32,
+          "signature": "def test_load_no_pyproject_uses_review_defaults(self, tmp_path"
+        },
+        {
+          "name": "test_load_no_pyproject_uses_index_defaults",
+          "kind": "method",
+          "line_start": 34,
+          "line_end": 37,
+          "signature": "def test_load_no_pyproject_uses_index_defaults(self, tmp_path"
+        },
+        {
+          "name": "test_load_empty_tool_section_uses_defaults",
+          "kind": "method",
+          "line_start": 39,
+          "line_end": 50,
+          "signature": "def test_load_empty_tool_section_uses_defaults(self, tmp_path"
+        },
+        {
+          "name": "test_load_empty_argus_section_uses_defaults",
+          "kind": "method",
+          "line_start": 52,
+          "line_end": 60,
+          "signature": "def test_load_empty_argus_section_uses_defaults(self, tmp_path"
+        },
+        {
+          "name": "test_load_common_defaults_applied",
+          "kind": "method",
+          "line_start": 62,
+          "line_end": 72,
+          "signature": "def test_load_common_defaults_applied(self, tmp_path"
+        },
+        {
+          "name": "test_load_bootstrap_uses_index_defaults",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 77,
+          "signature": "def test_load_bootstrap_uses_index_defaults(self, tmp_path"
+        },
+        {
+          "name": "TestOverrides",
+          "kind": "class",
+          "line_start": 85,
+          "line_end": 151,
+          "signature": "class TestOverrides"
+        },
+        {
+          "name": "test_load_overrides_from_toml",
+          "kind": "method",
+          "line_start": 86,
+          "line_end": 115,
+          "signature": "def test_load_overrides_from_toml(self, tmp_path"
+        },
+        {
+          "name": "test_load_index_subsection_overrides_in_index_mode",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 134,
+          "signature": "def test_load_index_subsection_overrides_in_index_mode("
+        },
+        {
+          "name": "test_load_index_subsection_ignored_in_review_mode",
+          "kind": "method",
+          "line_start": 136,
+          "line_end": 151,
+          "signature": "def test_load_index_subsection_ignored_in_review_mode(self, tmp_path"
+        },
+        {
+          "name": "TestArraysAndExtensions",
+          "kind": "class",
+          "line_start": 159,
+          "line_end": 180,
+          "signature": "class TestArraysAndExtensions"
+        },
+        {
+          "name": "test_load_arrays_parsed_natively",
+          "kind": "method",
+          "line_start": 160,
+          "line_end": 169,
+          "signature": "def test_load_arrays_parsed_natively(self, tmp_path"
+        },
+        {
+          "name": "test_load_extensions_normalized",
+          "kind": "method",
+          "line_start": 171,
+          "line_end": 180,
+          "signature": "def test_load_extensions_normalized(self, tmp_path"
+        },
+        {
+          "name": "TestValidation",
+          "kind": "class",
+          "line_start": 188,
+          "line_end": 256,
+          "signature": "class TestValidation"
+        },
+        {
+          "name": "test_load_invalid_review_depth_raises",
+          "kind": "method",
+          "line_start": 189,
+          "line_end": 198,
+          "signature": "def test_load_invalid_review_depth_raises(self, tmp_path"
+        },
+        {
+          "name": "test_load_temperature_out_of_range_raises",
+          "kind": "method",
+          "line_start": 200,
+          "line_end": 209,
+          "signature": "def test_load_temperature_out_of_range_raises(self, tmp_path"
+        },
+        {
+          "name": "test_load_confidence_threshold_out_of_range_raises",
+          "kind": "method",
+          "line_start": 211,
+          "line_end": 222,
+          "signature": "def test_load_confidence_threshold_out_of_range_raises("
+        },
+        {
+          "name": "test_load_invalid_toml_raises",
+          "kind": "method",
+          "line_start": 224,
+          "line_end": 227,
+          "signature": "def test_load_invalid_toml_raises(self, tmp_path"
+        },
+        {
+          "name": "test_load_unknown_keys_warns",
+          "kind": "method",
+          "line_start": 229,
+          "line_end": 242,
+          "signature": "def test_load_unknown_keys_warns("
+        },
+        {
+          "name": "test_load_unknown_key_in_index_subsection_warns",
+          "kind": "method",
+          "line_start": 244,
+          "line_end": 256,
+          "signature": "def test_load_unknown_key_in_index_subsection_warns("
+        },
+        {
+          "name": "TestArgusConfigFrozen",
+          "kind": "class",
+          "line_start": 264,
+          "line_end": 268,
+          "signature": "class TestArgusConfigFrozen"
+        },
+        {
+          "name": "test_argus_config_is_frozen",
+          "kind": "method",
+          "line_start": 265,
+          "line_end": 268,
+          "signature": "def test_argus_config_is_frozen(self) -> None"
+        }
+      ],
+      "imports": [
+        "logging",
+        "textwrap",
+        "pathlib",
+        "pytest",
+        "argus.interfaces.toml_config",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_write_toml",
+        "TestDefaults",
+        "TestOverrides",
+        "TestArraysAndExtensions",
+        "TestValidation",
+        "TestArgusConfigFrozen"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

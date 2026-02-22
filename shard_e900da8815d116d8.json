@@ -1,0 +1,39 @@
+{
+  "entries": [
+    {
+      "path": "website/src/lib/mdx.ts",
+      "symbols": [
+        {
+          "name": "getDocSlugs",
+          "kind": "function",
+          "line_start": 14,
+          "line_end": 19,
+          "signature": "function getDocSlugs()"
+        },
+        {
+          "name": "getDocBySlug",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 38,
+          "signature": "function getDocBySlug(slug"
+        },
+        {
+          "name": "getAllDocs",
+          "kind": "function",
+          "line_start": 40,
+          "line_end": 44,
+          "signature": "function getAllDocs()"
+        }
+      ],
+      "imports": [
+        "fs",
+        "path",
+        "gray-matter"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

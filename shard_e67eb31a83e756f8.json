@@ -1,0 +1,142 @@
+{
+  "entries": [
+    {
+      "path": "website/src/components/CodeBlock.tsx",
+      "symbols": [
+        {
+          "name": "tokenizeYaml",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 87,
+          "signature": "function tokenizeYaml(line"
+        },
+        {
+          "name": "CodeBlock",
+          "kind": "function",
+          "line_start": 89,
+          "line_end": 105,
+          "signature": "function CodeBlock({"
+        }
+      ],
+      "imports": [
+        "framer-motion",
+        "react"
+      ],
+      "exports": [
+        "tokenizeYaml"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/Features.tsx",
+      "symbols": [],
+      "imports": [
+        "framer-motion",
+        "./GlassCard"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/Footer.tsx",
+      "symbols": [
+        {
+          "name": "Footer",
+          "kind": "function",
+          "line_start": 5,
+          "line_end": 57,
+          "signature": "function Footer() {"
+        }
+      ],
+      "imports": [
+        "next/link"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/GlassCard.tsx",
+      "symbols": [
+        {
+          "name": "GlassCard",
+          "kind": "function",
+          "line_start": 11,
+          "line_end": 18,
+          "signature": "function GlassCard({"
+        }
+      ],
+      "imports": [
+        "framer-motion"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/Hero.tsx",
+      "symbols": [],
+      "imports": [
+        "framer-motion",
+        "react",
+        "next/link"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/HowItWorks.tsx",
+      "symbols": [],
+      "imports": [
+        "framer-motion"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/Navbar.tsx",
+      "symbols": [
+        {
+          "name": "ArgusEye",
+          "kind": "function",
+          "line_start": 14,
+          "line_end": 37,
+          "signature": "function ArgusEye({ size = 28 }"
+        },
+        {
+          "name": "Navbar",
+          "kind": "function",
+          "line_start": 39,
+          "line_end": 51,
+          "signature": "function Navbar() {"
+        }
+      ],
+      "imports": [
+        "react",
+        "framer-motion",
+        "next/link"
+      ],
+      "exports": [
+        "ArgusEye"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/components/QuickSetup.tsx",
+      "symbols": [],
+      "imports": [
+        "framer-motion",
+        "./CodeBlock"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

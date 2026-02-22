@@ -1,0 +1,126 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/memory/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/memory/llm_analyzer.py",
+      "symbols": [
+        {
+          "name": "_PatternOutput",
+          "kind": "class",
+          "line_start": 81,
+          "line_end": 90,
+          "signature": "class _PatternOutput(BaseModel)"
+        },
+        {
+          "name": "Pattern",
+          "kind": "class",
+          "line_start": 84,
+          "line_end": 88,
+          "signature": "class Pattern(BaseModel)"
+        },
+        {
+          "name": "LLMPatternAnalyzer",
+          "kind": "class",
+          "line_start": 94,
+          "line_end": 162,
+          "signature": "class LLMPatternAnalyzer"
+        },
+        {
+          "name": "analyze",
+          "kind": "method",
+          "line_start": 99,
+          "line_end": 116,
+          "signature": "def analyze(self, outline_text"
+        },
+        {
+          "name": "analyze_incremental",
+          "kind": "method",
+          "line_start": 118,
+          "line_end": 145,
+          "signature": "def analyze_incremental("
+        },
+        {
+          "name": "_to_entry",
+          "kind": "method",
+          "line_start": 148,
+          "line_end": 162,
+          "signature": "def _to_entry(p"
+        },
+        {
+          "name": "_format_existing_patterns",
+          "kind": "function",
+          "line_start": 165,
+          "line_end": 170,
+          "signature": "def _format_existing_patterns(patterns"
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "pydantic",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.llm_providers.factory",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "_PatternOutput",
+        "_format_existing_patterns"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/memory/outline_renderer.py",
+      "symbols": [
+        {
+          "name": "OutlineRenderer",
+          "kind": "class",
+          "line_start": 18,
+          "line_end": 112,
+          "signature": "class OutlineRenderer"
+        },
+        {
+          "name": "render",
+          "kind": "method",
+          "line_start": 29,
+          "line_end": 63,
+          "signature": "def render("
+        },
+        {
+          "name": "render_full",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 72,
+          "signature": "def render_full(self, codebase_map"
+        },
+        {
+          "name": "_render_files",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 112,
+          "signature": "def _render_files("
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "argus.domain.context.entities",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

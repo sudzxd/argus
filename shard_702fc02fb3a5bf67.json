@@ -1,0 +1,468 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_github/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_github/test_client.py",
+      "symbols": [
+        {
+          "name": "client",
+          "kind": "function",
+          "line_start": 18,
+          "line_end": 19,
+          "signature": "def client() -> GitHubClient"
+        },
+        {
+          "name": "_mock_response",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 33,
+          "signature": "def _mock_response("
+        },
+        {
+          "name": "_patch_httpx",
+          "kind": "function",
+          "line_start": 36,
+          "line_end": 45,
+          "signature": "def _patch_httpx(response"
+        },
+        {
+          "name": "test_get_pull_request_returns_data",
+          "kind": "function",
+          "line_start": 53,
+          "line_end": 60,
+          "signature": "def test_get_pull_request_returns_data(client"
+        },
+        {
+          "name": "test_get_pull_request_diff_returns_text",
+          "kind": "function",
+          "line_start": 63,
+          "line_end": 69,
+          "signature": "def test_get_pull_request_diff_returns_text(client"
+        },
+        {
+          "name": "test_get_raises_publish_error_on_failure",
+          "kind": "function",
+          "line_start": 72,
+          "line_end": 76,
+          "signature": "def test_get_raises_publish_error_on_failure(client"
+        },
+        {
+          "name": "test_post_issue_comment_succeeds",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 88,
+          "signature": "def test_post_issue_comment_succeeds(client"
+        },
+        {
+          "name": "test_post_review_succeeds",
+          "kind": "function",
+          "line_start": 91,
+          "line_end": 99,
+          "signature": "def test_post_review_succeeds(client"
+        },
+        {
+          "name": "test_post_raises_publish_error_on_failure",
+          "kind": "function",
+          "line_start": 102,
+          "line_end": 106,
+          "signature": "def test_post_raises_publish_error_on_failure(client"
+        },
+        {
+          "name": "test_get_file_content_url_encodes_special_chars",
+          "kind": "function",
+          "line_start": 114,
+          "line_end": 125,
+          "signature": "def test_get_file_content_url_encodes_special_chars(client"
+        },
+        {
+          "name": "test_get_tree_recursive_warns_on_truncation",
+          "kind": "function",
+          "line_start": 128,
+          "line_end": 141,
+          "signature": "def test_get_tree_recursive_warns_on_truncation("
+        },
+        {
+          "name": "test_get_list_follows_pagination",
+          "kind": "function",
+          "line_start": 149,
+          "line_end": 173,
+          "signature": "def test_get_list_follows_pagination(client"
+        },
+        {
+          "name": "test_get_list_single_page",
+          "kind": "function",
+          "line_start": 176,
+          "line_end": 186,
+          "signature": "def test_get_list_single_page(client"
+        },
+        {
+          "name": "test_get_list_empty_response",
+          "kind": "function",
+          "line_start": 189,
+          "line_end": 199,
+          "signature": "def test_get_list_empty_response(client"
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.infrastructure.github.client",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "_mock_response",
+        "_patch_httpx",
+        "test_get_pull_request_returns_data",
+        "test_get_pull_request_diff_returns_text",
+        "test_get_raises_publish_error_on_failure",
+        "test_post_issue_comment_succeeds",
+        "test_post_review_succeeds",
+        "test_post_raises_publish_error_on_failure",
+        "test_get_file_content_url_encodes_special_chars",
+        "test_get_tree_recursive_warns_on_truncation",
+        "test_get_list_follows_pagination",
+        "test_get_list_single_page",
+        "test_get_list_empty_response"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_github/test_pr_context_collector.py",
+      "symbols": [
+        {
+          "name": "_make_pr_response",
+          "kind": "function",
+          "line_start": 13,
+          "line_end": 25,
+          "signature": "def _make_pr_response("
+        },
+        {
+          "name": "_make_check_runs",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 47,
+          "signature": "def _make_check_runs("
+        },
+        {
+          "name": "test_collect_ci_status_detects_failure",
+          "kind": "function",
+          "line_start": 55,
+          "line_end": 72,
+          "signature": "def test_collect_ci_status_detects_failure() -> None"
+        },
+        {
+          "name": "test_collect_ci_status_all_success",
+          "kind": "function",
+          "line_start": 75,
+          "line_end": 88,
+          "signature": "def test_collect_ci_status_all_success() -> None"
+        },
+        {
+          "name": "test_collect_ci_status_pending_when_in_progress",
+          "kind": "function",
+          "line_start": 91,
+          "line_end": 104,
+          "signature": "def test_collect_ci_status_pending_when_in_progress() -> None"
+        },
+        {
+          "name": "test_collect_ci_status_pending_when_no_checks",
+          "kind": "function",
+          "line_start": 107,
+          "line_end": 118,
+          "signature": "def test_collect_ci_status_pending_when_no_checks() -> None"
+        },
+        {
+          "name": "test_collect_extracts_pr_metadata",
+          "kind": "function",
+          "line_start": 126,
+          "line_end": 140,
+          "signature": "def test_collect_extracts_pr_metadata() -> None"
+        },
+        {
+          "name": "test_collect_gathers_comments",
+          "kind": "function",
+          "line_start": 148,
+          "line_end": 167,
+          "signature": "def test_collect_gathers_comments() -> None"
+        },
+        {
+          "name": "test_collect_computes_git_health",
+          "kind": "function",
+          "line_start": 175,
+          "line_end": 190,
+          "signature": "def test_collect_computes_git_health() -> None"
+        },
+        {
+          "name": "test_collect_no_merge_commits",
+          "kind": "function",
+          "line_start": 193,
+          "line_end": 205,
+          "signature": "def test_collect_no_merge_commits() -> None"
+        },
+        {
+          "name": "test_collect_skips_related_by_default",
+          "kind": "function",
+          "line_start": 213,
+          "line_end": 225,
+          "signature": "def test_collect_skips_related_by_default() -> None"
+        },
+        {
+          "name": "test_collect_related_items_from_body_refs",
+          "kind": "function",
+          "line_start": 228,
+          "line_end": 252,
+          "signature": "def test_collect_related_items_from_body_refs() -> None"
+        },
+        {
+          "name": "test_collect_merges_issue_and_review_comments",
+          "kind": "function",
+          "line_start": 260,
+          "line_end": 291,
+          "signature": "def test_collect_merges_issue_and_review_comments() -> None"
+        },
+        {
+          "name": "test_git_health_catches_publish_error_on_commits",
+          "kind": "function",
+          "line_start": 299,
+          "line_end": 311,
+          "signature": "def test_git_health_catches_publish_error_on_commits() -> None"
+        },
+        {
+          "name": "test_git_health_propagates_non_publish_error",
+          "kind": "function",
+          "line_start": 314,
+          "line_end": 324,
+          "signature": "def test_git_health_propagates_non_publish_error() -> None"
+        },
+        {
+          "name": "test_collect_filters_bot_comments",
+          "kind": "function",
+          "line_start": 327,
+          "line_end": 358,
+          "signature": "def test_collect_filters_bot_comments() -> None"
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.infrastructure.github.pr_context_collector",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "_make_pr_response",
+        "_make_check_runs",
+        "test_collect_ci_status_detects_failure",
+        "test_collect_ci_status_all_success",
+        "test_collect_ci_status_pending_when_in_progress",
+        "test_collect_ci_status_pending_when_no_checks",
+        "test_collect_extracts_pr_metadata",
+        "test_collect_gathers_comments",
+        "test_collect_computes_git_health",
+        "test_collect_no_merge_commits",
+        "test_collect_skips_related_by_default",
+        "test_collect_related_items_from_body_refs",
+        "test_collect_merges_issue_and_review_comments",
+        "test_git_health_catches_publish_error_on_commits",
+        "test_git_health_propagates_non_publish_error",
+        "test_collect_filters_bot_comments"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_github/test_publisher.py",
+      "symbols": [
+        {
+          "name": "_make_review",
+          "kind": "function",
+          "line_start": 46,
+          "line_end": 57,
+          "signature": "def _make_review("
+        },
+        {
+          "name": "_make_comment",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 74,
+          "signature": "def _make_comment("
+        },
+        {
+          "name": "test_publish_with_comments_in_diff_uses_post_review",
+          "kind": "function",
+          "line_start": 82,
+          "line_end": 89,
+          "signature": "def test_publish_with_comments_in_diff_uses_post_review() -> None"
+        },
+        {
+          "name": "test_publish_without_comments_uses_issue_comment",
+          "kind": "function",
+          "line_start": 92,
+          "line_end": 100,
+          "signature": "def test_publish_without_comments_uses_issue_comment() -> None"
+        },
+        {
+          "name": "test_publish_formats_summary_correctly",
+          "kind": "function",
+          "line_start": 103,
+          "line_end": 114,
+          "signature": "def test_publish_formats_summary_correctly() -> None"
+        },
+        {
+          "name": "test_publish_formats_comment_with_severity_label",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 128,
+          "signature": "def test_publish_formats_comment_with_severity_label() -> None"
+        },
+        {
+          "name": "test_publish_includes_suggestion_in_comment",
+          "kind": "function",
+          "line_start": 131,
+          "line_end": 143,
+          "signature": "def test_publish_includes_suggestion_in_comment() -> None"
+        },
+        {
+          "name": "test_publish_comment_uses_position",
+          "kind": "function",
+          "line_start": 146,
+          "line_end": 158,
+          "signature": "def test_publish_comment_uses_position() -> None"
+        },
+        {
+          "name": "test_publish_comment_uses_end_line_position",
+          "kind": "function",
+          "line_start": 161,
+          "line_end": 172,
+          "signature": "def test_publish_comment_uses_end_line_position() -> None"
+        },
+        {
+          "name": "test_comments_outside_diff_go_to_body",
+          "kind": "function",
+          "line_start": 180,
+          "line_end": 192,
+          "signature": "def test_comments_outside_diff_go_to_body() -> None"
+        },
+        {
+          "name": "test_body_fallback_suggestion_uses_suggestion_fence",
+          "kind": "function",
+          "line_start": 195,
+          "line_end": 207,
+          "signature": "def test_body_fallback_suggestion_uses_suggestion_fence() -> None"
+        },
+        {
+          "name": "test_no_diff_puts_all_comments_in_body",
+          "kind": "function",
+          "line_start": 210,
+          "line_end": 221,
+          "signature": "def test_no_diff_puts_all_comments_in_body() -> None"
+        },
+        {
+          "name": "test_line_outside_hunk_goes_to_body",
+          "kind": "function",
+          "line_start": 224,
+          "line_end": 235,
+          "signature": "def test_line_outside_hunk_goes_to_body() -> None"
+        },
+        {
+          "name": "test_fallback_posts_comments_individually",
+          "kind": "function",
+          "line_start": 238,
+          "line_end": 252,
+          "signature": "def test_fallback_posts_comments_individually() -> None"
+        },
+        {
+          "name": "test_fallback_collects_failed_individual_comments",
+          "kind": "function",
+          "line_start": 255,
+          "line_end": 266,
+          "signature": "def test_fallback_collects_failed_individual_comments() -> None"
+        },
+        {
+          "name": "test_parse_positions_single_hunk",
+          "kind": "function",
+          "line_start": 274,
+          "line_end": 285,
+          "signature": "def test_parse_positions_single_hunk() -> None"
+        },
+        {
+          "name": "test_parse_positions_new_file",
+          "kind": "function",
+          "line_start": 288,
+          "line_end": 303,
+          "signature": "def test_parse_positions_new_file() -> None"
+        },
+        {
+          "name": "test_parse_positions_multiple_hunks",
+          "kind": "function",
+          "line_start": 306,
+          "line_end": 332,
+          "signature": "def test_parse_positions_multiple_hunks() -> None"
+        },
+        {
+          "name": "test_parse_positions_deleted_lines_dont_map",
+          "kind": "function",
+          "line_start": 335,
+          "line_end": 350,
+          "signature": "def test_parse_positions_deleted_lines_dont_map() -> None"
+        },
+        {
+          "name": "test_parse_positions_multiple_files",
+          "kind": "function",
+          "line_start": 353,
+          "line_end": 373,
+          "signature": "def test_parse_positions_multiple_files() -> None"
+        },
+        {
+          "name": "test_comment_line_falls_back_to_nearest_in_range",
+          "kind": "function",
+          "line_start": 376,
+          "line_end": 391,
+          "signature": "def test_comment_line_falls_back_to_nearest_in_range() -> None"
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.publisher",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_review",
+        "_make_comment",
+        "test_publish_with_comments_in_diff_uses_post_review",
+        "test_publish_without_comments_uses_issue_comment",
+        "test_publish_formats_summary_correctly",
+        "test_publish_formats_comment_with_severity_label",
+        "test_publish_includes_suggestion_in_comment",
+        "test_publish_comment_uses_position",
+        "test_publish_comment_uses_end_line_position",
+        "test_comments_outside_diff_go_to_body",
+        "test_body_fallback_suggestion_uses_suggestion_fence",
+        "test_no_diff_puts_all_comments_in_body",
+        "test_line_outside_hunk_goes_to_body",
+        "test_fallback_posts_comments_individually",
+        "test_fallback_collects_failed_individual_comments",
+        "test_parse_positions_single_hunk",
+        "test_parse_positions_new_file",
+        "test_parse_positions_multiple_hunks",
+        "test_parse_positions_deleted_lines_dont_map",
+        "test_parse_positions_multiple_files",
+        "test_comment_line_falls_back_to_nearest_in_range"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

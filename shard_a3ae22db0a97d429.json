@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "path": "website/src/app/docs/[slug]/page.tsx",
+      "symbols": [
+        {
+          "name": "generateStaticParams",
+          "kind": "function",
+          "line_start": 10,
+          "line_end": 12,
+          "signature": "async function generateStaticParams()"
+        },
+        {
+          "name": "generateMetadata",
+          "kind": "function",
+          "line_start": 14,
+          "line_end": 23,
+          "signature": "async function generateMetadata({"
+        },
+        {
+          "name": "DocPage",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 38,
+          "signature": "async function DocPage({ params }"
+        }
+      ],
+      "imports": [
+        "next-mdx-remote/rsc",
+        "remark-gfm",
+        "@/lib/mdx",
+        "next"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

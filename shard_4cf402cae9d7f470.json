@@ -1,0 +1,668 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/test_agentic.py",
+      "symbols": [
+        {
+          "name": "_make_config",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 25,
+          "signature": "def _make_config() -> ModelConfig"
+        },
+        {
+          "name": "_make_query",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 37,
+          "signature": "def _make_query("
+        },
+        {
+          "name": "_make_context_item",
+          "kind": "function",
+          "line_start": 40,
+          "line_end": 51,
+          "signature": "def _make_context_item("
+        },
+        {
+          "name": "_make_mock_run_result",
+          "kind": "function",
+          "line_start": 54,
+          "line_end": 67,
+          "signature": "def _make_mock_run_result("
+        },
+        {
+          "name": "FakeStrategy",
+          "kind": "class",
+          "line_start": 71,
+          "line_end": 79,
+          "signature": "class FakeStrategy"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 76,
+          "line_end": 79,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "test_returns_items_from_fallback_strategies",
+          "kind": "function",
+          "line_start": 87,
+          "line_end": 105,
+          "signature": "def test_returns_items_from_fallback_strategies() -> None"
+        },
+        {
+          "name": "test_excludes_changed_files_from_sub_query_results",
+          "kind": "function",
+          "line_start": 108,
+          "line_end": 130,
+          "signature": "def test_excludes_changed_files_from_sub_query_results() -> None"
+        },
+        {
+          "name": "test_stops_when_no_queries_generated",
+          "kind": "function",
+          "line_start": 133,
+          "line_end": 149,
+          "signature": "def test_stops_when_no_queries_generated() -> None"
+        },
+        {
+          "name": "test_stops_when_needs_more_context_false",
+          "kind": "function",
+          "line_start": 152,
+          "line_end": 167,
+          "signature": "def test_stops_when_needs_more_context_false() -> None"
+        },
+        {
+          "name": "test_iterates_when_needs_more_context_true",
+          "kind": "function",
+          "line_start": 170,
+          "line_end": 194,
+          "signature": "def test_iterates_when_needs_more_context_true() -> None"
+        },
+        {
+          "name": "side_effect",
+          "kind": "function",
+          "line_start": 185,
+          "line_end": 189,
+          "signature": "def side_effect(prompt"
+        },
+        {
+          "name": "test_deduplicates_items_by_source",
+          "kind": "function",
+          "line_start": 197,
+          "line_end": 222,
+          "signature": "def test_deduplicates_items_by_source() -> None"
+        },
+        {
+          "name": "side_effect",
+          "kind": "function",
+          "line_start": 212,
+          "line_end": 216,
+          "signature": "def side_effect(prompt"
+        },
+        {
+          "name": "test_respects_max_iterations",
+          "kind": "function",
+          "line_start": 225,
+          "line_end": 240,
+          "signature": "def test_respects_max_iterations() -> None"
+        },
+        {
+          "name": "test_empty_fallback_strategies_returns_empty",
+          "kind": "function",
+          "line_start": 243,
+          "line_end": 256,
+          "signature": "def test_empty_fallback_strategies_returns_empty() -> None"
+        },
+        {
+          "name": "test_budget_stops_accumulating_items",
+          "kind": "function",
+          "line_start": 259,
+          "line_end": 280,
+          "signature": "def test_budget_stops_accumulating_items() -> None"
+        },
+        {
+          "name": "test_budget_none_collects_all_items",
+          "kind": "function",
+          "line_start": 283,
+          "line_end": 302,
+          "signature": "def test_budget_none_collects_all_items() -> None"
+        },
+        {
+          "name": "test_budget_stops_iterations_early",
+          "kind": "function",
+          "line_start": 305,
+          "line_end": 326,
+          "signature": "def test_budget_stops_iterations_early() -> None"
+        },
+        {
+          "name": "test_last_llm_usage_tracks_accumulated_usage",
+          "kind": "function",
+          "line_start": 329,
+          "line_end": 355,
+          "signature": "def test_last_llm_usage_tracks_accumulated_usage() -> None"
+        },
+        {
+          "name": "side_effect",
+          "kind": "function",
+          "line_start": 343,
+          "line_end": 347,
+          "signature": "def side_effect(prompt"
+        },
+        {
+          "name": "test_last_llm_usage_resets_between_calls",
+          "kind": "function",
+          "line_start": 358,
+          "line_end": 380,
+          "signature": "def test_last_llm_usage_resets_between_calls() -> None"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "unittest.mock",
+        "argus.domain.llm.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.retrieval.agentic",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_config",
+        "_make_query",
+        "_make_context_item",
+        "_make_mock_run_result",
+        "test_returns_items_from_fallback_strategies",
+        "test_excludes_changed_files_from_sub_query_results",
+        "test_stops_when_no_queries_generated",
+        "test_stops_when_needs_more_context_false",
+        "test_iterates_when_needs_more_context_true",
+        "test_deduplicates_items_by_source",
+        "test_respects_max_iterations",
+        "test_empty_fallback_strategies_returns_empty",
+        "test_budget_stops_accumulating_items",
+        "test_budget_none_collects_all_items",
+        "test_budget_stops_iterations_early",
+        "test_last_llm_usage_tracks_accumulated_usage",
+        "test_last_llm_usage_resets_between_calls"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/test_embeddings.py",
+      "symbols": [
+        {
+          "name": "test_factory_google_prefix",
+          "kind": "function",
+          "line_start": 19,
+          "line_end": 26,
+          "signature": "def test_factory_google_prefix() -> None"
+        },
+        {
+          "name": "test_factory_openai_prefix",
+          "kind": "function",
+          "line_start": 29,
+          "line_end": 36,
+          "signature": "def test_factory_openai_prefix() -> None"
+        },
+        {
+          "name": "test_factory_local_prefix",
+          "kind": "function",
+          "line_start": 39,
+          "line_end": 46,
+          "signature": "def test_factory_local_prefix() -> None"
+        },
+        {
+          "name": "test_factory_unknown_prefix_raises",
+          "kind": "function",
+          "line_start": 49,
+          "line_end": 51,
+          "signature": "def test_factory_unknown_prefix_raises() -> None"
+        },
+        {
+          "name": "test_google_embed_missing_api_key_raises",
+          "kind": "function",
+          "line_start": 59,
+          "line_end": 69,
+          "signature": "def test_google_embed_missing_api_key_raises() -> None"
+        },
+        {
+          "name": "test_google_embed_returns_embeddings",
+          "kind": "function",
+          "line_start": 73,
+          "line_end": 84,
+          "signature": "def test_google_embed_returns_embeddings(mock_api"
+        },
+        {
+          "name": "test_google_embed_import_error_raises_config_error",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 99,
+          "signature": "def test_google_embed_import_error_raises_config_error(mock_api"
+        },
+        {
+          "name": "test_openai_embed_missing_api_key_raises",
+          "kind": "function",
+          "line_start": 107,
+          "line_end": 117,
+          "signature": "def test_openai_embed_missing_api_key_raises() -> None"
+        },
+        {
+          "name": "test_openai_embed_returns_embeddings",
+          "kind": "function",
+          "line_start": 121,
+          "line_end": 132,
+          "signature": "def test_openai_embed_returns_embeddings(mock_api"
+        },
+        {
+          "name": "test_openai_embed_import_error_raises_config_error",
+          "kind": "function",
+          "line_start": 136,
+          "line_end": 147,
+          "signature": "def test_openai_embed_import_error_raises_config_error(mock_api"
+        },
+        {
+          "name": "test_local_embed_returns_embeddings",
+          "kind": "function",
+          "line_start": 157,
+          "line_end": 173,
+          "signature": "def test_local_embed_returns_embeddings("
+        },
+        {
+          "name": "test_local_embed_import_error_raises_config_error",
+          "kind": "function",
+          "line_start": 177,
+          "line_end": 190,
+          "signature": "def test_local_embed_import_error_raises_config_error("
+        },
+        {
+          "name": "test_google_dimension_not_mutated_on_second_call",
+          "kind": "function",
+          "line_start": 199,
+          "line_end": 213,
+          "signature": "def test_google_dimension_not_mutated_on_second_call(mock_api"
+        },
+        {
+          "name": "test_openai_dimension_not_mutated_on_second_call",
+          "kind": "function",
+          "line_start": 217,
+          "line_end": 230,
+          "signature": "def test_openai_dimension_not_mutated_on_second_call(mock_api"
+        },
+        {
+          "name": "test_local_dimension_not_mutated_on_second_call",
+          "kind": "function",
+          "line_start": 235,
+          "line_end": 254,
+          "signature": "def test_local_dimension_not_mutated_on_second_call("
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.infrastructure.retrieval.embeddings.factory",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "test_factory_google_prefix",
+        "test_factory_openai_prefix",
+        "test_factory_local_prefix",
+        "test_factory_unknown_prefix_raises",
+        "test_google_embed_missing_api_key_raises",
+        "test_openai_embed_missing_api_key_raises"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/test_lexical.py",
+      "symbols": [
+        {
+          "name": "_make_chunk",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 21,
+          "signature": "def _make_chunk(source"
+        },
+        {
+          "name": "_make_query",
+          "kind": "function",
+          "line_start": 24,
+          "line_end": 33,
+          "signature": "def _make_query("
+        },
+        {
+          "name": "test_returns_relevant_chunks_for_matching_query",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 56,
+          "signature": "def test_returns_relevant_chunks_for_matching_query() -> None"
+        },
+        {
+          "name": "test_excludes_changed_files_from_results",
+          "kind": "function",
+          "line_start": 59,
+          "line_end": 78,
+          "signature": "def test_excludes_changed_files_from_results() -> None"
+        },
+        {
+          "name": "test_returns_empty_list_when_no_matches",
+          "kind": "function",
+          "line_start": 81,
+          "line_end": 94,
+          "signature": "def test_returns_empty_list_when_no_matches() -> None"
+        },
+        {
+          "name": "test_handles_empty_corpus_gracefully",
+          "kind": "function",
+          "line_start": 97,
+          "line_end": 106,
+          "signature": "def test_handles_empty_corpus_gracefully() -> None"
+        },
+        {
+          "name": "test_non_empty_corpus_sets_empty_false",
+          "kind": "function",
+          "line_start": 109,
+          "line_end": 115,
+          "signature": "def test_non_empty_corpus_sets_empty_false() -> None"
+        },
+        {
+          "name": "test_handles_empty_query_gracefully",
+          "kind": "function",
+          "line_start": 118,
+          "line_end": 127,
+          "signature": "def test_handles_empty_query_gracefully() -> None"
+        },
+        {
+          "name": "test_scores_are_positive_floats",
+          "kind": "function",
+          "line_start": 130,
+          "line_end": 149,
+          "signature": "def test_scores_are_positive_floats() -> None"
+        },
+        {
+          "name": "test_budget_limits_top_k",
+          "kind": "function",
+          "line_start": 152,
+          "line_end": 166,
+          "signature": "def test_budget_limits_top_k() -> None"
+        },
+        {
+          "name": "test_budget_none_uses_default_top_k",
+          "kind": "function",
+          "line_start": 169,
+          "line_end": 181,
+          "signature": "def test_budget_none_uses_default_top_k() -> None"
+        },
+        {
+          "name": "test_lexical_out_of_bounds_index_skipped_gracefully",
+          "kind": "function",
+          "line_start": 184,
+          "line_end": 202,
+          "signature": "def test_lexical_out_of_bounds_index_skipped_gracefully() -> None"
+        },
+        {
+          "name": "test_token_cost_preserved_from_chunks",
+          "kind": "function",
+          "line_start": 205,
+          "line_end": 230,
+          "signature": "def test_token_cost_preserved_from_chunks() -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.parsing.chunker",
+        "argus.infrastructure.retrieval.lexical",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_chunk",
+        "_make_query",
+        "test_returns_relevant_chunks_for_matching_query",
+        "test_excludes_changed_files_from_results",
+        "test_returns_empty_list_when_no_matches",
+        "test_handles_empty_corpus_gracefully",
+        "test_non_empty_corpus_sets_empty_false",
+        "test_handles_empty_query_gracefully",
+        "test_scores_are_positive_floats",
+        "test_budget_limits_top_k",
+        "test_budget_none_uses_default_top_k",
+        "test_lexical_out_of_bounds_index_skipped_gracefully",
+        "test_token_cost_preserved_from_chunks"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/test_semantic.py",
+      "symbols": [
+        {
+          "name": "test_cosine_similarity_identical_vectors",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 23,
+          "signature": "def test_cosine_similarity_identical_vectors() -> None"
+        },
+        {
+          "name": "test_cosine_similarity_orthogonal_vectors",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 29,
+          "signature": "def test_cosine_similarity_orthogonal_vectors() -> None"
+        },
+        {
+          "name": "test_cosine_similarity_opposite_vectors",
+          "kind": "function",
+          "line_start": 32,
+          "line_end": 35,
+          "signature": "def test_cosine_similarity_opposite_vectors() -> None"
+        },
+        {
+          "name": "test_cosine_similarity_zero_vector",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 41,
+          "signature": "def test_cosine_similarity_zero_vector() -> None"
+        },
+        {
+          "name": "test_cosine_similarity_mismatched_dimensions_raises",
+          "kind": "function",
+          "line_start": 44,
+          "line_end": 48,
+          "signature": "def test_cosine_similarity_mismatched_dimensions_raises() -> None"
+        },
+        {
+          "name": "FakeEmbeddingProvider",
+          "kind": "class",
+          "line_start": 56,
+          "line_end": 72,
+          "signature": "class FakeEmbeddingProvider"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 59,
+          "line_end": 61,
+          "signature": "def __init__(self, embeddings"
+        },
+        {
+          "name": "embed",
+          "kind": "method",
+          "line_start": 63,
+          "line_end": 66,
+          "signature": "def embed(self, texts"
+        },
+        {
+          "name": "dimension",
+          "kind": "method",
+          "line_start": 69,
+          "line_end": 72,
+          "signature": "def dimension(self) -> int"
+        },
+        {
+          "name": "_make_chunk",
+          "kind": "function",
+          "line_start": 75,
+          "line_end": 81,
+          "signature": "def _make_chunk(path"
+        },
+        {
+          "name": "test_retrieve_returns_top_k_by_similarity",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 122,
+          "signature": "def test_retrieve_returns_top_k_by_similarity() -> None"
+        },
+        {
+          "name": "test_retrieve_respects_budget",
+          "kind": "function",
+          "line_start": 125,
+          "line_end": 152,
+          "signature": "def test_retrieve_respects_budget() -> None"
+        },
+        {
+          "name": "test_retrieve_empty_query",
+          "kind": "function",
+          "line_start": 155,
+          "line_end": 167,
+          "signature": "def test_retrieve_empty_query() -> None"
+        },
+        {
+          "name": "test_retrieve_skips_mismatched_dimension",
+          "kind": "function",
+          "line_start": 170,
+          "line_end": 205,
+          "signature": "def test_retrieve_skips_mismatched_dimension("
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.parsing.chunker",
+        "argus.infrastructure.retrieval.semantic",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_cosine_similarity_identical_vectors",
+        "test_cosine_similarity_orthogonal_vectors",
+        "test_cosine_similarity_opposite_vectors",
+        "test_cosine_similarity_zero_vector",
+        "test_cosine_similarity_mismatched_dimensions_raises",
+        "FakeEmbeddingProvider",
+        "_make_chunk",
+        "test_retrieve_returns_top_k_by_similarity",
+        "test_retrieve_respects_budget",
+        "test_retrieve_empty_query",
+        "test_retrieve_skips_mismatched_dimension"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_retrieval/test_structural.py",
+      "symbols": [
+        {
+          "name": "_make_entry",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 23,
+          "signature": "def _make_entry(path"
+        },
+        {
+          "name": "_make_map_with_edges",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 41,
+          "signature": "def _make_map_with_edges("
+        },
+        {
+          "name": "test_returns_dependents_of_changed_file",
+          "kind": "function",
+          "line_start": 49,
+          "line_end": 65,
+          "signature": "def test_returns_dependents_of_changed_file() -> None"
+        },
+        {
+          "name": "test_returns_dependencies_of_changed_file",
+          "kind": "function",
+          "line_start": 68,
+          "line_end": 83,
+          "signature": "def test_returns_dependencies_of_changed_file() -> None"
+        },
+        {
+          "name": "test_excludes_changed_files_from_results",
+          "kind": "function",
+          "line_start": 86,
+          "line_end": 102,
+          "signature": "def test_excludes_changed_files_from_results() -> None"
+        },
+        {
+          "name": "test_returns_empty_when_no_graph_edges",
+          "kind": "function",
+          "line_start": 105,
+          "line_end": 119,
+          "signature": "def test_returns_empty_when_no_graph_edges() -> None"
+        },
+        {
+          "name": "test_dependents_scored_higher_than_dependencies",
+          "kind": "function",
+          "line_start": 122,
+          "line_end": 141,
+          "signature": "def test_dependents_scored_higher_than_dependencies() -> None"
+        },
+        {
+          "name": "test_budget_limits_returned_items",
+          "kind": "function",
+          "line_start": 144,
+          "line_end": 166,
+          "signature": "def test_budget_limits_returned_items() -> None"
+        },
+        {
+          "name": "test_budget_none_returns_all_items",
+          "kind": "function",
+          "line_start": 169,
+          "line_end": 182,
+          "signature": "def test_budget_none_returns_all_items() -> None"
+        },
+        {
+          "name": "test_content_includes_exports",
+          "kind": "function",
+          "line_start": 185,
+          "line_end": 216,
+          "signature": "def test_content_includes_exports() -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.retrieval.structural",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_entry",
+        "_make_map_with_edges",
+        "test_returns_dependents_of_changed_file",
+        "test_returns_dependencies_of_changed_file",
+        "test_excludes_changed_files_from_results",
+        "test_returns_empty_when_no_graph_edges",
+        "test_dependents_scored_higher_than_dependencies",
+        "test_budget_limits_returned_items",
+        "test_budget_none_returns_all_items",
+        "test_content_includes_exports"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

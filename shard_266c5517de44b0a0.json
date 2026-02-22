@@ -1,0 +1,376 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/shared/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/shared/conftest.py",
+      "symbols": [
+        {
+          "name": "file_path",
+          "kind": "function",
+          "line_start": 11,
+          "line_end": 12,
+          "signature": "def file_path() -> FilePath"
+        },
+        {
+          "name": "commit_sha",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 17,
+          "signature": "def commit_sha() -> CommitSHA"
+        },
+        {
+          "name": "token_count",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 22,
+          "signature": "def token_count() -> TokenCount"
+        },
+        {
+          "name": "line_range",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 27,
+          "signature": "def line_range() -> LineRange"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/shared/test_exceptions.py",
+      "symbols": [
+        {
+          "name": "test_all_exceptions_inherit_from_argus_error",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 41,
+          "signature": "def test_all_exceptions_inherit_from_argus_error() -> None"
+        },
+        {
+          "name": "test_argus_error_inherits_from_exception",
+          "kind": "function",
+          "line_start": 44,
+          "line_end": 45,
+          "signature": "def test_argus_error_inherits_from_exception() -> None"
+        },
+        {
+          "name": "test_indexing_error_carries_path",
+          "kind": "function",
+          "line_start": 53,
+          "line_end": 59,
+          "signature": "def test_indexing_error_carries_path() -> None"
+        },
+        {
+          "name": "test_provider_error_carries_provider_name",
+          "kind": "function",
+          "line_start": 62,
+          "line_end": 67,
+          "signature": "def test_provider_error_carries_provider_name() -> None"
+        },
+        {
+          "name": "test_rate_limit_error_carries_retry_after",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 74,
+          "signature": "def test_rate_limit_error_carries_retry_after() -> None"
+        },
+        {
+          "name": "test_token_limit_error_carries_counts",
+          "kind": "function",
+          "line_start": 77,
+          "line_end": 81,
+          "signature": "def test_token_limit_error_carries_counts() -> None"
+        },
+        {
+          "name": "test_budget_exceeded_error_carries_budget",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 88,
+          "signature": "def test_budget_exceeded_error_carries_budget() -> None"
+        },
+        {
+          "name": "test_indexing_error_catchable_as_argus_error",
+          "kind": "function",
+          "line_start": 96,
+          "line_end": 98,
+          "signature": "def test_indexing_error_catchable_as_argus_error() -> None"
+        },
+        {
+          "name": "test_provider_error_catchable_as_argus_error",
+          "kind": "function",
+          "line_start": 101,
+          "line_end": 103,
+          "signature": "def test_provider_error_catchable_as_argus_error() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_all_exceptions_inherit_from_argus_error",
+        "test_argus_error_inherits_from_exception",
+        "test_indexing_error_carries_path",
+        "test_provider_error_carries_provider_name",
+        "test_rate_limit_error_carries_retry_after",
+        "test_token_limit_error_carries_counts",
+        "test_budget_exceeded_error_carries_budget",
+        "test_indexing_error_catchable_as_argus_error",
+        "test_provider_error_catchable_as_argus_error"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/shared/test_types.py",
+      "symbols": [
+        {
+          "name": "test_file_path_preserves_value",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 22,
+          "signature": "def test_file_path_preserves_value(file_path"
+        },
+        {
+          "name": "test_file_path_equality_same_value",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 26,
+          "signature": "def test_file_path_equality_same_value() -> None"
+        },
+        {
+          "name": "test_file_path_equality_different_value",
+          "kind": "function",
+          "line_start": 29,
+          "line_end": 30,
+          "signature": "def test_file_path_equality_different_value() -> None"
+        },
+        {
+          "name": "test_file_path_hashable_deduplicates",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 35,
+          "signature": "def test_file_path_hashable_deduplicates() -> None"
+        },
+        {
+          "name": "test_commit_sha_preserves_value",
+          "kind": "function",
+          "line_start": 43,
+          "line_end": 44,
+          "signature": "def test_commit_sha_preserves_value(commit_sha"
+        },
+        {
+          "name": "test_commit_sha_equality",
+          "kind": "function",
+          "line_start": 47,
+          "line_end": 48,
+          "signature": "def test_commit_sha_equality() -> None"
+        },
+        {
+          "name": "test_token_count_preserves_value",
+          "kind": "function",
+          "line_start": 56,
+          "line_end": 57,
+          "signature": "def test_token_count_preserves_value(token_count"
+        },
+        {
+          "name": "test_token_count_addition",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 61,
+          "signature": "def test_token_count_addition() -> None"
+        },
+        {
+          "name": "test_token_count_subtraction",
+          "kind": "function",
+          "line_start": 64,
+          "line_end": 65,
+          "signature": "def test_token_count_subtraction() -> None"
+        },
+        {
+          "name": "test_token_count_radd_returns_token_count",
+          "kind": "function",
+          "line_start": 68,
+          "line_end": 71,
+          "signature": "def test_token_count_radd_returns_token_count() -> None"
+        },
+        {
+          "name": "test_token_count_rsub_returns_token_count",
+          "kind": "function",
+          "line_start": 74,
+          "line_end": 77,
+          "signature": "def test_token_count_rsub_returns_token_count() -> None"
+        },
+        {
+          "name": "test_token_count_sum_returns_token_count",
+          "kind": "function",
+          "line_start": 80,
+          "line_end": 83,
+          "signature": "def test_token_count_sum_returns_token_count() -> None"
+        },
+        {
+          "name": "test_token_count_sum_with_start_returns_token_count",
+          "kind": "function",
+          "line_start": 86,
+          "line_end": 89,
+          "signature": "def test_token_count_sum_with_start_returns_token_count() -> None"
+        },
+        {
+          "name": "test_token_count_sum_empty_with_start_returns_token_count",
+          "kind": "function",
+          "line_start": 92,
+          "line_end": 95,
+          "signature": "def test_token_count_sum_empty_with_start_returns_token_count() -> None"
+        },
+        {
+          "name": "test_token_count_less_than",
+          "kind": "function",
+          "line_start": 98,
+          "line_end": 99,
+          "signature": "def test_token_count_less_than() -> None"
+        },
+        {
+          "name": "test_token_count_greater_than",
+          "kind": "function",
+          "line_start": 102,
+          "line_end": 103,
+          "signature": "def test_token_count_greater_than() -> None"
+        },
+        {
+          "name": "test_token_count_less_equal",
+          "kind": "function",
+          "line_start": 106,
+          "line_end": 107,
+          "signature": "def test_token_count_less_equal() -> None"
+        },
+        {
+          "name": "test_line_range_stores_start_end",
+          "kind": "function",
+          "line_start": 115,
+          "line_end": 117,
+          "signature": "def test_line_range_stores_start_end(line_range"
+        },
+        {
+          "name": "test_line_range_length",
+          "kind": "function",
+          "line_start": 120,
+          "line_end": 121,
+          "signature": "def test_line_range_length(line_range"
+        },
+        {
+          "name": "test_line_range_contains_within",
+          "kind": "function",
+          "line_start": 124,
+          "line_end": 125,
+          "signature": "def test_line_range_contains_within(line_range"
+        },
+        {
+          "name": "test_line_range_contains_outside",
+          "kind": "function",
+          "line_start": 128,
+          "line_end": 129,
+          "signature": "def test_line_range_contains_outside(line_range"
+        },
+        {
+          "name": "test_line_range_single_line",
+          "kind": "function",
+          "line_start": 132,
+          "line_end": 134,
+          "signature": "def test_line_range_single_line() -> None"
+        },
+        {
+          "name": "test_line_range_invalid_raises",
+          "kind": "function",
+          "line_start": 137,
+          "line_end": 139,
+          "signature": "def test_line_range_invalid_raises() -> None"
+        },
+        {
+          "name": "test_severity_has_all_members",
+          "kind": "function",
+          "line_start": 147,
+          "line_end": 149,
+          "signature": "def test_severity_has_all_members() -> None"
+        },
+        {
+          "name": "test_severity_critical_outranks_warning",
+          "kind": "function",
+          "line_start": 152,
+          "line_end": 153,
+          "signature": "def test_severity_critical_outranks_warning() -> None"
+        },
+        {
+          "name": "test_severity_warning_outranks_suggestion",
+          "kind": "function",
+          "line_start": 156,
+          "line_end": 157,
+          "signature": "def test_severity_warning_outranks_suggestion() -> None"
+        },
+        {
+          "name": "test_severity_suggestion_outranks_praise",
+          "kind": "function",
+          "line_start": 160,
+          "line_end": 161,
+          "signature": "def test_severity_suggestion_outranks_praise() -> None"
+        },
+        {
+          "name": "test_category_has_all_members",
+          "kind": "function",
+          "line_start": 169,
+          "line_end": 171,
+          "signature": "def test_category_has_all_members() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_file_path_preserves_value",
+        "test_file_path_equality_same_value",
+        "test_file_path_equality_different_value",
+        "test_file_path_hashable_deduplicates",
+        "test_commit_sha_preserves_value",
+        "test_commit_sha_equality",
+        "test_token_count_preserves_value",
+        "test_token_count_addition",
+        "test_token_count_subtraction",
+        "test_token_count_radd_returns_token_count",
+        "test_token_count_rsub_returns_token_count",
+        "test_token_count_sum_returns_token_count",
+        "test_token_count_sum_with_start_returns_token_count",
+        "test_token_count_sum_empty_with_start_returns_token_count",
+        "test_token_count_less_than",
+        "test_token_count_greater_than",
+        "test_token_count_less_equal",
+        "test_line_range_stores_start_end",
+        "test_line_range_length",
+        "test_line_range_contains_within",
+        "test_line_range_contains_outside",
+        "test_line_range_single_line",
+        "test_line_range_invalid_raises",
+        "test_severity_has_all_members",
+        "test_severity_critical_outranks_warning",
+        "test_severity_warning_outranks_suggestion",
+        "test_severity_suggestion_outranks_praise",
+        "test_category_has_all_members"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

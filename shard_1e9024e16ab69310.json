@@ -1,0 +1,219 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/retrieval/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/retrieval/agentic.py",
+      "symbols": [
+        {
+          "name": "SearchPlan",
+          "kind": "class",
+          "line_start": 35,
+          "line_end": 39,
+          "signature": "class SearchPlan(BaseModel)"
+        },
+        {
+          "name": "AgenticRetrievalStrategy",
+          "kind": "class",
+          "line_start": 48,
+          "line_end": 156,
+          "signature": "class AgenticRetrievalStrategy"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 62,
+          "line_end": 67,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 69,
+          "line_end": 115,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "_build_prompt",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 133,
+          "signature": "def _build_prompt("
+        },
+        {
+          "name": "_execute_sub_queries",
+          "kind": "method",
+          "line_start": 135,
+          "line_end": 156,
+          "signature": "def _execute_sub_queries("
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "pydantic",
+        "pydantic_ai",
+        "argus.domain.llm.value_objects",
+        "argus.domain.retrieval.strategies",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.llm_providers.factory",
+        "argus.shared.constants",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "SearchPlan"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/retrieval/lexical.py",
+      "symbols": [
+        {
+          "name": "LexicalRetrievalStrategy",
+          "kind": "class",
+          "line_start": 21,
+          "line_end": 103,
+          "signature": "class LexicalRetrievalStrategy"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 34,
+          "line_end": 42,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 87,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "_avg_chunk_cost",
+          "kind": "method",
+          "line_start": 89,
+          "line_end": 94,
+          "signature": "def _avg_chunk_cost(self) -> int"
+        },
+        {
+          "name": "_build_query_text",
+          "kind": "method",
+          "line_start": 96,
+          "line_end": 103,
+          "signature": "def _build_query_text(self, query"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "bm25s",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.parsing.chunker",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/retrieval/semantic.py",
+      "symbols": [
+        {
+          "name": "SemanticRetrievalStrategy",
+          "kind": "class",
+          "line_start": 21,
+          "line_end": 109,
+          "signature": "class SemanticRetrievalStrategy"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 38,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 40,
+          "line_end": 99,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "_build_query_text",
+          "kind": "method",
+          "line_start": 101,
+          "line_end": 109,
+          "signature": "def _build_query_text(self, query"
+        },
+        {
+          "name": "_cosine_similarity",
+          "kind": "function",
+          "line_start": 112,
+          "line_end": 119,
+          "signature": "def _cosine_similarity(a"
+        }
+      ],
+      "imports": [
+        "logging",
+        "math",
+        "dataclasses",
+        "argus.domain.context.value_objects",
+        "argus.domain.retrieval.embeddings",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.parsing.chunker",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_cosine_similarity"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/retrieval/structural.py",
+      "symbols": [
+        {
+          "name": "StructuralRetrievalStrategy",
+          "kind": "class",
+          "line_start": 25,
+          "line_end": 83,
+          "signature": "class StructuralRetrievalStrategy"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 34,
+          "line_end": 77,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "_build_content",
+          "kind": "method",
+          "line_start": 79,
+          "line_end": 83,
+          "signature": "def _build_content(self, path"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.context.entities",
+        "argus.domain.retrieval.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

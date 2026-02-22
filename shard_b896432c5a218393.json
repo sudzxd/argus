@@ -1,0 +1,395 @@
+{
+  "entries": [
+    {
+      "path": "tests/integration/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/integration/conftest.py",
+      "symbols": [
+        {
+          "name": "github_event",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 27,
+          "signature": "def github_event(tmp_path"
+        },
+        {
+          "name": "sample_diff",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 42,
+          "signature": "def sample_diff() -> str"
+        },
+        {
+          "name": "sample_file_content",
+          "kind": "function",
+          "line_start": 46,
+          "line_end": 52,
+          "signature": "def sample_file_content() -> str"
+        },
+        {
+          "name": "sample_review_output",
+          "kind": "function",
+          "line_start": 56,
+          "line_end": 85,
+          "signature": "def sample_review_output() -> ReviewOutput"
+        },
+        {
+          "name": "low_confidence_review_output",
+          "kind": "function",
+          "line_start": 89,
+          "line_end": 118,
+          "signature": "def low_confidence_review_output() -> ReviewOutput"
+        },
+        {
+          "name": "ignored_path_review_output",
+          "kind": "function",
+          "line_start": 122,
+          "line_end": 151,
+          "signature": "def ignored_path_review_output() -> ReviewOutput"
+        },
+        {
+          "name": "mock_llm_agent",
+          "kind": "function",
+          "line_start": 155,
+          "line_end": 161,
+          "signature": "def mock_llm_agent(sample_review_output"
+        }
+      ],
+      "imports": [
+        "json",
+        "textwrap",
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.interfaces.review_generator"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/integration/test_action.py",
+      "symbols": [
+        {
+          "name": "_make_command",
+          "kind": "function",
+          "line_start": 36,
+          "line_end": 62,
+          "signature": "def _make_command("
+        },
+        {
+          "name": "TestEventParsing",
+          "kind": "class",
+          "line_start": 70,
+          "line_end": 120,
+          "signature": "class TestEventParsing"
+        },
+        {
+          "name": "test_load_event",
+          "kind": "method",
+          "line_start": 73,
+          "line_end": 75,
+          "signature": "def test_load_event(self, github_event"
+        },
+        {
+          "name": "test_load_event_missing_file_raises",
+          "kind": "method",
+          "line_start": 77,
+          "line_end": 79,
+          "signature": "def test_load_event_missing_file_raises(self) -> None"
+        },
+        {
+          "name": "test_load_event_invalid_json_raises",
+          "kind": "method",
+          "line_start": 81,
+          "line_end": 85,
+          "signature": "def test_load_event_invalid_json_raises(self, tmp_path"
+        },
+        {
+          "name": "test_extract_pr_number",
+          "kind": "method",
+          "line_start": 87,
+          "line_end": 89,
+          "signature": "def test_extract_pr_number(self) -> None"
+        },
+        {
+          "name": "test_extract_pr_number_missing_raises",
+          "kind": "method",
+          "line_start": 91,
+          "line_end": 93,
+          "signature": "def test_extract_pr_number_missing_raises(self) -> None"
+        },
+        {
+          "name": "test_extract_head_sha",
+          "kind": "method",
+          "line_start": 95,
+          "line_end": 97,
+          "signature": "def test_extract_head_sha(self) -> None"
+        },
+        {
+          "name": "test_extract_head_sha_missing_raises",
+          "kind": "method",
+          "line_start": 99,
+          "line_end": 101,
+          "signature": "def test_extract_head_sha_missing_raises(self) -> None"
+        },
+        {
+          "name": "test_extract_changed_files",
+          "kind": "method",
+          "line_start": 103,
+          "line_end": 105,
+          "signature": "def test_extract_changed_files(self, sample_diff"
+        },
+        {
+          "name": "test_extract_changed_files_multiple",
+          "kind": "method",
+          "line_start": 107,
+          "line_end": 110,
+          "signature": "def test_extract_changed_files_multiple(self) -> None"
+        },
+        {
+          "name": "test_extract_changed_files_rejects_path_traversal",
+          "kind": "method",
+          "line_start": 112,
+          "line_end": 115,
+          "signature": "def test_extract_changed_files_rejects_path_traversal(self) -> None"
+        },
+        {
+          "name": "test_extract_changed_files_rejects_absolute_path",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 120,
+          "signature": "def test_extract_changed_files_rejects_absolute_path(self) -> None"
+        },
+        {
+          "name": "TestFullPipeline",
+          "kind": "class",
+          "line_start": 128,
+          "line_end": 413,
+          "signature": "class TestFullPipeline"
+        },
+        {
+          "name": "test_action_full_review_pipeline",
+          "kind": "method",
+          "line_start": 132,
+          "line_end": 182,
+          "signature": "def test_action_full_review_pipeline("
+        },
+        {
+          "name": "test_action_no_existing_artifact",
+          "kind": "method",
+          "line_start": 185,
+          "line_end": 228,
+          "signature": "def test_action_no_existing_artifact("
+        },
+        {
+          "name": "test_action_incremental_with_existing_artifact",
+          "kind": "method",
+          "line_start": 231,
+          "line_end": 283,
+          "signature": "def test_action_incremental_with_existing_artifact("
+        },
+        {
+          "name": "test_action_graceful_degradation_on_llm_failure",
+          "kind": "method",
+          "line_start": 286,
+          "line_end": 320,
+          "signature": "def test_action_graceful_degradation_on_llm_failure("
+        },
+        {
+          "name": "test_action_filters_low_confidence_comments",
+          "kind": "method",
+          "line_start": 323,
+          "line_end": 365,
+          "signature": "def test_action_filters_low_confidence_comments("
+        },
+        {
+          "name": "test_action_respects_ignored_paths",
+          "kind": "method",
+          "line_start": 368,
+          "line_end": 413,
+          "signature": "def test_action_respects_ignored_paths("
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.application.dto",
+        "argus.application.review_pull_request",
+        "argus.domain.context.services",
+        "argus.domain.llm.value_objects",
+        "argus.domain.retrieval.services",
+        "argus.domain.review.services",
+        "argus.infrastructure.github.publisher",
+        "argus.infrastructure.parsing.tree_sitter_parser",
+        "argus.infrastructure.retrieval.lexical",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.interfaces.action",
+        "argus.interfaces.review_generator",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_command",
+        "TestEventParsing",
+        "TestFullPipeline"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/integration/test_config.py",
+      "symbols": [
+        {
+          "name": "TestActionConfigDefaults",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 49,
+          "signature": "class TestActionConfigDefaults"
+        },
+        {
+          "name": "test_config_from_toml_with_all_required",
+          "kind": "method",
+          "line_start": 19,
+          "line_end": 31,
+          "signature": "def test_config_from_toml_with_all_required("
+        },
+        {
+          "name": "test_config_defaults",
+          "kind": "method",
+          "line_start": 33,
+          "line_end": 49,
+          "signature": "def test_config_defaults("
+        },
+        {
+          "name": "TestActionConfigOverrides",
+          "kind": "class",
+          "line_start": 52,
+          "line_end": 192,
+          "signature": "class TestActionConfigOverrides"
+        },
+        {
+          "name": "_set_required",
+          "kind": "method",
+          "line_start": 56,
+          "line_end": 59,
+          "signature": "def _set_required(monkeypatch"
+        },
+        {
+          "name": "_write_toml",
+          "kind": "method",
+          "line_start": 62,
+          "line_end": 63,
+          "signature": "def _write_toml(tmp_path"
+        },
+        {
+          "name": "test_model_override",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 80,
+          "signature": "def test_model_override("
+        },
+        {
+          "name": "test_max_tokens_override",
+          "kind": "method",
+          "line_start": 82,
+          "line_end": 97,
+          "signature": "def test_max_tokens_override("
+        },
+        {
+          "name": "test_confidence_threshold_override",
+          "kind": "method",
+          "line_start": 99,
+          "line_end": 114,
+          "signature": "def test_confidence_threshold_override("
+        },
+        {
+          "name": "test_ignored_paths_array",
+          "kind": "method",
+          "line_start": 116,
+          "line_end": 131,
+          "signature": "def test_ignored_paths_array("
+        },
+        {
+          "name": "test_ignored_paths_default_empty",
+          "kind": "method",
+          "line_start": 133,
+          "line_end": 141,
+          "signature": "def test_ignored_paths_default_empty("
+        },
+        {
+          "name": "test_storage_dir_override",
+          "kind": "method",
+          "line_start": 143,
+          "line_end": 158,
+          "signature": "def test_storage_dir_override("
+        },
+        {
+          "name": "test_enable_agentic_true",
+          "kind": "method",
+          "line_start": 160,
+          "line_end": 175,
+          "signature": "def test_enable_agentic_true("
+        },
+        {
+          "name": "test_enable_agentic_false_explicit",
+          "kind": "method",
+          "line_start": 177,
+          "line_end": 192,
+          "signature": "def test_enable_agentic_false_explicit("
+        },
+        {
+          "name": "TestActionConfigValidation",
+          "kind": "class",
+          "line_start": 195,
+          "line_end": 224,
+          "signature": "class TestActionConfigValidation"
+        },
+        {
+          "name": "test_missing_github_token_raises",
+          "kind": "method",
+          "line_start": 198,
+          "line_end": 204,
+          "signature": "def test_missing_github_token_raises(self, monkeypatch"
+        },
+        {
+          "name": "test_missing_github_repository_raises",
+          "kind": "method",
+          "line_start": 206,
+          "line_end": 214,
+          "signature": "def test_missing_github_repository_raises("
+        },
+        {
+          "name": "test_missing_github_event_path_raises",
+          "kind": "method",
+          "line_start": 216,
+          "line_end": 224,
+          "signature": "def test_missing_github_event_path_raises("
+        }
+      ],
+      "imports": [
+        "textwrap",
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.interfaces.config",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "TestActionConfigDefaults",
+        "TestActionConfigOverrides",
+        "TestActionConfigValidation"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

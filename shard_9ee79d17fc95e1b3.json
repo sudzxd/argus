@@ -1,0 +1,289 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/shared/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/shared/constants.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/shared/exceptions.py",
+      "symbols": [
+        {
+          "name": "ArgusError",
+          "kind": "class",
+          "line_start": 12,
+          "line_end": 13,
+          "signature": "class ArgusError(Exception)"
+        },
+        {
+          "name": "IndexingError",
+          "kind": "class",
+          "line_start": 21,
+          "line_end": 26,
+          "signature": "class IndexingError(ArgusError)"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 24,
+          "line_end": 26,
+          "signature": "def __init__(self, path"
+        },
+        {
+          "name": "CheckpointError",
+          "kind": "class",
+          "line_start": 29,
+          "line_end": 30,
+          "signature": "class CheckpointError(ArgusError)"
+        },
+        {
+          "name": "GraphInconsistencyError",
+          "kind": "class",
+          "line_start": 33,
+          "line_end": 34,
+          "signature": "class GraphInconsistencyError(ArgusError)"
+        },
+        {
+          "name": "BudgetExceededError",
+          "kind": "class",
+          "line_start": 42,
+          "line_end": 50,
+          "signature": "class BudgetExceededError(ArgusError)"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 45,
+          "line_end": 50,
+          "signature": "def __init__(self, budget"
+        },
+        {
+          "name": "StrategyError",
+          "kind": "class",
+          "line_start": 53,
+          "line_end": 54,
+          "signature": "class StrategyError(ArgusError)"
+        },
+        {
+          "name": "GenerationError",
+          "kind": "class",
+          "line_start": 62,
+          "line_end": 63,
+          "signature": "class GenerationError(ArgusError)"
+        },
+        {
+          "name": "PublishError",
+          "kind": "class",
+          "line_start": 66,
+          "line_end": 67,
+          "signature": "class PublishError(ArgusError)"
+        },
+        {
+          "name": "ProviderError",
+          "kind": "class",
+          "line_start": 75,
+          "line_end": 80,
+          "signature": "class ProviderError(ArgusError)"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 78,
+          "line_end": 80,
+          "signature": "def __init__(self, provider"
+        },
+        {
+          "name": "RateLimitError",
+          "kind": "class",
+          "line_start": 83,
+          "line_end": 89,
+          "signature": "class RateLimitError(ArgusError)"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 86,
+          "line_end": 89,
+          "signature": "def __init__(self, provider"
+        },
+        {
+          "name": "TokenLimitError",
+          "kind": "class",
+          "line_start": 92,
+          "line_end": 100,
+          "signature": "class TokenLimitError(ArgusError)"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 95,
+          "line_end": 100,
+          "signature": "def __init__(self, required"
+        },
+        {
+          "name": "ProfileAnalysisError",
+          "kind": "class",
+          "line_start": 108,
+          "line_end": 109,
+          "signature": "class ProfileAnalysisError(ArgusError)"
+        },
+        {
+          "name": "ConfigurationError",
+          "kind": "class",
+          "line_start": 117,
+          "line_end": 118,
+          "signature": "class ConfigurationError(ArgusError)"
+        }
+      ],
+      "imports": [
+        "argus.shared.types"
+      ],
+      "exports": [
+        "ArgusError",
+        "IndexingError",
+        "CheckpointError",
+        "GraphInconsistencyError",
+        "BudgetExceededError",
+        "StrategyError",
+        "GenerationError",
+        "PublishError",
+        "ProviderError",
+        "RateLimitError",
+        "TokenLimitError",
+        "ProfileAnalysisError",
+        "ConfigurationError"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/shared/types.py",
+      "symbols": [
+        {
+          "name": "FilePath",
+          "kind": "class",
+          "line_start": 13,
+          "line_end": 14,
+          "signature": "class FilePath(str)"
+        },
+        {
+          "name": "CommitSHA",
+          "kind": "class",
+          "line_start": 17,
+          "line_end": 18,
+          "signature": "class CommitSHA(str)"
+        },
+        {
+          "name": "TokenCount",
+          "kind": "class",
+          "line_start": 21,
+          "line_end": 42,
+          "signature": "class TokenCount(int)"
+        },
+        {
+          "name": "__add__",
+          "kind": "method",
+          "line_start": 24,
+          "line_end": 27,
+          "signature": "def __add__(self, other"
+        },
+        {
+          "name": "__radd__",
+          "kind": "method",
+          "line_start": 29,
+          "line_end": 32,
+          "signature": "def __radd__(self, other"
+        },
+        {
+          "name": "__sub__",
+          "kind": "method",
+          "line_start": 34,
+          "line_end": 37,
+          "signature": "def __sub__(self, other"
+        },
+        {
+          "name": "__rsub__",
+          "kind": "method",
+          "line_start": 39,
+          "line_end": 42,
+          "signature": "def __rsub__(self, other"
+        },
+        {
+          "name": "LineRange",
+          "kind": "class",
+          "line_start": 51,
+          "line_end": 68,
+          "signature": "class LineRange"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 57,
+          "line_end": 60,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "__len__",
+          "kind": "method",
+          "line_start": 62,
+          "line_end": 63,
+          "signature": "def __len__(self) -> int"
+        },
+        {
+          "name": "__contains__",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 68,
+          "signature": "def __contains__(self, line"
+        },
+        {
+          "name": "ReviewDepth",
+          "kind": "class",
+          "line_start": 76,
+          "line_end": 81,
+          "signature": "class ReviewDepth(StrEnum)"
+        },
+        {
+          "name": "Severity",
+          "kind": "class",
+          "line_start": 84,
+          "line_end": 90,
+          "signature": "class Severity(IntEnum)"
+        },
+        {
+          "name": "Category",
+          "kind": "class",
+          "line_start": 93,
+          "line_end": 100,
+          "signature": "class Category(IntEnum)"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "enum"
+      ],
+      "exports": [
+        "FilePath",
+        "CommitSHA",
+        "TokenCount",
+        "ReviewDepth",
+        "Severity",
+        "Category"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

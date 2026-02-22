@@ -1,0 +1,34 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/llm_providers/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/llm_providers/factory.py",
+      "symbols": [
+        {
+          "name": "create_agent",
+          "kind": "function",
+          "line_start": 13,
+          "line_end": 37,
+          "signature": "def create_agent[T]("
+        }
+      ],
+      "imports": [
+        "pydantic_ai",
+        "argus.domain.llm.value_objects"
+      ],
+      "exports": [
+        "create_agent"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

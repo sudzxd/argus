@@ -1,0 +1,409 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/github/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/github/client.py",
+      "symbols": [
+        {
+          "name": "_next_page_url",
+          "kind": "function",
+          "line_start": 24,
+          "line_end": 28,
+          "signature": "def _next_page_url(response"
+        },
+        {
+          "name": "GitHubClient",
+          "kind": "class",
+          "line_start": 39,
+          "line_end": 480,
+          "signature": "class GitHubClient"
+        },
+        {
+          "name": "get_pull_request",
+          "kind": "method",
+          "line_start": 45,
+          "line_end": 51,
+          "signature": "def get_pull_request(self, pr_number"
+        },
+        {
+          "name": "get_pull_request_diff",
+          "kind": "method",
+          "line_start": 53,
+          "line_end": 63,
+          "signature": "def get_pull_request_diff(self, pr_number"
+        },
+        {
+          "name": "get_file_content",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 77,
+          "signature": "def get_file_content(self, path"
+        },
+        {
+          "name": "post_issue_comment",
+          "kind": "method",
+          "line_start": 79,
+          "line_end": 86,
+          "signature": "def post_issue_comment(self, pr_number"
+        },
+        {
+          "name": "post_review",
+          "kind": "method",
+          "line_start": 88,
+          "line_end": 105,
+          "signature": "def post_review("
+        },
+        {
+          "name": "get_repo_default_branch_sha",
+          "kind": "method",
+          "line_start": 107,
+          "line_end": 123,
+          "signature": "def get_repo_default_branch_sha(self) -> str"
+        },
+        {
+          "name": "get_tree_recursive",
+          "kind": "method",
+          "line_start": 125,
+          "line_end": 144,
+          "signature": "def get_tree_recursive(self, sha"
+        },
+        {
+          "name": "compare_commits",
+          "kind": "method",
+          "line_start": 146,
+          "line_end": 169,
+          "signature": "def compare_commits(self, base"
+        },
+        {
+          "name": "get_check_runs",
+          "kind": "method",
+          "line_start": 175,
+          "line_end": 188,
+          "signature": "def get_check_runs(self, commit_sha"
+        },
+        {
+          "name": "get_issue_comments",
+          "kind": "method",
+          "line_start": 190,
+          "line_end": 199,
+          "signature": "def get_issue_comments(self, pr_number"
+        },
+        {
+          "name": "get_pr_review_comments",
+          "kind": "method",
+          "line_start": 201,
+          "line_end": 210,
+          "signature": "def get_pr_review_comments(self, pr_number"
+        },
+        {
+          "name": "get_pr_commits",
+          "kind": "method",
+          "line_start": 212,
+          "line_end": 221,
+          "signature": "def get_pr_commits(self, pr_number"
+        },
+        {
+          "name": "search_issues",
+          "kind": "method",
+          "line_start": 223,
+          "line_end": 237,
+          "signature": "def search_issues(self, query"
+        },
+        {
+          "name": "get_ref_sha",
+          "kind": "method",
+          "line_start": 243,
+          "line_end": 261,
+          "signature": "def get_ref_sha(self, branch"
+        },
+        {
+          "name": "get_commit_tree_sha",
+          "kind": "method",
+          "line_start": 263,
+          "line_end": 277,
+          "signature": "def get_commit_tree_sha(self, commit_sha"
+        },
+        {
+          "name": "get_tree_entries_flat",
+          "kind": "method",
+          "line_start": 279,
+          "line_end": 292,
+          "signature": "def get_tree_entries_flat(self, tree_sha"
+        },
+        {
+          "name": "get_blob_content",
+          "kind": "method",
+          "line_start": 294,
+          "line_end": 307,
+          "signature": "def get_blob_content(self, blob_sha"
+        },
+        {
+          "name": "create_blob",
+          "kind": "method",
+          "line_start": 309,
+          "line_end": 326,
+          "signature": "def create_blob(self, content_b64"
+        },
+        {
+          "name": "create_tree",
+          "kind": "method",
+          "line_start": 328,
+          "line_end": 354,
+          "signature": "def create_tree("
+        },
+        {
+          "name": "create_commit",
+          "kind": "method",
+          "line_start": 356,
+          "line_end": 378,
+          "signature": "def create_commit("
+        },
+        {
+          "name": "create_ref",
+          "kind": "method",
+          "line_start": 380,
+          "line_end": 389,
+          "signature": "def create_ref(self, ref"
+        },
+        {
+          "name": "update_ref",
+          "kind": "method",
+          "line_start": 391,
+          "line_end": 400,
+          "signature": "def update_ref(self, ref"
+        },
+        {
+          "name": "_get",
+          "kind": "method",
+          "line_start": 406,
+          "line_end": 409,
+          "signature": "def _get(self, path"
+        },
+        {
+          "name": "_get_list",
+          "kind": "method",
+          "line_start": 411,
+          "line_end": 420,
+          "signature": "def _get_list(self, path"
+        },
+        {
+          "name": "_post",
+          "kind": "method",
+          "line_start": 422,
+          "line_end": 432,
+          "signature": "def _post(self, url"
+        },
+        {
+          "name": "_post_json",
+          "kind": "method",
+          "line_start": 434,
+          "line_end": 447,
+          "signature": "def _post_json(self, path"
+        },
+        {
+          "name": "_patch",
+          "kind": "method",
+          "line_start": 449,
+          "line_end": 461,
+          "signature": "def _patch(self, path"
+        },
+        {
+          "name": "_request",
+          "kind": "method",
+          "line_start": 463,
+          "line_end": 474,
+          "signature": "def _request(self, url"
+        },
+        {
+          "name": "_headers",
+          "kind": "method",
+          "line_start": 476,
+          "line_end": 480,
+          "signature": "def _headers(self) -> dict[str, str]"
+        }
+      ],
+      "imports": [
+        "logging",
+        "re",
+        "urllib.parse",
+        "dataclasses",
+        "typing",
+        "httpx",
+        "argus.infrastructure.constants",
+        "argus.shared.constants",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_next_page_url"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/github/pr_context_collector.py",
+      "symbols": [
+        {
+          "name": "PRContextCollector",
+          "kind": "class",
+          "line_start": 36,
+          "line_end": 297,
+          "signature": "class PRContextCollector"
+        },
+        {
+          "name": "collect",
+          "kind": "method",
+          "line_start": 41,
+          "line_end": 84,
+          "signature": "def collect("
+        },
+        {
+          "name": "_extract_labels",
+          "kind": "method",
+          "line_start": 86,
+          "line_end": 96,
+          "signature": "def _extract_labels(self, pr_data"
+        },
+        {
+          "name": "_extract_author",
+          "kind": "method",
+          "line_start": 98,
+          "line_end": 105,
+          "signature": "def _extract_author(self, pr_data"
+        },
+        {
+          "name": "_extract_behind_by",
+          "kind": "method",
+          "line_start": 107,
+          "line_end": 115,
+          "signature": "def _extract_behind_by(self, pr_data"
+        },
+        {
+          "name": "_collect_ci_status",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 160,
+          "signature": "def _collect_ci_status(self, head_sha"
+        },
+        {
+          "name": "_collect_comments",
+          "kind": "method",
+          "line_start": 162,
+          "line_end": 197,
+          "signature": "def _collect_comments(self, pr_number"
+        },
+        {
+          "name": "_extract_comment_author",
+          "kind": "method",
+          "line_start": 200,
+          "line_end": 207,
+          "signature": "def _extract_comment_author(comment_data"
+        },
+        {
+          "name": "_is_bot",
+          "kind": "method",
+          "line_start": 210,
+          "line_end": 211,
+          "signature": "def _is_bot(author"
+        },
+        {
+          "name": "_compute_git_health",
+          "kind": "method",
+          "line_start": 213,
+          "line_end": 245,
+          "signature": "def _compute_git_health("
+        },
+        {
+          "name": "_collect_related_items",
+          "kind": "method",
+          "line_start": 247,
+          "line_end": 297,
+          "signature": "def _collect_related_items("
+        }
+      ],
+      "imports": [
+        "logging",
+        "re",
+        "dataclasses",
+        "datetime",
+        "typing",
+        "argus.domain.review.value_objects",
+        "argus.infrastructure.github.client",
+        "argus.shared.exceptions"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/github/publisher.py",
+      "symbols": [
+        {
+          "name": "GitHubReviewPublisher",
+          "kind": "class",
+          "line_start": 35,
+          "line_end": 177,
+          "signature": "class GitHubReviewPublisher"
+        },
+        {
+          "name": "publish",
+          "kind": "method",
+          "line_start": 41,
+          "line_end": 91,
+          "signature": "def publish(self, review"
+        },
+        {
+          "name": "_post_comments_individually",
+          "kind": "method",
+          "line_start": 93,
+          "line_end": 122,
+          "signature": "def _post_comments_individually("
+        },
+        {
+          "name": "_format_summary",
+          "kind": "method",
+          "line_start": 124,
+          "line_end": 138,
+          "signature": "def _format_summary(self, review"
+        },
+        {
+          "name": "_try_format_comment",
+          "kind": "method",
+          "line_start": 140,
+          "line_end": 177,
+          "signature": "def _try_format_comment("
+        },
+        {
+          "name": "_parse_diff_positions",
+          "kind": "function",
+          "line_start": 187,
+          "line_end": 232,
+          "signature": "def _parse_diff_positions(diff"
+        }
+      ],
+      "imports": [
+        "logging",
+        "re",
+        "dataclasses",
+        "argus.domain.review.entities",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.client",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_parse_diff_positions"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

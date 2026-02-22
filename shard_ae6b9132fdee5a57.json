@@ -1,0 +1,23 @@
+{
+  "entries": [
+    {
+      "path": "website/next-env.d.ts",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/next.config.ts",
+      "symbols": [],
+      "imports": [
+        "next"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

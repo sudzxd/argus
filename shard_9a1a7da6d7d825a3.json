@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

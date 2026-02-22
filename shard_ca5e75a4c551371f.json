@@ -1,0 +1,636 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_storage/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_artifact_store.py",
+      "symbols": [
+        {
+          "name": "test_load_returns_none_when_no_artifact",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 18,
+          "signature": "def test_load_returns_none_when_no_artifact(tmp_path"
+        },
+        {
+          "name": "test_save_and_load_roundtrip",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 39,
+          "signature": "def test_save_and_load_roundtrip(tmp_path"
+        },
+        {
+          "name": "test_save_creates_storage_dir",
+          "kind": "function",
+          "line_start": 42,
+          "line_end": 49,
+          "signature": "def test_save_creates_storage_dir(tmp_path"
+        },
+        {
+          "name": "test_load_corrupt_file_returns_none",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 61,
+          "signature": "def test_load_corrupt_file_returns_none(tmp_path"
+        },
+        {
+          "name": "test_different_repos_have_different_files",
+          "kind": "function",
+          "line_start": 64,
+          "line_end": 76,
+          "signature": "def test_different_repos_have_different_files(tmp_path"
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "argus.domain.context.entities",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_load_returns_none_when_no_artifact",
+        "test_save_and_load_roundtrip",
+        "test_save_creates_storage_dir",
+        "test_load_corrupt_file_returns_none",
+        "test_different_repos_have_different_files"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_embedding_store.py",
+      "symbols": [
+        {
+          "name": "test_save_and_load_embedding_index",
+          "kind": "function",
+          "line_start": 11,
+          "line_end": 36,
+          "signature": "def test_save_and_load_embedding_index(tmp_path"
+        },
+        {
+          "name": "test_load_embedding_indices_missing_shard",
+          "kind": "function",
+          "line_start": 39,
+          "line_end": 42,
+          "signature": "def test_load_embedding_indices_missing_shard(tmp_path"
+        },
+        {
+          "name": "test_save_embedding_index_returns_descriptor",
+          "kind": "function",
+          "line_start": 45,
+          "line_end": 61,
+          "signature": "def test_save_embedding_index_returns_descriptor(tmp_path"
+        },
+        {
+          "name": "test_different_models_produce_different_blobs",
+          "kind": "function",
+          "line_start": 64,
+          "line_end": 89,
+          "signature": "def test_different_models_produce_different_blobs(tmp_path"
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.storage.artifact_store"
+      ],
+      "exports": [
+        "test_save_and_load_embedding_index",
+        "test_load_embedding_indices_missing_shard",
+        "test_save_embedding_index_returns_descriptor",
+        "test_different_models_produce_different_blobs"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_git_branch_store.py",
+      "symbols": [
+        {
+          "name": "client",
+          "kind": "function",
+          "line_start": 19,
+          "line_end": 20,
+          "signature": "def client() -> MagicMock"
+        },
+        {
+          "name": "sync",
+          "kind": "function",
+          "line_start": 24,
+          "line_end": 25,
+          "signature": "def sync(client"
+        },
+        {
+          "name": "test_pull_no_branch_returns_zero",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 40,
+          "signature": "def test_pull_no_branch_returns_zero(sync"
+        },
+        {
+          "name": "test_pull_downloads_artifacts",
+          "kind": "function",
+          "line_start": 43,
+          "line_end": 65,
+          "signature": "def test_pull_downloads_artifacts("
+        },
+        {
+          "name": "test_push_creates_orphan_when_no_branch",
+          "kind": "function",
+          "line_start": 73,
+          "line_end": 92,
+          "signature": "def test_push_creates_orphan_when_no_branch("
+        },
+        {
+          "name": "test_push_updates_existing_branch",
+          "kind": "function",
+          "line_start": 95,
+          "line_end": 113,
+          "signature": "def test_push_updates_existing_branch("
+        },
+        {
+          "name": "test_push_empty_dir_skips",
+          "kind": "function",
+          "line_start": 116,
+          "line_end": 122,
+          "signature": "def test_push_empty_dir_skips(sync"
+        },
+        {
+          "name": "test_push_creates_blob_with_base64_content",
+          "kind": "function",
+          "line_start": 125,
+          "line_end": 140,
+          "signature": "def test_push_creates_blob_with_base64_content("
+        },
+        {
+          "name": "test_push_multiple_files_sorted",
+          "kind": "function",
+          "line_start": 143,
+          "line_end": 162,
+          "signature": "def test_push_multiple_files_sorted("
+        },
+        {
+          "name": "selective_sync",
+          "kind": "function",
+          "line_start": 171,
+          "line_end": 174,
+          "signature": "def selective_sync(client"
+        },
+        {
+          "name": "test_selective_push_delete_blobs_uses_null_sha",
+          "kind": "function",
+          "line_start": 177,
+          "line_end": 194,
+          "signature": "def test_selective_push_delete_blobs_uses_null_sha("
+        }
+      ],
+      "imports": [
+        "base64",
+        "pathlib",
+        "unittest.mock",
+        "pytest",
+        "argus.infrastructure.storage.git_branch_store"
+      ],
+      "exports": [
+        "test_pull_no_branch_returns_zero",
+        "test_pull_downloads_artifacts",
+        "test_push_creates_orphan_when_no_branch",
+        "test_push_updates_existing_branch",
+        "test_push_empty_dir_skips",
+        "test_push_creates_blob_with_base64_content",
+        "test_push_multiple_files_sorted",
+        "test_selective_push_delete_blobs_uses_null_sha"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_memory_store.py",
+      "symbols": [
+        {
+          "name": "storage_dir",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 22,
+          "signature": "def storage_dir(tmp_path"
+        },
+        {
+          "name": "store",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 27,
+          "signature": "def store(storage_dir"
+        },
+        {
+          "name": "_make_memory",
+          "kind": "function",
+          "line_start": 30,
+          "line_end": 50,
+          "signature": "def _make_memory(repo_id"
+        },
+        {
+          "name": "TestFileMemoryStore",
+          "kind": "class",
+          "line_start": 53,
+          "line_end": 135,
+          "signature": "class TestFileMemoryStore"
+        },
+        {
+          "name": "test_load_returns_none_when_not_found",
+          "kind": "method",
+          "line_start": 54,
+          "line_end": 56,
+          "signature": "def test_load_returns_none_when_not_found(self, store"
+        },
+        {
+          "name": "test_save_and_load_round_trip",
+          "kind": "method",
+          "line_start": 58,
+          "line_end": 74,
+          "signature": "def test_save_and_load_round_trip(self, store"
+        },
+        {
+          "name": "test_save_creates_storage_dir",
+          "kind": "method",
+          "line_start": 76,
+          "line_end": 81,
+          "signature": "def test_save_creates_storage_dir("
+        },
+        {
+          "name": "test_load_returns_none_for_corrupt_file",
+          "kind": "method",
+          "line_start": 83,
+          "line_end": 94,
+          "signature": "def test_load_returns_none_for_corrupt_file("
+        },
+        {
+          "name": "test_save_and_load_round_trip_with_analyzed_at",
+          "kind": "method",
+          "line_start": 96,
+          "line_end": 110,
+          "signature": "def test_save_and_load_round_trip_with_analyzed_at("
+        },
+        {
+          "name": "test_save_and_load_round_trip_without_analyzed_at",
+          "kind": "method",
+          "line_start": 112,
+          "line_end": 121,
+          "signature": "def test_save_and_load_round_trip_without_analyzed_at("
+        },
+        {
+          "name": "test_different_repos_get_different_files",
+          "kind": "method",
+          "line_start": 123,
+          "line_end": 135,
+          "signature": "def test_different_repos_get_different_files(self, store"
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "pytest",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.storage.memory_store",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_memory",
+        "TestFileMemoryStore"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_serializer.py",
+      "symbols": [
+        {
+          "name": "populated_map",
+          "kind": "function",
+          "line_start": 23,
+          "line_end": 47,
+          "signature": "def populated_map() -> CodebaseMap"
+        },
+        {
+          "name": "test_serialize_returns_json_string",
+          "kind": "function",
+          "line_start": 55,
+          "line_end": 59,
+          "signature": "def test_serialize_returns_json_string(populated_map"
+        },
+        {
+          "name": "test_round_trip_preserves_entries",
+          "kind": "function",
+          "line_start": 62,
+          "line_end": 79,
+          "signature": "def test_round_trip_preserves_entries(populated_map"
+        },
+        {
+          "name": "test_round_trip_preserves_edges",
+          "kind": "function",
+          "line_start": 82,
+          "line_end": 90,
+          "signature": "def test_round_trip_preserves_edges(populated_map"
+        },
+        {
+          "name": "test_deserialize_invalid_json_raises_value_error",
+          "kind": "function",
+          "line_start": 93,
+          "line_end": 95,
+          "signature": "def test_deserialize_invalid_json_raises_value_error() -> None"
+        },
+        {
+          "name": "test_serialize_empty_map",
+          "kind": "function",
+          "line_start": 98,
+          "line_end": 104,
+          "signature": "def test_serialize_empty_map() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.storage.serializer",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_serialize_returns_json_string",
+        "test_round_trip_preserves_entries",
+        "test_round_trip_preserves_edges",
+        "test_deserialize_invalid_json_raises_value_error",
+        "test_serialize_empty_map"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_shard_serializer.py",
+      "symbols": [
+        {
+          "name": "multi_dir_map",
+          "kind": "function",
+          "line_start": 29,
+          "line_end": 97,
+          "signature": "def multi_dir_map() -> CodebaseMap"
+        },
+        {
+          "name": "test_serialize_shard_returns_json",
+          "kind": "function",
+          "line_start": 105,
+          "line_end": 115,
+          "signature": "def test_serialize_shard_returns_json() -> None"
+        },
+        {
+          "name": "test_shard_round_trip",
+          "kind": "function",
+          "line_start": 118,
+          "line_end": 151,
+          "signature": "def test_shard_round_trip() -> None"
+        },
+        {
+          "name": "test_deserialize_shard_invalid_json",
+          "kind": "function",
+          "line_start": 154,
+          "line_end": 156,
+          "signature": "def test_deserialize_shard_invalid_json() -> None"
+        },
+        {
+          "name": "test_split_creates_correct_shard_count",
+          "kind": "function",
+          "line_start": 164,
+          "line_end": 173,
+          "signature": "def test_split_creates_correct_shard_count("
+        },
+        {
+          "name": "test_split_file_counts_correct",
+          "kind": "function",
+          "line_start": 176,
+          "line_end": 180,
+          "signature": "def test_split_file_counts_correct(multi_dir_map"
+        },
+        {
+          "name": "test_split_classifies_cross_shard_edges",
+          "kind": "function",
+          "line_start": 183,
+          "line_end": 192,
+          "signature": "def test_split_classifies_cross_shard_edges("
+        },
+        {
+          "name": "test_split_internal_edges_in_shard_data",
+          "kind": "function",
+          "line_start": 195,
+          "line_end": 205,
+          "signature": "def test_split_internal_edges_in_shard_data("
+        },
+        {
+          "name": "test_split_indexed_at_preserved",
+          "kind": "function",
+          "line_start": 208,
+          "line_end": 210,
+          "signature": "def test_split_indexed_at_preserved(multi_dir_map"
+        },
+        {
+          "name": "test_assemble_full_round_trip",
+          "kind": "function",
+          "line_start": 218,
+          "line_end": 233,
+          "signature": "def test_assemble_full_round_trip(multi_dir_map"
+        },
+        {
+          "name": "test_assemble_partial_only_loads_requested",
+          "kind": "function",
+          "line_start": 236,
+          "line_end": 248,
+          "signature": "def test_assemble_partial_only_loads_requested("
+        },
+        {
+          "name": "test_assemble_partial_no_cross_shard_edges",
+          "kind": "function",
+          "line_start": 251,
+          "line_end": 264,
+          "signature": "def test_assemble_partial_no_cross_shard_edges("
+        },
+        {
+          "name": "test_assemble_empty_shard_data",
+          "kind": "function",
+          "line_start": 267,
+          "line_end": 270,
+          "signature": "def test_assemble_empty_shard_data() -> None"
+        },
+        {
+          "name": "test_split_single_file",
+          "kind": "function",
+          "line_start": 278,
+          "line_end": 294,
+          "signature": "def test_split_single_file() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.storage.shard_serializer",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_serialize_shard_returns_json",
+        "test_shard_round_trip",
+        "test_deserialize_shard_invalid_json",
+        "test_split_creates_correct_shard_count",
+        "test_split_file_counts_correct",
+        "test_split_classifies_cross_shard_edges",
+        "test_split_internal_edges_in_shard_data",
+        "test_split_indexed_at_preserved",
+        "test_assemble_full_round_trip",
+        "test_assemble_partial_only_loads_requested",
+        "test_assemble_partial_no_cross_shard_edges",
+        "test_assemble_empty_shard_data",
+        "test_split_single_file"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_storage/test_sharded_artifact_store.py",
+      "symbols": [
+        {
+          "name": "_build_map",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 60,
+          "signature": "def _build_map() -> CodebaseMap"
+        },
+        {
+          "name": "test_save_full_and_load_full",
+          "kind": "function",
+          "line_start": 68,
+          "line_end": 79,
+          "signature": "def test_save_full_and_load_full(tmp_path"
+        },
+        {
+          "name": "test_save_full_creates_manifest",
+          "kind": "function",
+          "line_start": 82,
+          "line_end": 88,
+          "signature": "def test_save_full_creates_manifest(tmp_path"
+        },
+        {
+          "name": "test_save_full_creates_shard_files",
+          "kind": "function",
+          "line_start": 91,
+          "line_end": 96,
+          "signature": "def test_save_full_creates_shard_files(tmp_path"
+        },
+        {
+          "name": "test_load_manifest_returns_none_when_missing",
+          "kind": "function",
+          "line_start": 104,
+          "line_end": 106,
+          "signature": "def test_load_manifest_returns_none_when_missing(tmp_path"
+        },
+        {
+          "name": "test_load_manifest_returns_none_when_corrupt",
+          "kind": "function",
+          "line_start": 109,
+          "line_end": 114,
+          "signature": "def test_load_manifest_returns_none_when_corrupt(tmp_path"
+        },
+        {
+          "name": "test_load_shards_partial",
+          "kind": "function",
+          "line_start": 122,
+          "line_end": 130,
+          "signature": "def test_load_shards_partial(tmp_path"
+        },
+        {
+          "name": "test_load_shards_missing_shard_skipped",
+          "kind": "function",
+          "line_start": 133,
+          "line_end": 139,
+          "signature": "def test_load_shards_missing_shard_skipped(tmp_path"
+        },
+        {
+          "name": "test_load_or_migrate_sharded",
+          "kind": "function",
+          "line_start": 147,
+          "line_end": 154,
+          "signature": "def test_load_or_migrate_sharded(tmp_path"
+        },
+        {
+          "name": "test_load_or_migrate_legacy",
+          "kind": "function",
+          "line_start": 157,
+          "line_end": 176,
+          "signature": "def test_load_or_migrate_legacy(tmp_path"
+        },
+        {
+          "name": "test_load_or_migrate_nothing",
+          "kind": "function",
+          "line_start": 179,
+          "line_end": 181,
+          "signature": "def test_load_or_migrate_nothing(tmp_path"
+        },
+        {
+          "name": "test_save_full_removes_legacy",
+          "kind": "function",
+          "line_start": 189,
+          "line_end": 200,
+          "signature": "def test_save_full_removes_legacy(tmp_path"
+        },
+        {
+          "name": "test_save_and_load_empty_map",
+          "kind": "function",
+          "line_start": 208,
+          "line_end": 217,
+          "signature": "def test_save_and_load_empty_map(tmp_path"
+        },
+        {
+          "name": "test_save_incremental_returns_orphaned_blobs",
+          "kind": "function",
+          "line_start": 225,
+          "line_end": 261,
+          "signature": "def test_save_incremental_returns_orphaned_blobs(tmp_path"
+        },
+        {
+          "name": "test_save_incremental_no_orphans_when_unchanged",
+          "kind": "function",
+          "line_start": 264,
+          "line_end": 276,
+          "signature": "def test_save_incremental_no_orphans_when_unchanged(tmp_path"
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_build_map",
+        "test_save_full_and_load_full",
+        "test_save_full_creates_manifest",
+        "test_save_full_creates_shard_files",
+        "test_load_manifest_returns_none_when_missing",
+        "test_load_manifest_returns_none_when_corrupt",
+        "test_load_shards_partial",
+        "test_load_shards_missing_shard_skipped",
+        "test_load_or_migrate_sharded",
+        "test_load_or_migrate_legacy",
+        "test_load_or_migrate_nothing",
+        "test_save_full_removes_legacy",
+        "test_save_and_load_empty_map",
+        "test_save_incremental_returns_orphaned_blobs",
+        "test_save_incremental_no_orphans_when_unchanged"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

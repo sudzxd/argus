@@ -1,0 +1,142 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_llm_providers/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_llm_providers/test_factory.py",
+      "symbols": [
+        {
+          "name": "_DummyOutput",
+          "kind": "class",
+          "line_start": 13,
+          "line_end": 14,
+          "signature": "class _DummyOutput(BaseModel)"
+        },
+        {
+          "name": "_make_config",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 26,
+          "signature": "def _make_config("
+        },
+        {
+          "name": "test_create_agent_returns_agent",
+          "kind": "function",
+          "line_start": 29,
+          "line_end": 35,
+          "signature": "def test_create_agent_returns_agent() -> None"
+        },
+        {
+          "name": "test_create_agent_uses_output_type",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 44,
+          "signature": "def test_create_agent_uses_output_type() -> None"
+        },
+        {
+          "name": "test_create_agent_sets_system_prompt",
+          "kind": "function",
+          "line_start": 47,
+          "line_end": 55,
+          "signature": "def test_create_agent_sets_system_prompt() -> None"
+        },
+        {
+          "name": "test_create_agent_accepts_custom_temperature",
+          "kind": "function",
+          "line_start": 58,
+          "line_end": 64,
+          "signature": "def test_create_agent_accepts_custom_temperature() -> None"
+        }
+      ],
+      "imports": [
+        "pydantic",
+        "pydantic_ai",
+        "argus.domain.llm.value_objects",
+        "argus.infrastructure.llm_providers.factory",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_DummyOutput",
+        "_make_config",
+        "test_create_agent_returns_agent",
+        "test_create_agent_uses_output_type",
+        "test_create_agent_sets_system_prompt",
+        "test_create_agent_accepts_custom_temperature"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_llm_providers/test_structured_output.py",
+      "symbols": [
+        {
+          "name": "_make_config",
+          "kind": "function",
+          "line_start": 19,
+          "line_end": 24,
+          "signature": "def _make_config() -> ModelConfig"
+        },
+        {
+          "name": "test_review_output_roundtrip_through_agent",
+          "kind": "function",
+          "line_start": 32,
+          "line_end": 70,
+          "signature": "def test_review_output_roundtrip_through_agent() -> None"
+        },
+        {
+          "name": "test_review_output_empty_comments",
+          "kind": "function",
+          "line_start": 73,
+          "line_end": 93,
+          "signature": "def test_review_output_empty_comments() -> None"
+        },
+        {
+          "name": "test_review_output_multiple_comments",
+          "kind": "function",
+          "line_start": 96,
+          "line_end": 138,
+          "signature": "def test_review_output_multiple_comments() -> None"
+        },
+        {
+          "name": "test_search_plan_roundtrip_through_agent",
+          "kind": "function",
+          "line_start": 146,
+          "line_end": 163,
+          "signature": "def test_search_plan_roundtrip_through_agent() -> None"
+        },
+        {
+          "name": "test_search_plan_empty_queries",
+          "kind": "function",
+          "line_start": 166,
+          "line_end": 183,
+          "signature": "def test_search_plan_empty_queries() -> None"
+        }
+      ],
+      "imports": [
+        "pydantic_ai.models.test",
+        "argus.domain.llm.value_objects",
+        "argus.infrastructure.llm_providers.factory",
+        "argus.infrastructure.retrieval.agentic",
+        "argus.interfaces.review_generator",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_config",
+        "test_review_output_roundtrip_through_agent",
+        "test_review_output_empty_comments",
+        "test_review_output_multiple_comments",
+        "test_search_plan_roundtrip_through_agent",
+        "test_search_plan_empty_queries"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

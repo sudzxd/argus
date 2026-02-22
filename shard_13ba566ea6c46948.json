@@ -1,0 +1,169 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_memory/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_memory/test_llm_analyzer.py",
+      "symbols": [
+        {
+          "name": "model_config",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 22,
+          "signature": "def model_config() -> ModelConfig"
+        },
+        {
+          "name": "TestLLMPatternAnalyzer",
+          "kind": "class",
+          "line_start": 25,
+          "line_end": 196,
+          "signature": "class TestLLMPatternAnalyzer"
+        },
+        {
+          "name": "test_analyze_returns_patterns",
+          "kind": "method",
+          "line_start": 27,
+          "line_end": 60,
+          "signature": "def test_analyze_returns_patterns("
+        },
+        {
+          "name": "test_analyze_clamps_confidence",
+          "kind": "method",
+          "line_start": 63,
+          "line_end": 86,
+          "signature": "def test_analyze_clamps_confidence("
+        },
+        {
+          "name": "test_analyze_maps_unknown_category_to_style",
+          "kind": "method",
+          "line_start": 89,
+          "line_end": 112,
+          "signature": "def test_analyze_maps_unknown_category_to_style("
+        },
+        {
+          "name": "test_analyze_wraps_errors",
+          "kind": "method",
+          "line_start": 115,
+          "line_end": 125,
+          "signature": "def test_analyze_wraps_errors("
+        },
+        {
+          "name": "test_analyze_incremental_uses_incremental_prompt",
+          "kind": "method",
+          "line_start": 128,
+          "line_end": 166,
+          "signature": "def test_analyze_incremental_uses_incremental_prompt("
+        },
+        {
+          "name": "test_analyze_incremental_empty_existing_falls_back",
+          "kind": "method",
+          "line_start": 169,
+          "line_end": 196,
+          "signature": "def test_analyze_incremental_empty_existing_falls_back("
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.memory.llm_analyzer",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "TestLLMPatternAnalyzer"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_memory/test_outline_renderer.py",
+      "symbols": [
+        {
+          "name": "_make_entry",
+          "kind": "function",
+          "line_start": 16,
+          "line_end": 34,
+          "signature": "def _make_entry("
+        },
+        {
+          "name": "_make_map",
+          "kind": "function",
+          "line_start": 37,
+          "line_end": 41,
+          "signature": "def _make_map(*entries"
+        },
+        {
+          "name": "TestOutlineRenderer",
+          "kind": "class",
+          "line_start": 44,
+          "line_end": 127,
+          "signature": "class TestOutlineRenderer"
+        },
+        {
+          "name": "test_render_includes_changed_files",
+          "kind": "method",
+          "line_start": 45,
+          "line_end": 57,
+          "signature": "def test_render_includes_changed_files(self) -> None"
+        },
+        {
+          "name": "test_render_includes_dependents",
+          "kind": "method",
+          "line_start": 59,
+          "line_end": 75,
+          "signature": "def test_render_includes_dependents(self) -> None"
+        },
+        {
+          "name": "test_render_respects_budget",
+          "kind": "method",
+          "line_start": 77,
+          "line_end": 91,
+          "signature": "def test_render_respects_budget(self) -> None"
+        },
+        {
+          "name": "test_render_uses_signature_when_available",
+          "kind": "method",
+          "line_start": 93,
+          "line_end": 103,
+          "signature": "def test_render_uses_signature_when_available(self) -> None"
+        },
+        {
+          "name": "test_render_uses_kind_name_when_no_signature",
+          "kind": "method",
+          "line_start": 105,
+          "line_end": 115,
+          "signature": "def test_render_uses_kind_name_when_no_signature(self) -> None"
+        },
+        {
+          "name": "test_render_full_includes_all_files",
+          "kind": "method",
+          "line_start": 117,
+          "line_end": 127,
+          "signature": "def test_render_full_includes_all_files(self) -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.memory.outline_renderer",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_entry",
+        "_make_map",
+        "TestOutlineRenderer"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,249 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/test_review/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_review/conftest.py",
+      "symbols": [
+        {
+          "name": "critical_comment",
+          "kind": "function",
+          "line_start": 20,
+          "line_end": 29,
+          "signature": "def critical_comment() -> ReviewComment"
+        },
+        {
+          "name": "suggestion_comment",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 42,
+          "signature": "def suggestion_comment() -> ReviewComment"
+        },
+        {
+          "name": "low_confidence_comment",
+          "kind": "function",
+          "line_start": 46,
+          "line_end": 55,
+          "signature": "def low_confidence_comment() -> ReviewComment"
+        },
+        {
+          "name": "review_summary",
+          "kind": "function",
+          "line_start": 59,
+          "line_end": 65,
+          "signature": "def review_summary() -> ReviewSummary"
+        },
+        {
+          "name": "sample_review",
+          "kind": "function",
+          "line_start": 69,
+          "line_end": 77,
+          "signature": "def sample_review("
+        },
+        {
+          "name": "review_request",
+          "kind": "function",
+          "line_start": 81,
+          "line_end": 96,
+          "signature": "def review_request() -> ReviewRequest"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.retrieval.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_review/test_entities.py",
+      "symbols": [
+        {
+          "name": "test_review_comment_stores_fields",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 27,
+          "signature": "def test_review_comment_stores_fields(critical_comment"
+        },
+        {
+          "name": "test_review_comment_suggestion_optional",
+          "kind": "function",
+          "line_start": 30,
+          "line_end": 40,
+          "signature": "def test_review_comment_suggestion_optional() -> None"
+        },
+        {
+          "name": "test_review_comment_is_immutable",
+          "kind": "function",
+          "line_start": 43,
+          "line_end": 45,
+          "signature": "def test_review_comment_is_immutable(critical_comment"
+        },
+        {
+          "name": "test_review_stores_summary_and_comments",
+          "kind": "function",
+          "line_start": 53,
+          "line_end": 55,
+          "signature": "def test_review_stores_summary_and_comments(sample_review"
+        },
+        {
+          "name": "test_review_comments_by_severity",
+          "kind": "function",
+          "line_start": 58,
+          "line_end": 62,
+          "signature": "def test_review_comments_by_severity(sample_review"
+        },
+        {
+          "name": "test_review_comments_by_severity_empty",
+          "kind": "function",
+          "line_start": 65,
+          "line_end": 68,
+          "signature": "def test_review_comments_by_severity_empty(sample_review"
+        },
+        {
+          "name": "test_review_has_critical",
+          "kind": "function",
+          "line_start": 71,
+          "line_end": 72,
+          "signature": "def test_review_has_critical(sample_review"
+        },
+        {
+          "name": "test_review_has_critical_false",
+          "kind": "function",
+          "line_start": 75,
+          "line_end": 85,
+          "signature": "def test_review_has_critical_false() -> None"
+        },
+        {
+          "name": "test_review_comment_count",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 89,
+          "signature": "def test_review_comment_count(sample_review"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_review_comment_stores_fields",
+        "test_review_comment_suggestion_optional",
+        "test_review_comment_is_immutable",
+        "test_review_stores_summary_and_comments",
+        "test_review_comments_by_severity",
+        "test_review_comments_by_severity_empty",
+        "test_review_has_critical",
+        "test_review_has_critical_false",
+        "test_review_comment_count"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_review/test_services.py",
+      "symbols": [
+        {
+          "name": "test_noise_filter_drops_below_threshold",
+          "kind": "function",
+          "line_start": 19,
+          "line_end": 28,
+          "signature": "def test_noise_filter_drops_below_threshold("
+        },
+        {
+          "name": "test_noise_filter_drops_ignored_paths",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 51,
+          "signature": "def test_noise_filter_drops_ignored_paths("
+        },
+        {
+          "name": "test_noise_filter_keeps_all_above_threshold",
+          "kind": "function",
+          "line_start": 54,
+          "line_end": 62,
+          "signature": "def test_noise_filter_keeps_all_above_threshold("
+        },
+        {
+          "name": "test_noise_filter_empty_input",
+          "kind": "function",
+          "line_start": 65,
+          "line_end": 70,
+          "signature": "def test_noise_filter_empty_input() -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.review.entities",
+        "argus.domain.review.services",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_noise_filter_drops_below_threshold",
+        "test_noise_filter_drops_ignored_paths",
+        "test_noise_filter_keeps_all_above_threshold",
+        "test_noise_filter_empty_input"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_review/test_value_objects.py",
+      "symbols": [
+        {
+          "name": "test_review_summary_stores_fields",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 19,
+          "signature": "def test_review_summary_stores_fields(review_summary"
+        },
+        {
+          "name": "test_review_summary_is_immutable",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 24,
+          "signature": "def test_review_summary_is_immutable(review_summary"
+        },
+        {
+          "name": "test_review_request_stores_fields",
+          "kind": "function",
+          "line_start": 32,
+          "line_end": 36,
+          "signature": "def test_review_request_stores_fields(review_request"
+        },
+        {
+          "name": "test_review_request_is_immutable",
+          "kind": "function",
+          "line_start": 39,
+          "line_end": 41,
+          "signature": "def test_review_request_is_immutable(review_request"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_review_summary_stores_fields",
+        "test_review_summary_is_immutable",
+        "test_review_request_stores_fields",
+        "test_review_request_is_immutable"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,767 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/test_context/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/conftest.py",
+      "symbols": [
+        {
+          "name": "login_function",
+          "kind": "function",
+          "line_start": 18,
+          "line_end": 23,
+          "signature": "def login_function() -> Symbol"
+        },
+        {
+          "name": "auth_class",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 32,
+          "signature": "def auth_class() -> Symbol"
+        },
+        {
+          "name": "login_file",
+          "kind": "function",
+          "line_start": 36,
+          "line_end": 37,
+          "signature": "def login_file(login_function"
+        },
+        {
+          "name": "models_file",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 48,
+          "signature": "def models_file() -> tuple[FilePath, list[Symbol]]"
+        },
+        {
+          "name": "import_edge",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 57,
+          "signature": "def import_edge() -> Edge"
+        },
+        {
+          "name": "empty_graph",
+          "kind": "function",
+          "line_start": 61,
+          "line_end": 62,
+          "signature": "def empty_graph() -> DependencyGraph"
+        },
+        {
+          "name": "sample_sha",
+          "kind": "function",
+          "line_start": 66,
+          "line_end": 67,
+          "signature": "def sample_sha() -> CommitSHA"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/test_entities.py",
+      "symbols": [
+        {
+          "name": "file_entry",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 35,
+          "signature": "def file_entry() -> FileEntry"
+        },
+        {
+          "name": "test_file_entry_stores_fields",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 44,
+          "signature": "def test_file_entry_stores_fields(file_entry"
+        },
+        {
+          "name": "test_file_entry_summary_defaults_none",
+          "kind": "function",
+          "line_start": 47,
+          "line_end": 48,
+          "signature": "def test_file_entry_summary_defaults_none(file_entry"
+        },
+        {
+          "name": "test_file_entry_with_summary",
+          "kind": "function",
+          "line_start": 51,
+          "line_end": 60,
+          "signature": "def test_file_entry_with_summary() -> None"
+        },
+        {
+          "name": "codebase_map",
+          "kind": "function",
+          "line_start": 69,
+          "line_end": 70,
+          "signature": "def codebase_map() -> CodebaseMap"
+        },
+        {
+          "name": "populated_map",
+          "kind": "function",
+          "line_start": 74,
+          "line_end": 77,
+          "signature": "def populated_map(file_entry"
+        },
+        {
+          "name": "test_codebase_map_starts_empty",
+          "kind": "function",
+          "line_start": 80,
+          "line_end": 82,
+          "signature": "def test_codebase_map_starts_empty(codebase_map"
+        },
+        {
+          "name": "test_codebase_map_upsert_adds_entry",
+          "kind": "function",
+          "line_start": 85,
+          "line_end": 91,
+          "signature": "def test_codebase_map_upsert_adds_entry("
+        },
+        {
+          "name": "test_codebase_map_upsert_replaces_entry",
+          "kind": "function",
+          "line_start": 94,
+          "line_end": 108,
+          "signature": "def test_codebase_map_upsert_replaces_entry("
+        },
+        {
+          "name": "test_codebase_map_get_missing_raises",
+          "kind": "function",
+          "line_start": 111,
+          "line_end": 113,
+          "signature": "def test_codebase_map_get_missing_raises(codebase_map"
+        },
+        {
+          "name": "test_codebase_map_remove_deletes_entry",
+          "kind": "function",
+          "line_start": 116,
+          "line_end": 121,
+          "signature": "def test_codebase_map_remove_deletes_entry("
+        },
+        {
+          "name": "test_codebase_map_remove_missing_raises",
+          "kind": "function",
+          "line_start": 124,
+          "line_end": 126,
+          "signature": "def test_codebase_map_remove_missing_raises(codebase_map"
+        },
+        {
+          "name": "test_codebase_map_files_returns_all_paths",
+          "kind": "function",
+          "line_start": 129,
+          "line_end": 134,
+          "signature": "def test_codebase_map_files_returns_all_paths("
+        },
+        {
+          "name": "test_codebase_map_contains",
+          "kind": "function",
+          "line_start": 137,
+          "line_end": 139,
+          "signature": "def test_codebase_map_contains(populated_map"
+        },
+        {
+          "name": "test_codebase_map_graph_tracks_edges",
+          "kind": "function",
+          "line_start": 142,
+          "line_end": 160,
+          "signature": "def test_codebase_map_graph_tracks_edges("
+        },
+        {
+          "name": "test_codebase_map_remove_cleans_graph",
+          "kind": "function",
+          "line_start": 163,
+          "line_end": 183,
+          "signature": "def test_codebase_map_remove_cleans_graph("
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_file_entry_stores_fields",
+        "test_file_entry_summary_defaults_none",
+        "test_file_entry_with_summary",
+        "test_codebase_map_starts_empty",
+        "test_codebase_map_upsert_adds_entry",
+        "test_codebase_map_upsert_replaces_entry",
+        "test_codebase_map_get_missing_raises",
+        "test_codebase_map_remove_deletes_entry",
+        "test_codebase_map_remove_missing_raises",
+        "test_codebase_map_files_returns_all_paths",
+        "test_codebase_map_contains",
+        "test_codebase_map_graph_tracks_edges",
+        "test_codebase_map_remove_cleans_graph"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/test_repositories.py",
+      "symbols": [
+        {
+          "name": "test_codebase_map_repository_protocol_accepts_conforming_class",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 33,
+          "signature": "def test_codebase_map_repository_protocol_accepts_conforming_class() -> None"
+        },
+        {
+          "name": "FakeMapRepo",
+          "kind": "class",
+          "line_start": 19,
+          "line_end": 26,
+          "signature": "class FakeMapRepo"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 22,
+          "line_end": 23,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 25,
+          "line_end": 26,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "test_codebase_map_repository_save_and_load_roundtrip",
+          "kind": "function",
+          "line_start": 36,
+          "line_end": 63,
+          "signature": "def test_codebase_map_repository_save_and_load_roundtrip() -> None"
+        },
+        {
+          "name": "InMemoryRepo",
+          "kind": "class",
+          "line_start": 38,
+          "line_end": 45,
+          "signature": "class InMemoryRepo"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 41,
+          "line_end": 42,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 45,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "test_source_parser_protocol_accepts_conforming_class",
+          "kind": "function",
+          "line_start": 71,
+          "line_end": 97,
+          "signature": "def test_source_parser_protocol_accepts_conforming_class() -> None"
+        },
+        {
+          "name": "FakeParser",
+          "kind": "class",
+          "line_start": 73,
+          "line_end": 90,
+          "signature": "class FakeParser"
+        },
+        {
+          "name": "parse",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 87,
+          "signature": "def parse(self, path"
+        },
+        {
+          "name": "supported_languages",
+          "kind": "method",
+          "line_start": 89,
+          "line_end": 90,
+          "signature": "def supported_languages(self) -> frozenset[str]"
+        },
+        {
+          "name": "test_source_parser_supported_languages",
+          "kind": "function",
+          "line_start": 100,
+          "line_end": 121,
+          "signature": "def test_source_parser_supported_languages() -> None"
+        },
+        {
+          "name": "MultiLangParser",
+          "kind": "class",
+          "line_start": 102,
+          "line_end": 113,
+          "signature": "class MultiLangParser"
+        },
+        {
+          "name": "parse",
+          "kind": "method",
+          "line_start": 103,
+          "line_end": 110,
+          "signature": "def parse(self, path"
+        },
+        {
+          "name": "supported_languages",
+          "kind": "method",
+          "line_start": 112,
+          "line_end": 113,
+          "signature": "def supported_languages(self) -> frozenset[str]"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.context.entities",
+        "argus.domain.context.repositories",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_codebase_map_repository_protocol_accepts_conforming_class",
+        "test_codebase_map_repository_save_and_load_roundtrip",
+        "test_source_parser_protocol_accepts_conforming_class",
+        "test_source_parser_supported_languages"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/test_services.py",
+      "symbols": [
+        {
+          "name": "FakeParser",
+          "kind": "class",
+          "line_start": 26,
+          "line_end": 49,
+          "signature": "class FakeParser"
+        },
+        {
+          "name": "parse",
+          "kind": "method",
+          "line_start": 31,
+          "line_end": 46,
+          "signature": "def parse(self, path"
+        },
+        {
+          "name": "supported_languages",
+          "kind": "method",
+          "line_start": 48,
+          "line_end": 49,
+          "signature": "def supported_languages(self) -> frozenset[str]"
+        },
+        {
+          "name": "FakeMapRepo",
+          "kind": "class",
+          "line_start": 53,
+          "line_end": 60,
+          "signature": "class FakeMapRepo"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 56,
+          "line_end": 57,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 59,
+          "line_end": 60,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "parser",
+          "kind": "function",
+          "line_start": 69,
+          "line_end": 70,
+          "signature": "def parser() -> FakeParser"
+        },
+        {
+          "name": "repo",
+          "kind": "function",
+          "line_start": 74,
+          "line_end": 75,
+          "signature": "def repo() -> FakeMapRepo"
+        },
+        {
+          "name": "service",
+          "kind": "function",
+          "line_start": 79,
+          "line_end": 80,
+          "signature": "def service(parser"
+        },
+        {
+          "name": "test_full_index_creates_new_map",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 102,
+          "signature": "def test_full_index_creates_new_map(service"
+        },
+        {
+          "name": "test_full_index_saves_to_repository",
+          "kind": "function",
+          "line_start": 105,
+          "line_end": 117,
+          "signature": "def test_full_index_saves_to_repository("
+        },
+        {
+          "name": "test_full_index_skips_unparseable_files",
+          "kind": "function",
+          "line_start": 120,
+          "line_end": 136,
+          "signature": "def test_full_index_skips_unparseable_files("
+        },
+        {
+          "name": "test_incremental_update_adds_new_files",
+          "kind": "function",
+          "line_start": 144,
+          "line_end": 166,
+          "signature": "def test_incremental_update_adds_new_files("
+        },
+        {
+          "name": "test_incremental_update_reparses_changed_files",
+          "kind": "function",
+          "line_start": 169,
+          "line_end": 190,
+          "signature": "def test_incremental_update_reparses_changed_files("
+        },
+        {
+          "name": "test_incremental_update_preserves_unchanged_files",
+          "kind": "function",
+          "line_start": 193,
+          "line_end": 212,
+          "signature": "def test_incremental_update_preserves_unchanged_files("
+        },
+        {
+          "name": "test_incremental_update_removes_graph_edges_for_reparsed_files",
+          "kind": "function",
+          "line_start": 215,
+          "line_end": 243,
+          "signature": "def test_incremental_update_removes_graph_edges_for_reparsed_files("
+        },
+        {
+          "name": "test_incremental_update_skips_unparseable_keeps_old_entry",
+          "kind": "function",
+          "line_start": 246,
+          "line_end": 269,
+          "signature": "def test_incremental_update_skips_unparseable_keeps_old_entry("
+        },
+        {
+          "name": "test_incremental_update_mutates_in_place",
+          "kind": "function",
+          "line_start": 272,
+          "line_end": 295,
+          "signature": "def test_incremental_update_mutates_in_place("
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.domain.context.services",
+        "argus.domain.context.value_objects",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_full_index_creates_new_map",
+        "test_full_index_saves_to_repository",
+        "test_full_index_skips_unparseable_files",
+        "test_incremental_update_adds_new_files",
+        "test_incremental_update_reparses_changed_files",
+        "test_incremental_update_preserves_unchanged_files",
+        "test_incremental_update_removes_graph_edges_for_reparsed_files",
+        "test_incremental_update_skips_unparseable_keeps_old_entry",
+        "test_incremental_update_mutates_in_place"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/test_sharding.py",
+      "symbols": [
+        {
+          "name": "test_shard_id_for_simple_path",
+          "kind": "function",
+          "line_start": 23,
+          "line_end": 24,
+          "signature": "def test_shard_id_for_simple_path() -> None"
+        },
+        {
+          "name": "test_shard_id_for_nested_path",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 29,
+          "signature": "def test_shard_id_for_nested_path() -> None"
+        },
+        {
+          "name": "test_shard_id_for_root_file",
+          "kind": "function",
+          "line_start": 32,
+          "line_end": 33,
+          "signature": "def test_shard_id_for_root_file() -> None"
+        },
+        {
+          "name": "test_shard_descriptor_frozen",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 49,
+          "signature": "def test_shard_descriptor_frozen() -> None"
+        },
+        {
+          "name": "test_cross_shard_edge_frozen",
+          "kind": "function",
+          "line_start": 57,
+          "line_end": 66,
+          "signature": "def test_cross_shard_edge_frozen() -> None"
+        },
+        {
+          "name": "manifest_with_edges",
+          "kind": "function",
+          "line_start": 75,
+          "line_end": 114,
+          "signature": "def manifest_with_edges() -> ShardedManifest"
+        },
+        {
+          "name": "test_shards_for_files_maps_to_parent_dirs",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 121,
+          "signature": "def test_shards_for_files_maps_to_parent_dirs() -> None"
+        },
+        {
+          "name": "test_shards_for_files_multiple_dirs",
+          "kind": "function",
+          "line_start": 124,
+          "line_end": 128,
+          "signature": "def test_shards_for_files_multiple_dirs() -> None"
+        },
+        {
+          "name": "test_adjacent_shards_1hop",
+          "kind": "function",
+          "line_start": 131,
+          "line_end": 139,
+          "signature": "def test_adjacent_shards_1hop("
+        },
+        {
+          "name": "test_adjacent_shards_no_edges",
+          "kind": "function",
+          "line_start": 142,
+          "line_end": 145,
+          "signature": "def test_adjacent_shards_no_edges() -> None"
+        },
+        {
+          "name": "test_adjacent_shards_excludes_start",
+          "kind": "function",
+          "line_start": 148,
+          "line_end": 156,
+          "signature": "def test_adjacent_shards_excludes_start("
+        },
+        {
+          "name": "test_dirty_shards_returns_affected",
+          "kind": "function",
+          "line_start": 159,
+          "line_end": 166,
+          "signature": "def test_dirty_shards_returns_affected() -> None"
+        },
+        {
+          "name": "test_manifest_round_trip",
+          "kind": "function",
+          "line_start": 174,
+          "line_end": 185,
+          "signature": "def test_manifest_round_trip(manifest_with_edges"
+        },
+        {
+          "name": "test_manifest_round_trip_empty",
+          "kind": "function",
+          "line_start": 188,
+          "line_end": 193,
+          "signature": "def test_manifest_round_trip_empty() -> None"
+        },
+        {
+          "name": "test_manifest_embedding_indices_round_trip",
+          "kind": "function",
+          "line_start": 201,
+          "line_end": 217,
+          "signature": "def test_manifest_embedding_indices_round_trip() -> None"
+        },
+        {
+          "name": "test_manifest_from_dict_without_embedding_indices",
+          "kind": "function",
+          "line_start": 220,
+          "line_end": 229,
+          "signature": "def test_manifest_from_dict_without_embedding_indices() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_shard_id_for_simple_path",
+        "test_shard_id_for_nested_path",
+        "test_shard_id_for_root_file",
+        "test_shard_descriptor_frozen",
+        "test_cross_shard_edge_frozen",
+        "test_shards_for_files_maps_to_parent_dirs",
+        "test_shards_for_files_multiple_dirs",
+        "test_adjacent_shards_1hop",
+        "test_adjacent_shards_no_edges",
+        "test_adjacent_shards_excludes_start",
+        "test_dirty_shards_returns_affected",
+        "test_manifest_round_trip",
+        "test_manifest_round_trip_empty",
+        "test_manifest_embedding_indices_round_trip",
+        "test_manifest_from_dict_without_embedding_indices"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_context/test_value_objects.py",
+      "symbols": [
+        {
+          "name": "test_symbol_stores_fields",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 25,
+          "signature": "def test_symbol_stores_fields(login_function"
+        },
+        {
+          "name": "test_symbol_is_immutable",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 30,
+          "signature": "def test_symbol_is_immutable(login_function"
+        },
+        {
+          "name": "test_symbol_kind_has_all_members",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 35,
+          "signature": "def test_symbol_kind_has_all_members() -> None"
+        },
+        {
+          "name": "test_edge_stores_fields",
+          "kind": "function",
+          "line_start": 43,
+          "line_end": 46,
+          "signature": "def test_edge_stores_fields(import_edge"
+        },
+        {
+          "name": "test_edge_kind_has_all_members",
+          "kind": "function",
+          "line_start": 49,
+          "line_end": 51,
+          "signature": "def test_edge_kind_has_all_members() -> None"
+        },
+        {
+          "name": "test_edge_is_immutable",
+          "kind": "function",
+          "line_start": 54,
+          "line_end": 56,
+          "signature": "def test_edge_is_immutable(import_edge"
+        },
+        {
+          "name": "test_graph_add_edge",
+          "kind": "function",
+          "line_start": 64,
+          "line_end": 67,
+          "signature": "def test_graph_add_edge(empty_graph"
+        },
+        {
+          "name": "test_graph_dependents_of",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 76,
+          "signature": "def test_graph_dependents_of(empty_graph"
+        },
+        {
+          "name": "test_graph_dependencies_of",
+          "kind": "function",
+          "line_start": 79,
+          "line_end": 85,
+          "signature": "def test_graph_dependencies_of(empty_graph"
+        },
+        {
+          "name": "test_graph_dependents_of_no_matches",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 92,
+          "signature": "def test_graph_dependents_of_no_matches("
+        },
+        {
+          "name": "test_graph_remove_file_removes_all_edges",
+          "kind": "function",
+          "line_start": 95,
+          "line_end": 110,
+          "signature": "def test_graph_remove_file_removes_all_edges("
+        },
+        {
+          "name": "test_graph_files_returns_all_referenced_files",
+          "kind": "function",
+          "line_start": 113,
+          "line_end": 121,
+          "signature": "def test_graph_files_returns_all_referenced_files("
+        },
+        {
+          "name": "test_checkpoint_stores_fields",
+          "kind": "function",
+          "line_start": 129,
+          "line_end": 133,
+          "signature": "def test_checkpoint_stores_fields(sample_sha"
+        },
+        {
+          "name": "test_checkpoint_is_immutable",
+          "kind": "function",
+          "line_start": 136,
+          "line_end": 140,
+          "signature": "def test_checkpoint_is_immutable(sample_sha"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_symbol_stores_fields",
+        "test_symbol_is_immutable",
+        "test_symbol_kind_has_all_members",
+        "test_edge_stores_fields",
+        "test_edge_kind_has_all_members",
+        "test_edge_is_immutable",
+        "test_graph_add_edge",
+        "test_graph_dependents_of",
+        "test_graph_dependencies_of",
+        "test_graph_dependents_of_no_matches",
+        "test_graph_remove_file_removes_all_edges",
+        "test_graph_files_returns_all_referenced_files",
+        "test_checkpoint_stores_fields",
+        "test_checkpoint_is_immutable"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

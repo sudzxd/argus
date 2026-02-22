@@ -1,0 +1,192 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/domain/review/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/review/entities.py",
+      "symbols": [
+        {
+          "name": "ReviewComment",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 25,
+          "signature": "class ReviewComment"
+        },
+        {
+          "name": "Review",
+          "kind": "class",
+          "line_start": 29,
+          "line_end": 45,
+          "signature": "class Review"
+        },
+        {
+          "name": "comments_by_severity",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 37,
+          "signature": "def comments_by_severity(self, severity"
+        },
+        {
+          "name": "has_critical",
+          "kind": "method",
+          "line_start": 40,
+          "line_end": 42,
+          "signature": "def has_critical(self) -> bool"
+        },
+        {
+          "name": "__len__",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 45,
+          "signature": "def __len__(self) -> int"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/review/repositories.py",
+      "symbols": [
+        {
+          "name": "ReviewPublisher",
+          "kind": "class",
+          "line_start": 14,
+          "line_end": 19,
+          "signature": "class ReviewPublisher(Protocol)"
+        },
+        {
+          "name": "publish",
+          "kind": "method",
+          "line_start": 17,
+          "line_end": 19,
+          "signature": "def publish(self, review"
+        }
+      ],
+      "imports": [
+        "typing",
+        "argus.domain.review.entities"
+      ],
+      "exports": [
+        "ReviewPublisher"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/review/services.py",
+      "symbols": [
+        {
+          "name": "NoiseFilter",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 39,
+          "signature": "class NoiseFilter"
+        },
+        {
+          "name": "filter",
+          "kind": "method",
+          "line_start": 22,
+          "line_end": 36,
+          "signature": "def filter(self, comments"
+        },
+        {
+          "name": "_is_ignored",
+          "kind": "method",
+          "line_start": 38,
+          "line_end": 39,
+          "signature": "def _is_ignored(self, path"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.review.entities",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/review/value_objects.py",
+      "symbols": [
+        {
+          "name": "ReviewSummary",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 22,
+          "signature": "class ReviewSummary"
+        },
+        {
+          "name": "CheckRun",
+          "kind": "class",
+          "line_start": 26,
+          "line_end": 32,
+          "signature": "class CheckRun"
+        },
+        {
+          "name": "CIStatus",
+          "kind": "class",
+          "line_start": 36,
+          "line_end": 40,
+          "signature": "class CIStatus"
+        },
+        {
+          "name": "GitHealth",
+          "kind": "class",
+          "line_start": 44,
+          "line_end": 49,
+          "signature": "class GitHealth"
+        },
+        {
+          "name": "PRComment",
+          "kind": "class",
+          "line_start": 53,
+          "line_end": 60,
+          "signature": "class PRComment"
+        },
+        {
+          "name": "RelatedItem",
+          "kind": "class",
+          "line_start": 64,
+          "line_end": 71,
+          "signature": "class RelatedItem"
+        },
+        {
+          "name": "PRContext",
+          "kind": "class",
+          "line_start": 75,
+          "line_end": 86,
+          "signature": "class PRContext"
+        },
+        {
+          "name": "ReviewRequest",
+          "kind": "class",
+          "line_start": 90,
+          "line_end": 99,
+          "signature": "class ReviewRequest"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.retrieval.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

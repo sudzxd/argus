@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "path": "website/src/app/docs/layout.tsx",
+      "symbols": [],
+      "imports": [
+        "next/link",
+        "@/lib/mdx",
+        "@/components/Navbar"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/app/docs/page.tsx",
+      "symbols": [
+        {
+          "name": "DocsIndex",
+          "kind": "function",
+          "line_start": 3,
+          "line_end": 5,
+          "signature": "function DocsIndex()"
+        }
+      ],
+      "imports": [
+        "next/navigation"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

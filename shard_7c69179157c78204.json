@@ -1,0 +1,65 @@
+{
+  "entries": [
+    {
+      "path": "website/src/app/layout.tsx",
+      "symbols": [
+        {
+          "name": "RootLayout",
+          "kind": "function",
+          "line_start": 13,
+          "line_end": 37,
+          "signature": "function RootLayout({"
+        }
+      ],
+      "imports": [
+        "next",
+        "./globals.css"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/app/not-found.tsx",
+      "symbols": [
+        {
+          "name": "NotFound",
+          "kind": "function",
+          "line_start": 3,
+          "line_end": 23,
+          "signature": "function NotFound() {"
+        }
+      ],
+      "imports": [
+        "next/link"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "website/src/app/page.tsx",
+      "symbols": [
+        {
+          "name": "Home",
+          "kind": "function",
+          "line_start": 8,
+          "line_end": 21,
+          "signature": "function Home()"
+        }
+      ],
+      "imports": [
+        "@/components/Navbar",
+        "@/components/Hero",
+        "@/components/Features",
+        "@/components/HowItWorks",
+        "@/components/QuickSetup",
+        "@/components/Footer"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,160 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/parsing/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/parsing/chunker.py",
+      "symbols": [
+        {
+          "name": "CodeChunk",
+          "kind": "class",
+          "line_start": 17,
+          "line_end": 23,
+          "signature": "class CodeChunk"
+        },
+        {
+          "name": "Chunker",
+          "kind": "class",
+          "line_start": 32,
+          "line_end": 74,
+          "signature": "class Chunker"
+        },
+        {
+          "name": "chunk",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 65,
+          "signature": "def chunk("
+        },
+        {
+          "name": "_make_chunk",
+          "kind": "method",
+          "line_start": 67,
+          "line_end": 74,
+          "signature": "def _make_chunk(self, path"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/parsing/tree_sitter_parser.py",
+      "symbols": [
+        {
+          "name": "_load_language",
+          "kind": "function",
+          "line_start": 35,
+          "line_end": 53,
+          "signature": "def _load_language(lang"
+        },
+        {
+          "name": "TreeSitterParser",
+          "kind": "class",
+          "line_start": 66,
+          "line_end": 224,
+          "signature": "class TreeSitterParser"
+        },
+        {
+          "name": "parse",
+          "kind": "method",
+          "line_start": 69,
+          "line_end": 106,
+          "signature": "def parse(self, path"
+        },
+        {
+          "name": "supported_languages",
+          "kind": "method",
+          "line_start": 108,
+          "line_end": 110,
+          "signature": "def supported_languages(self) -> frozenset[str]"
+        },
+        {
+          "name": "_language_for_path",
+          "kind": "method",
+          "line_start": 112,
+          "line_end": 122,
+          "signature": "def _language_for_path(self, path"
+        },
+        {
+          "name": "_extract_symbols",
+          "kind": "method",
+          "line_start": 124,
+          "line_end": 128,
+          "signature": "def _extract_symbols(self, root"
+        },
+        {
+          "name": "_walk_for_symbols",
+          "kind": "method",
+          "line_start": 130,
+          "line_end": 166,
+          "signature": "def _walk_for_symbols("
+        },
+        {
+          "name": "_extract_signature",
+          "kind": "method",
+          "line_start": 169,
+          "line_end": 184,
+          "signature": "def _extract_signature(node"
+        },
+        {
+          "name": "_extract_imports",
+          "kind": "method",
+          "line_start": 186,
+          "line_end": 193,
+          "signature": "def _extract_imports(self, root"
+        },
+        {
+          "name": "_extract_exports",
+          "kind": "method",
+          "line_start": 195,
+          "line_end": 202,
+          "signature": "def _extract_exports(self, root"
+        },
+        {
+          "name": "_get_node_name",
+          "kind": "method",
+          "line_start": 204,
+          "line_end": 211,
+          "signature": "def _get_node_name(self, node"
+        },
+        {
+          "name": "_get_import_path",
+          "kind": "method",
+          "line_start": 213,
+          "line_end": 224,
+          "signature": "def _get_import_path(self, node"
+        }
+      ],
+      "imports": [
+        "importlib",
+        "dataclasses",
+        "pathlib",
+        "tree_sitter",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_load_language"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

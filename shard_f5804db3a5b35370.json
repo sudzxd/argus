@@ -1,0 +1,177 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/domain/memory/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/memory/repositories.py",
+      "symbols": [
+        {
+          "name": "CodebaseMemoryRepository",
+          "kind": "class",
+          "line_start": 10,
+          "line_end": 19,
+          "signature": "class CodebaseMemoryRepository(Protocol)"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 13,
+          "line_end": 15,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 17,
+          "line_end": 19,
+          "signature": "def save(self, memory"
+        }
+      ],
+      "imports": [
+        "typing",
+        "argus.domain.memory.value_objects"
+      ],
+      "exports": [
+        "CodebaseMemoryRepository"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/memory/services.py",
+      "symbols": [
+        {
+          "name": "PatternAnalyzer",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 33,
+          "signature": "class PatternAnalyzer(Protocol)"
+        },
+        {
+          "name": "analyze",
+          "kind": "method",
+          "line_start": 19,
+          "line_end": 21,
+          "signature": "def analyze(self, outline_text"
+        },
+        {
+          "name": "analyze_incremental",
+          "kind": "method",
+          "line_start": 23,
+          "line_end": 33,
+          "signature": "def analyze_incremental("
+        },
+        {
+          "name": "ProfileService",
+          "kind": "class",
+          "line_start": 37,
+          "line_end": 102,
+          "signature": "class ProfileService"
+        },
+        {
+          "name": "build_profile",
+          "kind": "method",
+          "line_start": 45,
+          "line_end": 68,
+          "signature": "def build_profile("
+        },
+        {
+          "name": "update_profile",
+          "kind": "method",
+          "line_start": 70,
+          "line_end": 95,
+          "signature": "def update_profile("
+        },
+        {
+          "name": "_prune_and_cap",
+          "kind": "method",
+          "line_start": 98,
+          "line_end": 102,
+          "signature": "def _prune_and_cap(patterns"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "typing",
+        "argus.domain.memory.value_objects",
+        "argus.shared.constants"
+      ],
+      "exports": [
+        "PatternAnalyzer"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/memory/value_objects.py",
+      "symbols": [
+        {
+          "name": "PatternCategory",
+          "kind": "class",
+          "line_start": 11,
+          "line_end": 19,
+          "signature": "class PatternCategory(StrEnum)"
+        },
+        {
+          "name": "PatternEntry",
+          "kind": "class",
+          "line_start": 23,
+          "line_end": 34,
+          "signature": "class PatternEntry"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 31,
+          "line_end": 34,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "FileOutlineEntry",
+          "kind": "class",
+          "line_start": 38,
+          "line_end": 42,
+          "signature": "class FileOutlineEntry"
+        },
+        {
+          "name": "CodebaseOutline",
+          "kind": "class",
+          "line_start": 46,
+          "line_end": 54,
+          "signature": "class CodebaseOutline"
+        },
+        {
+          "name": "file_count",
+          "kind": "method",
+          "line_start": 53,
+          "line_end": 54,
+          "signature": "def file_count(self) -> int"
+        },
+        {
+          "name": "CodebaseMemory",
+          "kind": "class",
+          "line_start": 58,
+          "line_end": 65,
+          "signature": "class CodebaseMemory"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "enum",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "PatternCategory"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

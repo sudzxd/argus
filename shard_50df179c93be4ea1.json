@@ -1,0 +1,245 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/infrastructure/test_parsing/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_parsing/test_chunker.py",
+      "symbols": [
+        {
+          "name": "_make_symbol",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 20,
+          "signature": "def _make_symbol(name"
+        },
+        {
+          "name": "test_chunk_returns_code_chunks",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 36,
+          "signature": "def test_chunk_returns_code_chunks() -> None"
+        },
+        {
+          "name": "test_chunk_splits_at_symbol_boundaries",
+          "kind": "function",
+          "line_start": 39,
+          "line_end": 53,
+          "signature": "def test_chunk_splits_at_symbol_boundaries() -> None"
+        },
+        {
+          "name": "test_chunk_no_symbols_returns_whole_file",
+          "kind": "function",
+          "line_start": 56,
+          "line_end": 64,
+          "signature": "def test_chunk_no_symbols_returns_whole_file() -> None"
+        },
+        {
+          "name": "test_chunk_token_cost_is_positive",
+          "kind": "function",
+          "line_start": 67,
+          "line_end": 74,
+          "signature": "def test_chunk_token_cost_is_positive() -> None"
+        },
+        {
+          "name": "test_chunk_source_matches_file_path",
+          "kind": "function",
+          "line_start": 77,
+          "line_end": 85,
+          "signature": "def test_chunk_source_matches_file_path() -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.parsing.chunker",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_symbol",
+        "test_chunk_returns_code_chunks",
+        "test_chunk_splits_at_symbol_boundaries",
+        "test_chunk_no_symbols_returns_whole_file",
+        "test_chunk_token_cost_is_positive",
+        "test_chunk_source_matches_file_path"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/infrastructure/test_parsing/test_tree_sitter_parser.py",
+      "symbols": [
+        {
+          "name": "parser",
+          "kind": "function",
+          "line_start": 20,
+          "line_end": 21,
+          "signature": "def parser() -> TreeSitterParser"
+        },
+        {
+          "name": "test_supported_languages_returns_all_known",
+          "kind": "function",
+          "line_start": 29,
+          "line_end": 35,
+          "signature": "def test_supported_languages_returns_all_known("
+        },
+        {
+          "name": "test_language_for_path_detects_python",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 39,
+          "signature": "def test_language_for_path_detects_python(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_javascript",
+          "kind": "function",
+          "line_start": 42,
+          "line_end": 45,
+          "signature": "def test_language_for_path_detects_javascript(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_typescript",
+          "kind": "function",
+          "line_start": 48,
+          "line_end": 49,
+          "signature": "def test_language_for_path_detects_typescript(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_go",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 53,
+          "signature": "def test_language_for_path_detects_go(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_rust",
+          "kind": "function",
+          "line_start": 56,
+          "line_end": 57,
+          "signature": "def test_language_for_path_detects_rust(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_java",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 61,
+          "signature": "def test_language_for_path_detects_java(parser"
+        },
+        {
+          "name": "test_language_for_path_detects_cpp_variants",
+          "kind": "function",
+          "line_start": 64,
+          "line_end": 67,
+          "signature": "def test_language_for_path_detects_cpp_variants(parser"
+        },
+        {
+          "name": "test_parser_raises_for_unsupported_extension",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 74,
+          "signature": "def test_parser_raises_for_unsupported_extension("
+        },
+        {
+          "name": "test_parse_python_extracts_function",
+          "kind": "function",
+          "line_start": 82,
+          "line_end": 90,
+          "signature": "def test_parse_python_extracts_function(parser"
+        },
+        {
+          "name": "test_parse_python_extracts_class_and_methods",
+          "kind": "function",
+          "line_start": 93,
+          "line_end": 113,
+          "signature": "def test_parse_python_extracts_class_and_methods("
+        },
+        {
+          "name": "test_parse_python_extracts_imports",
+          "kind": "function",
+          "line_start": 116,
+          "line_end": 122,
+          "signature": "def test_parse_python_extracts_imports(parser"
+        },
+        {
+          "name": "test_parse_python_extracts_exports",
+          "kind": "function",
+          "line_start": 125,
+          "line_end": 130,
+          "signature": "def test_parse_python_extracts_exports(parser"
+        },
+        {
+          "name": "test_parse_python_empty_file",
+          "kind": "function",
+          "line_start": 133,
+          "line_end": 139,
+          "signature": "def test_parse_python_empty_file(parser"
+        },
+        {
+          "name": "test_parse_python_line_ranges_are_1_indexed",
+          "kind": "function",
+          "line_start": 142,
+          "line_end": 152,
+          "signature": "def test_parse_python_line_ranges_are_1_indexed("
+        },
+        {
+          "name": "test_parse_go_extracts_function",
+          "kind": "function",
+          "line_start": 160,
+          "line_end": 166,
+          "signature": "def test_parse_go_extracts_function(parser"
+        },
+        {
+          "name": "test_parse_js_extracts_function",
+          "kind": "function",
+          "line_start": 174,
+          "line_end": 180,
+          "signature": "def test_parse_js_extracts_function(parser"
+        },
+        {
+          "name": "test_parse_handles_replacement_characters",
+          "kind": "function",
+          "line_start": 188,
+          "line_end": 194,
+          "signature": "def test_parse_handles_replacement_characters(parser"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.parsing.tree_sitter_parser",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_supported_languages_returns_all_known",
+        "test_language_for_path_detects_python",
+        "test_language_for_path_detects_javascript",
+        "test_language_for_path_detects_typescript",
+        "test_language_for_path_detects_go",
+        "test_language_for_path_detects_rust",
+        "test_language_for_path_detects_java",
+        "test_language_for_path_detects_cpp_variants",
+        "test_parser_raises_for_unsupported_extension",
+        "test_parse_python_extracts_function",
+        "test_parse_python_extracts_class_and_methods",
+        "test_parse_python_extracts_imports",
+        "test_parse_python_extracts_exports",
+        "test_parse_python_empty_file",
+        "test_parse_python_line_ranges_are_1_indexed",
+        "test_parse_go_extracts_function",
+        "test_parse_js_extracts_function",
+        "test_parse_handles_replacement_characters"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

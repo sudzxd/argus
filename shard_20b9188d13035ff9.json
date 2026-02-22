@@ -1,0 +1,181 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/test_llm/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_llm/conftest.py",
+      "symbols": [
+        {
+          "name": "anthropic_config",
+          "kind": "function",
+          "line_start": 12,
+          "line_end": 16,
+          "signature": "def anthropic_config() -> ModelConfig"
+        },
+        {
+          "name": "ollama_config",
+          "kind": "function",
+          "line_start": 20,
+          "line_end": 24,
+          "signature": "def ollama_config() -> ModelConfig"
+        },
+        {
+          "name": "token_budget",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 33,
+          "signature": "def token_budget() -> TokenBudget"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.llm.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_llm/test_services.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_llm/test_value_objects.py",
+      "symbols": [
+        {
+          "name": "test_model_config_stores_fields",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 17,
+          "signature": "def test_model_config_stores_fields(anthropic_config"
+        },
+        {
+          "name": "test_model_config_temperature_defaults_zero",
+          "kind": "function",
+          "line_start": 20,
+          "line_end": 23,
+          "signature": "def test_model_config_temperature_defaults_zero("
+        },
+        {
+          "name": "test_model_config_custom_temperature",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 32,
+          "signature": "def test_model_config_custom_temperature() -> None"
+        },
+        {
+          "name": "test_model_config_is_immutable",
+          "kind": "function",
+          "line_start": 35,
+          "line_end": 37,
+          "signature": "def test_model_config_is_immutable(anthropic_config"
+        },
+        {
+          "name": "test_token_budget_stores_fields",
+          "kind": "function",
+          "line_start": 45,
+          "line_end": 48,
+          "signature": "def test_token_budget_stores_fields(token_budget"
+        },
+        {
+          "name": "test_token_budget_retrieval_tokens",
+          "kind": "function",
+          "line_start": 51,
+          "line_end": 52,
+          "signature": "def test_token_budget_retrieval_tokens(token_budget"
+        },
+        {
+          "name": "test_token_budget_generation_tokens",
+          "kind": "function",
+          "line_start": 55,
+          "line_end": 56,
+          "signature": "def test_token_budget_generation_tokens(token_budget"
+        },
+        {
+          "name": "test_token_budget_ratios_must_not_exceed_one",
+          "kind": "function",
+          "line_start": 59,
+          "line_end": 65,
+          "signature": "def test_token_budget_ratios_must_not_exceed_one() -> None"
+        },
+        {
+          "name": "test_token_budget_is_immutable",
+          "kind": "function",
+          "line_start": 68,
+          "line_end": 70,
+          "signature": "def test_token_budget_is_immutable(token_budget"
+        },
+        {
+          "name": "test_llm_usage_defaults_to_zero",
+          "kind": "function",
+          "line_start": 78,
+          "line_end": 82,
+          "signature": "def test_llm_usage_defaults_to_zero() -> None"
+        },
+        {
+          "name": "test_llm_usage_total_tokens",
+          "kind": "function",
+          "line_start": 85,
+          "line_end": 87,
+          "signature": "def test_llm_usage_total_tokens() -> None"
+        },
+        {
+          "name": "test_llm_usage_addition",
+          "kind": "function",
+          "line_start": 90,
+          "line_end": 97,
+          "signature": "def test_llm_usage_addition() -> None"
+        },
+        {
+          "name": "test_llm_usage_addition_with_zero",
+          "kind": "function",
+          "line_start": 100,
+          "line_end": 103,
+          "signature": "def test_llm_usage_addition_with_zero() -> None"
+        },
+        {
+          "name": "test_llm_usage_is_immutable",
+          "kind": "function",
+          "line_start": 106,
+          "line_end": 109,
+          "signature": "def test_llm_usage_is_immutable() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.llm.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_model_config_stores_fields",
+        "test_model_config_temperature_defaults_zero",
+        "test_model_config_custom_temperature",
+        "test_model_config_is_immutable",
+        "test_token_budget_stores_fields",
+        "test_token_budget_retrieval_tokens",
+        "test_token_budget_generation_tokens",
+        "test_token_budget_ratios_must_not_exceed_one",
+        "test_token_budget_is_immutable",
+        "test_llm_usage_defaults_to_zero",
+        "test_llm_usage_total_tokens",
+        "test_llm_usage_addition",
+        "test_llm_usage_addition_with_zero",
+        "test_llm_usage_is_immutable"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

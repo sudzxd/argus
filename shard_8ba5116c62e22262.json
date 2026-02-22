@@ -1,0 +1,534 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/interfaces/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/action.py",
+      "symbols": [
+        {
+          "name": "run",
+          "kind": "function",
+          "line_start": 65,
+          "line_end": 80,
+          "signature": "def run() -> None"
+        },
+        {
+          "name": "_execute_pipeline",
+          "kind": "function",
+          "line_start": 83,
+          "line_end": 392,
+          "signature": "def _execute_pipeline(config"
+        },
+        {
+          "name": "_load_event",
+          "kind": "function",
+          "line_start": 395,
+          "line_end": 404,
+          "signature": "def _load_event(event_path"
+        },
+        {
+          "name": "_extract_pr_number",
+          "kind": "function",
+          "line_start": 407,
+          "line_end": 420,
+          "signature": "def _extract_pr_number(event"
+        },
+        {
+          "name": "_extract_head_sha",
+          "kind": "function",
+          "line_start": 423,
+          "line_end": 439,
+          "signature": "def _extract_head_sha(event"
+        },
+        {
+          "name": "_extract_changed_files",
+          "kind": "function",
+          "line_start": 442,
+          "line_end": 453,
+          "signature": "def _extract_changed_files(diff"
+        }
+      ],
+      "imports": [
+        "json",
+        "logging",
+        "sys",
+        "pathlib",
+        "posixpath",
+        "typing",
+        "httpx",
+        "argus.application.dto",
+        "argus.application.review_pull_request",
+        "argus.domain.context.entities",
+        "argus.domain.context.services",
+        "argus.domain.context.value_objects",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.services",
+        "argus.domain.retrieval.services",
+        "argus.domain.retrieval.strategies",
+        "argus.domain.review.services",
+        "argus.domain.review.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.client",
+        "argus.infrastructure.github.pr_context_collector",
+        "argus.infrastructure.github.publisher",
+        "argus.infrastructure.memory.llm_analyzer",
+        "argus.infrastructure.memory.outline_renderer",
+        "argus.infrastructure.parsing.chunker",
+        "argus.infrastructure.parsing.tree_sitter_parser",
+        "argus.infrastructure.retrieval.agentic",
+        "argus.infrastructure.retrieval.lexical",
+        "argus.infrastructure.retrieval.structural",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.infrastructure.storage.git_branch_store",
+        "argus.infrastructure.storage.memory_store",
+        "argus.interfaces.config",
+        "argus.interfaces.review_generator",
+        "argus.shared.constants",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "run",
+        "_execute_pipeline",
+        "_load_event",
+        "_extract_pr_number",
+        "_extract_head_sha",
+        "_extract_changed_files"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/bootstrap.py",
+      "symbols": [
+        {
+          "name": "get_parseable_extensions",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 74,
+          "signature": "def get_parseable_extensions("
+        },
+        {
+          "name": "run",
+          "kind": "function",
+          "line_start": 77,
+          "line_end": 91,
+          "signature": "def run() -> None"
+        },
+        {
+          "name": "_execute_bootstrap",
+          "kind": "function",
+          "line_start": 94,
+          "line_end": 229,
+          "signature": "def _execute_bootstrap() -> None"
+        },
+        {
+          "name": "_build_embeddings",
+          "kind": "function",
+          "line_start": 232,
+          "line_end": 305,
+          "signature": "def _build_embeddings("
+        }
+      ],
+      "imports": [
+        "logging",
+        "sys",
+        "pathlib",
+        "httpx",
+        "argus.domain.context.entities",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.services",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.github.client",
+        "argus.infrastructure.memory.llm_analyzer",
+        "argus.infrastructure.memory.outline_renderer",
+        "argus.infrastructure.parsing.tree_sitter_parser",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.infrastructure.storage.memory_store",
+        "argus.interfaces.env_utils",
+        "argus.interfaces.toml_config",
+        "argus.shared.constants",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "get_parseable_extensions",
+        "run",
+        "_execute_bootstrap",
+        "_build_embeddings"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/config.py",
+      "symbols": [
+        {
+          "name": "ActionConfig",
+          "kind": "class",
+          "line_start": 13,
+          "line_end": 58,
+          "signature": "class ActionConfig"
+        },
+        {
+          "name": "from_toml",
+          "kind": "method",
+          "line_start": 33,
+          "line_end": 58,
+          "signature": "def from_toml(cls, mode"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.interfaces.env_utils",
+        "argus.interfaces.toml_config",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/env_utils.py",
+      "symbols": [
+        {
+          "name": "require_env",
+          "kind": "function",
+          "line_start": 10,
+          "line_end": 20,
+          "signature": "def require_env(name"
+        }
+      ],
+      "imports": [
+        "os",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "require_env"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/main.py",
+      "symbols": [
+        {
+          "name": "main",
+          "kind": "function",
+          "line_start": 22,
+          "line_end": 49,
+          "signature": "def main() -> None"
+        }
+      ],
+      "imports": [
+        "logging",
+        "os",
+        "sys"
+      ],
+      "exports": [
+        "main"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/review_generator.py",
+      "symbols": [
+        {
+          "name": "ReviewOutput",
+          "kind": "class",
+          "line_start": 67,
+          "line_end": 86,
+          "signature": "class ReviewOutput(BaseModel)"
+        },
+        {
+          "name": "CommentOutput",
+          "kind": "class",
+          "line_start": 70,
+          "line_end": 80,
+          "signature": "class CommentOutput(BaseModel)"
+        },
+        {
+          "name": "LLMReviewGenerator",
+          "kind": "class",
+          "line_start": 95,
+          "line_end": 275,
+          "signature": "class LLMReviewGenerator"
+        },
+        {
+          "name": "generate",
+          "kind": "method",
+          "line_start": 100,
+          "line_end": 104,
+          "signature": "def generate(self, request"
+        },
+        {
+          "name": "_generate_tool_mode",
+          "kind": "method",
+          "line_start": 106,
+          "line_end": 120,
+          "signature": "def _generate_tool_mode(self, prompt"
+        },
+        {
+          "name": "_build_prompt",
+          "kind": "method",
+          "line_start": 122,
+          "line_end": 191,
+          "signature": "def _build_prompt(self, request"
+        },
+        {
+          "name": "_format_pr_context",
+          "kind": "method",
+          "line_start": 193,
+          "line_end": 253,
+          "signature": "def _format_pr_context(self, ctx"
+        },
+        {
+          "name": "_to_review",
+          "kind": "method",
+          "line_start": 255,
+          "line_end": 264,
+          "signature": "def _to_review(self, output"
+        },
+        {
+          "name": "_to_comment",
+          "kind": "method",
+          "line_start": 266,
+          "line_end": 275,
+          "signature": "def _to_comment(self, c"
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "pydantic",
+        "argus.domain.llm.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.llm_providers.factory",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "ReviewOutput"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/sync_index.py",
+      "symbols": [
+        {
+          "name": "_is_parseable",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 55,
+          "signature": "def _is_parseable(path"
+        },
+        {
+          "name": "_extract_after_sha",
+          "kind": "function",
+          "line_start": 58,
+          "line_end": 71,
+          "signature": "def _extract_after_sha(event_path"
+        },
+        {
+          "name": "run",
+          "kind": "function",
+          "line_start": 74,
+          "line_end": 88,
+          "signature": "def run() -> None"
+        },
+        {
+          "name": "_execute",
+          "kind": "function",
+          "line_start": 91,
+          "line_end": 164,
+          "signature": "def _execute() -> None"
+        },
+        {
+          "name": "_handle_legacy_path",
+          "kind": "function",
+          "line_start": 167,
+          "line_end": 204,
+          "signature": "def _handle_legacy_path("
+        },
+        {
+          "name": "_handle_manifest_path",
+          "kind": "function",
+          "line_start": 207,
+          "line_end": 266,
+          "signature": "def _handle_manifest_path("
+        },
+        {
+          "name": "_maybe_analyze_patterns",
+          "kind": "function",
+          "line_start": 269,
+          "line_end": 333,
+          "signature": "def _maybe_analyze_patterns("
+        },
+        {
+          "name": "_maybe_build_embeddings",
+          "kind": "function",
+          "line_start": 336,
+          "line_end": 414,
+          "signature": "def _maybe_build_embeddings("
+        },
+        {
+          "name": "_incremental_update_sharded",
+          "kind": "function",
+          "line_start": 417,
+          "line_end": 470,
+          "signature": "def _incremental_update_sharded("
+        }
+      ],
+      "imports": [
+        "json",
+        "logging",
+        "sys",
+        "pathlib",
+        "httpx",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.services",
+        "argus.domain.memory.value_objects",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.client",
+        "argus.infrastructure.memory.llm_analyzer",
+        "argus.infrastructure.memory.outline_renderer",
+        "argus.infrastructure.parsing.tree_sitter_parser",
+        "argus.infrastructure.storage.artifact_store",
+        "argus.infrastructure.storage.git_branch_store",
+        "argus.infrastructure.storage.memory_store",
+        "argus.interfaces.bootstrap",
+        "argus.interfaces.env_utils",
+        "argus.interfaces.toml_config",
+        "argus.shared.constants",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_is_parseable",
+        "_extract_after_sha",
+        "run",
+        "_execute",
+        "_handle_legacy_path",
+        "_handle_manifest_path",
+        "_maybe_analyze_patterns",
+        "_maybe_build_embeddings",
+        "_incremental_update_sharded"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/sync_push.py",
+      "symbols": [
+        {
+          "name": "run",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 50,
+          "signature": "def run() -> None"
+        }
+      ],
+      "imports": [
+        "logging",
+        "sys",
+        "pathlib",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.client",
+        "argus.infrastructure.storage.git_branch_store",
+        "argus.interfaces.env_utils",
+        "argus.interfaces.toml_config",
+        "argus.shared.exceptions"
+      ],
+      "exports": [
+        "run"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/interfaces/toml_config.py",
+      "symbols": [
+        {
+          "name": "ArgusConfig",
+          "kind": "class",
+          "line_start": 66,
+          "line_end": 81,
+          "signature": "class ArgusConfig"
+        },
+        {
+          "name": "load_argus_config",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 158,
+          "signature": "def load_argus_config("
+        },
+        {
+          "name": "_read_tool_section",
+          "kind": "function",
+          "line_start": 164,
+          "line_end": 180,
+          "signature": "def _read_tool_section(toml_path"
+        },
+        {
+          "name": "_warn_unknown_keys",
+          "kind": "function",
+          "line_start": 183,
+          "line_end": 193,
+          "signature": "def _warn_unknown_keys(section"
+        },
+        {
+          "name": "_normalize_extensions",
+          "kind": "function",
+          "line_start": 196,
+          "line_end": 209,
+          "signature": "def _normalize_extensions(raw"
+        },
+        {
+          "name": "_validate_review_depth",
+          "kind": "function",
+          "line_start": 212,
+          "line_end": 219,
+          "signature": "def _validate_review_depth(raw"
+        },
+        {
+          "name": "_validate_ranges",
+          "kind": "function",
+          "line_start": 222,
+          "line_end": 232,
+          "signature": "def _validate_ranges(merged"
+        }
+      ],
+      "imports": [
+        "logging",
+        "tomllib",
+        "dataclasses",
+        "pathlib",
+        "typing",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "load_argus_config",
+        "_read_tool_section",
+        "_warn_unknown_keys",
+        "_normalize_extensions",
+        "_validate_review_depth",
+        "_validate_ranges"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

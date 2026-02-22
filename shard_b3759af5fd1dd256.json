@@ -1,0 +1,372 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/application/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/application/test_dto.py",
+      "symbols": [
+        {
+          "name": "test_index_codebase_command_stores_fields",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 33,
+          "signature": "def test_index_codebase_command_stores_fields() -> None"
+        },
+        {
+          "name": "test_index_codebase_command_is_frozen",
+          "kind": "function",
+          "line_start": 36,
+          "line_end": 42,
+          "signature": "def test_index_codebase_command_is_frozen() -> None"
+        },
+        {
+          "name": "test_index_codebase_result_stores_fields",
+          "kind": "function",
+          "line_start": 50,
+          "line_end": 60,
+          "signature": "def test_index_codebase_result_stores_fields() -> None"
+        },
+        {
+          "name": "test_review_pr_command_stores_fields",
+          "kind": "function",
+          "line_start": 68,
+          "line_end": 80,
+          "signature": "def test_review_pr_command_stores_fields() -> None"
+        },
+        {
+          "name": "test_review_pr_result_stores_fields",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 105,
+          "signature": "def test_review_pr_result_stores_fields() -> None"
+        }
+      ],
+      "imports": [
+        "argus.application.dto",
+        "argus.domain.context.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_index_codebase_command_stores_fields",
+        "test_index_codebase_command_is_frozen",
+        "test_index_codebase_result_stores_fields",
+        "test_review_pr_command_stores_fields",
+        "test_review_pr_result_stores_fields"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/application/test_index_codebase.py",
+      "symbols": [
+        {
+          "name": "mock_indexing_service",
+          "kind": "function",
+          "line_start": 20,
+          "line_end": 21,
+          "signature": "def mock_indexing_service() -> MagicMock"
+        },
+        {
+          "name": "mock_repository",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 26,
+          "signature": "def mock_repository() -> MagicMock"
+        },
+        {
+          "name": "use_case",
+          "kind": "function",
+          "line_start": 30,
+          "line_end": 35,
+          "signature": "def use_case("
+        },
+        {
+          "name": "_make_file_entry",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 45,
+          "signature": "def _make_file_entry(path"
+        },
+        {
+          "name": "_make_codebase_map",
+          "kind": "function",
+          "line_start": 48,
+          "line_end": 52,
+          "signature": "def _make_codebase_map(sha"
+        },
+        {
+          "name": "test_full_index_when_no_existing_map",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 88,
+          "signature": "def test_full_index_when_no_existing_map("
+        },
+        {
+          "name": "test_incremental_update_when_map_exists",
+          "kind": "function",
+          "line_start": 96,
+          "line_end": 126,
+          "signature": "def test_incremental_update_when_map_exists("
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.application.dto",
+        "argus.application.index_codebase",
+        "argus.domain.context.entities",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_file_entry",
+        "_make_codebase_map",
+        "test_full_index_when_no_existing_map",
+        "test_incremental_update_when_map_exists"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/application/test_render_patterns.py",
+      "symbols": [
+        {
+          "name": "test_render_patterns_formats_output",
+          "kind": "function",
+          "line_start": 9,
+          "line_end": 32,
+          "signature": "def test_render_patterns_formats_output() -> None"
+        }
+      ],
+      "imports": [
+        "argus.application.review_pull_request",
+        "argus.domain.memory.value_objects"
+      ],
+      "exports": [
+        "test_render_patterns_formats_output"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/application/test_review_pull_request.py",
+      "symbols": [
+        {
+          "name": "_make_file_entry",
+          "kind": "function",
+          "line_start": 40,
+          "line_end": 47,
+          "signature": "def _make_file_entry(path"
+        },
+        {
+          "name": "_make_review",
+          "kind": "function",
+          "line_start": 50,
+          "line_end": 70,
+          "signature": "def _make_review(n_comments"
+        },
+        {
+          "name": "mock_indexing_service",
+          "kind": "function",
+          "line_start": 74,
+          "line_end": 90,
+          "signature": "def mock_indexing_service() -> MagicMock"
+        },
+        {
+          "name": "_full_index",
+          "kind": "function",
+          "line_start": 79,
+          "line_end": 87,
+          "signature": "def _full_index("
+        },
+        {
+          "name": "mock_repository",
+          "kind": "function",
+          "line_start": 94,
+          "line_end": 97,
+          "signature": "def mock_repository() -> MagicMock"
+        },
+        {
+          "name": "mock_orchestrator",
+          "kind": "function",
+          "line_start": 101,
+          "line_end": 113,
+          "signature": "def mock_orchestrator() -> MagicMock"
+        },
+        {
+          "name": "mock_llm",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 120,
+          "signature": "def mock_llm() -> MagicMock"
+        },
+        {
+          "name": "_make_llm_usage",
+          "kind": "function",
+          "line_start": 123,
+          "line_end": 132,
+          "signature": "def _make_llm_usage("
+        },
+        {
+          "name": "mock_review_generator",
+          "kind": "function",
+          "line_start": 136,
+          "line_end": 139,
+          "signature": "def mock_review_generator() -> MagicMock"
+        },
+        {
+          "name": "mock_noise_filter",
+          "kind": "function",
+          "line_start": 143,
+          "line_end": 146,
+          "signature": "def mock_noise_filter() -> MagicMock"
+        },
+        {
+          "name": "mock_publisher",
+          "kind": "function",
+          "line_start": 150,
+          "line_end": 151,
+          "signature": "def mock_publisher() -> MagicMock"
+        },
+        {
+          "name": "use_case",
+          "kind": "function",
+          "line_start": 155,
+          "line_end": 170,
+          "signature": "def use_case("
+        },
+        {
+          "name": "_make_command",
+          "kind": "function",
+          "line_start": 173,
+          "line_end": 185,
+          "signature": "def _make_command("
+        },
+        {
+          "name": "test_execute_returns_result",
+          "kind": "function",
+          "line_start": 193,
+          "line_end": 202,
+          "signature": "def test_execute_returns_result(use_case"
+        },
+        {
+          "name": "test_execute_indexes_changed_files",
+          "kind": "function",
+          "line_start": 205,
+          "line_end": 212,
+          "signature": "def test_execute_indexes_changed_files("
+        },
+        {
+          "name": "test_execute_calls_retrieval_orchestrator",
+          "kind": "function",
+          "line_start": 215,
+          "line_end": 224,
+          "signature": "def test_execute_calls_retrieval_orchestrator("
+        },
+        {
+          "name": "test_execute_calls_review_generator",
+          "kind": "function",
+          "line_start": 227,
+          "line_end": 233,
+          "signature": "def test_execute_calls_review_generator("
+        },
+        {
+          "name": "test_execute_applies_noise_filter",
+          "kind": "function",
+          "line_start": 236,
+          "line_end": 242,
+          "signature": "def test_execute_applies_noise_filter("
+        },
+        {
+          "name": "test_execute_publishes_review",
+          "kind": "function",
+          "line_start": 245,
+          "line_end": 255,
+          "signature": "def test_execute_publishes_review("
+        },
+        {
+          "name": "test_filtered_comments_appear_in_published_review",
+          "kind": "function",
+          "line_start": 263,
+          "line_end": 277,
+          "signature": "def test_filtered_comments_appear_in_published_review("
+        },
+        {
+          "name": "test_execute_with_no_context_items",
+          "kind": "function",
+          "line_start": 285,
+          "line_end": 294,
+          "signature": "def test_execute_with_no_context_items("
+        },
+        {
+          "name": "test_execute_with_outline_renderer",
+          "kind": "function",
+          "line_start": 302,
+          "line_end": 344,
+          "signature": "def test_execute_with_outline_renderer("
+        },
+        {
+          "name": "test_execute_quick_depth_skips_memory",
+          "kind": "function",
+          "line_start": 347,
+          "line_end": 381,
+          "signature": "def test_execute_quick_depth_skips_memory("
+        },
+        {
+          "name": "test_execute_deep_depth_includes_patterns",
+          "kind": "function",
+          "line_start": 384,
+          "line_end": 449,
+          "signature": "def test_execute_deep_depth_includes_patterns("
+        },
+        {
+          "name": "test_execute_passes_pr_context_to_review_request",
+          "kind": "function",
+          "line_start": 457,
+          "line_end": 485,
+          "signature": "def test_execute_passes_pr_context_to_review_request("
+        }
+      ],
+      "imports": [
+        "unittest.mock",
+        "pytest",
+        "argus.application.dto",
+        "argus.application.review_pull_request",
+        "argus.domain.context.entities",
+        "argus.domain.llm.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_file_entry",
+        "_make_review",
+        "_make_llm_usage",
+        "_make_command",
+        "test_execute_returns_result",
+        "test_execute_indexes_changed_files",
+        "test_execute_calls_retrieval_orchestrator",
+        "test_execute_calls_review_generator",
+        "test_execute_applies_noise_filter",
+        "test_execute_publishes_review",
+        "test_filtered_comments_appear_in_published_review",
+        "test_execute_with_no_context_items",
+        "test_execute_with_outline_renderer",
+        "test_execute_quick_depth_skips_memory",
+        "test_execute_deep_depth_includes_patterns",
+        "test_execute_passes_pr_context_to_review_request"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

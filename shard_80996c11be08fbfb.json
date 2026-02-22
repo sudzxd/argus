@@ -1,0 +1,89 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/domain/llm/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/llm/services.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/llm/value_objects.py",
+      "symbols": [
+        {
+          "name": "LLMUsage",
+          "kind": "class",
+          "line_start": 15,
+          "line_end": 31,
+          "signature": "class LLMUsage"
+        },
+        {
+          "name": "total_tokens",
+          "kind": "method",
+          "line_start": 23,
+          "line_end": 24,
+          "signature": "def total_tokens(self) -> int"
+        },
+        {
+          "name": "__add__",
+          "kind": "method",
+          "line_start": 26,
+          "line_end": 31,
+          "signature": "def __add__(self, other"
+        },
+        {
+          "name": "ModelConfig",
+          "kind": "class",
+          "line_start": 35,
+          "line_end": 44,
+          "signature": "class ModelConfig"
+        },
+        {
+          "name": "TokenBudget",
+          "kind": "class",
+          "line_start": 48,
+          "line_end": 72,
+          "signature": "class TokenBudget"
+        },
+        {
+          "name": "__post_init__",
+          "kind": "method",
+          "line_start": 55,
+          "line_end": 62,
+          "signature": "def __post_init__(self) -> None"
+        },
+        {
+          "name": "retrieval_tokens",
+          "kind": "method",
+          "line_start": 65,
+          "line_end": 67,
+          "signature": "def retrieval_tokens(self) -> TokenCount"
+        },
+        {
+          "name": "generation_tokens",
+          "kind": "method",
+          "line_start": 70,
+          "line_end": 72,
+          "signature": "def generation_tokens(self) -> TokenCount"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,425 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/domain/context/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/context/entities.py",
+      "symbols": [
+        {
+          "name": "FileEntry",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 24,
+          "signature": "class FileEntry"
+        },
+        {
+          "name": "CodebaseMap",
+          "kind": "class",
+          "line_start": 28,
+          "line_end": 72,
+          "signature": "class CodebaseMap"
+        },
+        {
+          "name": "upsert",
+          "kind": "method",
+          "line_start": 41,
+          "line_end": 43,
+          "signature": "def upsert(self, entry"
+        },
+        {
+          "name": "get",
+          "kind": "method",
+          "line_start": 45,
+          "line_end": 51,
+          "signature": "def get(self, path"
+        },
+        {
+          "name": "remove",
+          "kind": "method",
+          "line_start": 53,
+          "line_end": 62,
+          "signature": "def remove(self, path"
+        },
+        {
+          "name": "files",
+          "kind": "method",
+          "line_start": 64,
+          "line_end": 66,
+          "signature": "def files(self) -> set[FilePath]"
+        },
+        {
+          "name": "__contains__",
+          "kind": "method",
+          "line_start": 68,
+          "line_end": 69,
+          "signature": "def __contains__(self, path"
+        },
+        {
+          "name": "__len__",
+          "kind": "method",
+          "line_start": 71,
+          "line_end": 72,
+          "signature": "def __len__(self) -> int"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/context/repositories.py",
+      "symbols": [
+        {
+          "name": "CodebaseMapRepository",
+          "kind": "class",
+          "line_start": 16,
+          "line_end": 37,
+          "signature": "class CodebaseMapRepository(Protocol)"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 19,
+          "line_end": 28,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 30,
+          "line_end": 37,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "SourceParser",
+          "kind": "class",
+          "line_start": 40,
+          "line_end": 60,
+          "signature": "class SourceParser(Protocol)"
+        },
+        {
+          "name": "parse",
+          "kind": "method",
+          "line_start": 43,
+          "line_end": 56,
+          "signature": "def parse(self, path"
+        },
+        {
+          "name": "supported_languages",
+          "kind": "method",
+          "line_start": 58,
+          "line_end": 60,
+          "signature": "def supported_languages(self) -> frozenset[str]"
+        },
+        {
+          "name": "ShardedMapRepository",
+          "kind": "class",
+          "line_start": 63,
+          "line_end": 112,
+          "signature": "class ShardedMapRepository(Protocol)"
+        },
+        {
+          "name": "load_manifest",
+          "kind": "method",
+          "line_start": 66,
+          "line_end": 72,
+          "signature": "def load_manifest(self, repo_id"
+        },
+        {
+          "name": "load_shards",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 88,
+          "signature": "def load_shards("
+        },
+        {
+          "name": "save_shards",
+          "kind": "method",
+          "line_start": 90,
+          "line_end": 104,
+          "signature": "def save_shards("
+        },
+        {
+          "name": "load_full",
+          "kind": "method",
+          "line_start": 106,
+          "line_end": 112,
+          "signature": "def load_full(self, repo_id"
+        }
+      ],
+      "imports": [
+        "typing",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "CodebaseMapRepository",
+        "SourceParser",
+        "ShardedMapRepository"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/context/services.py",
+      "symbols": [
+        {
+          "name": "IndexingService",
+          "kind": "class",
+          "line_start": 22,
+          "line_end": 97,
+          "signature": "class IndexingService"
+        },
+        {
+          "name": "full_index",
+          "kind": "method",
+          "line_start": 33,
+          "line_end": 59,
+          "signature": "def full_index("
+        },
+        {
+          "name": "incremental_update",
+          "kind": "method",
+          "line_start": 61,
+          "line_end": 97,
+          "signature": "def incremental_update("
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "argus.domain.context.entities",
+        "argus.domain.context.repositories",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/domain/context/value_objects.py",
+      "symbols": [
+        {
+          "name": "SymbolKind",
+          "kind": "class",
+          "line_start": 24,
+          "line_end": 31,
+          "signature": "class SymbolKind(StrEnum)"
+        },
+        {
+          "name": "EdgeKind",
+          "kind": "class",
+          "line_start": 34,
+          "line_end": 40,
+          "signature": "class EdgeKind(StrEnum)"
+        },
+        {
+          "name": "Symbol",
+          "kind": "class",
+          "line_start": 49,
+          "line_end": 55,
+          "signature": "class Symbol"
+        },
+        {
+          "name": "Edge",
+          "kind": "class",
+          "line_start": 59,
+          "line_end": 64,
+          "signature": "class Edge"
+        },
+        {
+          "name": "Checkpoint",
+          "kind": "class",
+          "line_start": 68,
+          "line_end": 72,
+          "signature": "class Checkpoint"
+        },
+        {
+          "name": "DependencyGraph",
+          "kind": "class",
+          "line_start": 81,
+          "line_end": 113,
+          "signature": "class DependencyGraph"
+        },
+        {
+          "name": "edges",
+          "kind": "method",
+          "line_start": 87,
+          "line_end": 89,
+          "signature": "def edges(self) -> frozenset[Edge]"
+        },
+        {
+          "name": "add_edge",
+          "kind": "method",
+          "line_start": 91,
+          "line_end": 93,
+          "signature": "def add_edge(self, edge"
+        },
+        {
+          "name": "dependents_of",
+          "kind": "method",
+          "line_start": 95,
+          "line_end": 97,
+          "signature": "def dependents_of(self, path"
+        },
+        {
+          "name": "dependencies_of",
+          "kind": "method",
+          "line_start": 99,
+          "line_end": 101,
+          "signature": "def dependencies_of(self, path"
+        },
+        {
+          "name": "remove_file",
+          "kind": "method",
+          "line_start": 103,
+          "line_end": 105,
+          "signature": "def remove_file(self, path"
+        },
+        {
+          "name": "files",
+          "kind": "method",
+          "line_start": 107,
+          "line_end": 113,
+          "signature": "def files(self) -> set[FilePath]"
+        },
+        {
+          "name": "EmbeddingIndex",
+          "kind": "class",
+          "line_start": 122,
+          "line_end": 129,
+          "signature": "class EmbeddingIndex"
+        },
+        {
+          "name": "shard_id_for",
+          "kind": "function",
+          "line_start": 132,
+          "line_end": 134,
+          "signature": "def shard_id_for(path"
+        },
+        {
+          "name": "ShardDescriptor",
+          "kind": "class",
+          "line_start": 138,
+          "line_end": 144,
+          "signature": "class ShardDescriptor"
+        },
+        {
+          "name": "EmbeddingDescriptor",
+          "kind": "class",
+          "line_start": 148,
+          "line_end": 154,
+          "signature": "class EmbeddingDescriptor"
+        },
+        {
+          "name": "CrossShardEdge",
+          "kind": "class",
+          "line_start": 158,
+          "line_end": 165,
+          "signature": "class CrossShardEdge"
+        },
+        {
+          "name": "ShardedManifest",
+          "kind": "class",
+          "line_start": 169,
+          "line_end": 344,
+          "signature": "class ShardedManifest"
+        },
+        {
+          "name": "shards_for_files",
+          "kind": "method",
+          "line_start": 188,
+          "line_end": 190,
+          "signature": "def shards_for_files(self, paths"
+        },
+        {
+          "name": "adjacent_shards",
+          "kind": "method",
+          "line_start": 192,
+          "line_end": 221,
+          "signature": "def adjacent_shards("
+        },
+        {
+          "name": "dirty_shards",
+          "kind": "method",
+          "line_start": 223,
+          "line_end": 225,
+          "signature": "def dirty_shards(self, changed_files"
+        },
+        {
+          "name": "content_hash_for",
+          "kind": "method",
+          "line_start": 227,
+          "line_end": 229,
+          "signature": "def content_hash_for(self, entries_json"
+        },
+        {
+          "name": "blob_name_for",
+          "kind": "method",
+          "line_start": 231,
+          "line_end": 233,
+          "signature": "def blob_name_for(self, content_hash"
+        },
+        {
+          "name": "to_dict",
+          "kind": "method",
+          "line_start": 235,
+          "line_end": 273,
+          "signature": "def to_dict(self) -> dict[str, object]"
+        },
+        {
+          "name": "to_json",
+          "kind": "method",
+          "line_start": 275,
+          "line_end": 277,
+          "signature": "def to_json(self) -> str"
+        },
+        {
+          "name": "from_dict",
+          "kind": "method",
+          "line_start": 280,
+          "line_end": 339,
+          "signature": "def from_dict(cls, data"
+        },
+        {
+          "name": "from_json",
+          "kind": "method",
+          "line_start": 342,
+          "line_end": 344,
+          "signature": "def from_json(cls, data"
+        }
+      ],
+      "imports": [
+        "hashlib",
+        "json",
+        "collections",
+        "dataclasses",
+        "enum",
+        "pathlib",
+        "typing",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "SymbolKind",
+        "EdgeKind",
+        "shard_id_for"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

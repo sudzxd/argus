@@ -1,0 +1,355 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/test_retrieval/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_retrieval/conftest.py",
+      "symbols": [
+        {
+          "name": "simple_query",
+          "kind": "function",
+          "line_start": 12,
+          "line_end": 17,
+          "signature": "def simple_query() -> RetrievalQuery"
+        },
+        {
+          "name": "context_item_high",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 27,
+          "signature": "def context_item_high() -> ContextItem"
+        },
+        {
+          "name": "context_item_low",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 37,
+          "signature": "def context_item_low() -> ContextItem"
+        },
+        {
+          "name": "context_item_medium",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 47,
+          "signature": "def context_item_medium() -> ContextItem"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.retrieval.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_retrieval/test_ranker.py",
+      "symbols": [
+        {
+          "name": "test_ranker_returns_items_within_budget",
+          "kind": "function",
+          "line_start": 14,
+          "line_end": 25,
+          "signature": "def test_ranker_returns_items_within_budget("
+        },
+        {
+          "name": "test_ranker_prioritizes_high_relevance",
+          "kind": "function",
+          "line_start": 28,
+          "line_end": 38,
+          "signature": "def test_ranker_prioritizes_high_relevance("
+        },
+        {
+          "name": "test_ranker_drops_items_exceeding_budget",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 53,
+          "signature": "def test_ranker_drops_items_exceeding_budget() -> None"
+        },
+        {
+          "name": "test_ranker_deduplicates_same_source",
+          "kind": "function",
+          "line_start": 56,
+          "line_end": 75,
+          "signature": "def test_ranker_deduplicates_same_source() -> None"
+        },
+        {
+          "name": "test_ranker_keeps_higher_scored_duplicate",
+          "kind": "function",
+          "line_start": 78,
+          "line_end": 96,
+          "signature": "def test_ranker_keeps_higher_scored_duplicate() -> None"
+        },
+        {
+          "name": "test_ranker_empty_input",
+          "kind": "function",
+          "line_start": 99,
+          "line_end": 105,
+          "signature": "def test_ranker_empty_input() -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.retrieval.ranker",
+        "argus.domain.retrieval.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_ranker_returns_items_within_budget",
+        "test_ranker_prioritizes_high_relevance",
+        "test_ranker_drops_items_exceeding_budget",
+        "test_ranker_deduplicates_same_source",
+        "test_ranker_keeps_higher_scored_duplicate",
+        "test_ranker_empty_input"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_retrieval/test_services.py",
+      "symbols": [
+        {
+          "name": "test_retrieval_strategy_protocol_accepts_conforming_class",
+          "kind": "function",
+          "line_start": 23,
+          "line_end": 44,
+          "signature": "def test_retrieval_strategy_protocol_accepts_conforming_class("
+        },
+        {
+          "name": "FakeStrategy",
+          "kind": "class",
+          "line_start": 27,
+          "line_end": 38,
+          "signature": "class FakeStrategy"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 28,
+          "line_end": 38,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "_make_strategy",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 67,
+          "signature": "def _make_strategy(source"
+        },
+        {
+          "name": "_Strategy",
+          "kind": "class",
+          "line_start": 54,
+          "line_end": 65,
+          "signature": "class _Strategy"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 55,
+          "line_end": 65,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "test_orchestrator_combines_strategies",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 85,
+          "signature": "def test_orchestrator_combines_strategies("
+        },
+        {
+          "name": "test_orchestrator_respects_budget",
+          "kind": "function",
+          "line_start": 88,
+          "line_end": 101,
+          "signature": "def test_orchestrator_respects_budget("
+        },
+        {
+          "name": "test_orchestrator_no_strategies",
+          "kind": "function",
+          "line_start": 104,
+          "line_end": 114,
+          "signature": "def test_orchestrator_no_strategies("
+        },
+        {
+          "name": "test_orchestrator_returns_retrieval_result",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 128,
+          "signature": "def test_orchestrator_returns_retrieval_result("
+        },
+        {
+          "name": "test_orchestrator_passes_strategy_budgets",
+          "kind": "function",
+          "line_start": 131,
+          "line_end": 160,
+          "signature": "def test_orchestrator_passes_strategy_budgets("
+        },
+        {
+          "name": "_BudgetCapturing",
+          "kind": "class",
+          "line_start": 138,
+          "line_end": 150,
+          "signature": "class _BudgetCapturing"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 139,
+          "line_end": 150,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "test_orchestrator_passes_none_without_strategy_budgets",
+          "kind": "function",
+          "line_start": 163,
+          "line_end": 184,
+          "signature": "def test_orchestrator_passes_none_without_strategy_budgets("
+        },
+        {
+          "name": "_BudgetCapturing",
+          "kind": "class",
+          "line_start": 170,
+          "line_end": 175,
+          "signature": "class _BudgetCapturing"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 171,
+          "line_end": 175,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "test_orchestrator_raises_on_budget_length_mismatch",
+          "kind": "function",
+          "line_start": 187,
+          "line_end": 198,
+          "signature": "def test_orchestrator_raises_on_budget_length_mismatch("
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "pytest",
+        "argus.domain.retrieval.services",
+        "argus.domain.retrieval.strategies",
+        "argus.domain.retrieval.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_retrieval_strategy_protocol_accepts_conforming_class",
+        "_make_strategy",
+        "test_orchestrator_combines_strategies",
+        "test_orchestrator_respects_budget",
+        "test_orchestrator_no_strategies",
+        "test_orchestrator_returns_retrieval_result",
+        "test_orchestrator_passes_strategy_budgets",
+        "test_orchestrator_passes_none_without_strategy_budgets",
+        "test_orchestrator_raises_on_budget_length_mismatch"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_retrieval/test_value_objects.py",
+      "symbols": [
+        {
+          "name": "test_retrieval_query_stores_fields",
+          "kind": "function",
+          "line_start": 19,
+          "line_end": 22,
+          "signature": "def test_retrieval_query_stores_fields(simple_query"
+        },
+        {
+          "name": "test_retrieval_query_is_immutable",
+          "kind": "function",
+          "line_start": 25,
+          "line_end": 27,
+          "signature": "def test_retrieval_query_is_immutable(simple_query"
+        },
+        {
+          "name": "test_context_item_stores_fields",
+          "kind": "function",
+          "line_start": 35,
+          "line_end": 38,
+          "signature": "def test_context_item_stores_fields(context_item_high"
+        },
+        {
+          "name": "test_context_item_is_immutable",
+          "kind": "function",
+          "line_start": 41,
+          "line_end": 43,
+          "signature": "def test_context_item_is_immutable(context_item_high"
+        },
+        {
+          "name": "test_retrieval_result_stores_items",
+          "kind": "function",
+          "line_start": 51,
+          "line_end": 57,
+          "signature": "def test_retrieval_result_stores_items("
+        },
+        {
+          "name": "test_retrieval_result_total_tokens",
+          "kind": "function",
+          "line_start": 60,
+          "line_end": 66,
+          "signature": "def test_retrieval_result_total_tokens("
+        },
+        {
+          "name": "test_retrieval_result_empty",
+          "kind": "function",
+          "line_start": 69,
+          "line_end": 73,
+          "signature": "def test_retrieval_result_empty() -> None"
+        },
+        {
+          "name": "test_retrieval_result_total_tokens_returns_token_count_type",
+          "kind": "function",
+          "line_start": 76,
+          "line_end": 81,
+          "signature": "def test_retrieval_result_total_tokens_returns_token_count_type("
+        },
+        {
+          "name": "test_retrieval_result_empty_total_tokens_returns_token_count_type",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 86,
+          "signature": "def test_retrieval_result_empty_total_tokens_returns_token_count_type() -> None"
+        },
+        {
+          "name": "test_retrieval_result_is_immutable",
+          "kind": "function",
+          "line_start": 89,
+          "line_end": 95,
+          "signature": "def test_retrieval_result_is_immutable("
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.retrieval.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_retrieval_query_stores_fields",
+        "test_retrieval_query_is_immutable",
+        "test_context_item_stores_fields",
+        "test_context_item_is_immutable",
+        "test_retrieval_result_stores_items",
+        "test_retrieval_result_total_tokens",
+        "test_retrieval_result_empty",
+        "test_retrieval_result_total_tokens_returns_token_count_type",
+        "test_retrieval_result_empty_total_tokens_returns_token_count_type",
+        "test_retrieval_result_is_immutable"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

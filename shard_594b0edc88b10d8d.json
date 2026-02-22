@@ -1,0 +1,532 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/infrastructure/storage/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/storage/artifact_store.py",
+      "symbols": [
+        {
+          "name": "legacy_artifact_path",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 30,
+          "signature": "def legacy_artifact_path(storage_dir"
+        },
+        {
+          "name": "FileArtifactStore",
+          "kind": "class",
+          "line_start": 39,
+          "line_end": 69,
+          "signature": "class FileArtifactStore"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 59,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 61,
+          "line_end": 66,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "_path_for",
+          "kind": "method",
+          "line_start": 68,
+          "line_end": 69,
+          "signature": "def _path_for(self, repo_id"
+        },
+        {
+          "name": "ShardedArtifactStore",
+          "kind": "class",
+          "line_start": 78,
+          "line_end": 368,
+          "signature": "class ShardedArtifactStore"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 95,
+          "line_end": 100,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 102,
+          "line_end": 107,
+          "signature": "def save(self, repo_id"
+        },
+        {
+          "name": "load_manifest",
+          "kind": "method",
+          "line_start": 113,
+          "line_end": 127,
+          "signature": "def load_manifest(self, repo_id"
+        },
+        {
+          "name": "load_shards",
+          "kind": "method",
+          "line_start": 129,
+          "line_end": 152,
+          "signature": "def load_shards("
+        },
+        {
+          "name": "save_shards",
+          "kind": "method",
+          "line_start": 154,
+          "line_end": 173,
+          "signature": "def save_shards("
+        },
+        {
+          "name": "save_shard_data",
+          "kind": "method",
+          "line_start": 175,
+          "line_end": 186,
+          "signature": "def save_shard_data(self, shard_data"
+        },
+        {
+          "name": "load_full",
+          "kind": "method",
+          "line_start": 188,
+          "line_end": 195,
+          "signature": "def load_full(self, repo_id"
+        },
+        {
+          "name": "load_or_migrate",
+          "kind": "method",
+          "line_start": 197,
+          "line_end": 210,
+          "signature": "def load_or_migrate(self, repo_id"
+        },
+        {
+          "name": "save_full",
+          "kind": "method",
+          "line_start": 212,
+          "line_end": 231,
+          "signature": "def save_full(self, repo_id"
+        },
+        {
+          "name": "save_incremental",
+          "kind": "method",
+          "line_start": 233,
+          "line_end": 297,
+          "signature": "def save_incremental("
+        },
+        {
+          "name": "save_embedding_index",
+          "kind": "method",
+          "line_start": 303,
+          "line_end": 327,
+          "signature": "def save_embedding_index(self, index"
+        },
+        {
+          "name": "load_embedding_indices",
+          "kind": "method",
+          "line_start": 329,
+          "line_end": 368,
+          "signature": "def load_embedding_indices("
+        }
+      ],
+      "imports": [
+        "hashlib",
+        "json",
+        "logging",
+        "dataclasses",
+        "pathlib",
+        "typing",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.storage"
+      ],
+      "exports": [
+        "legacy_artifact_path"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/storage/git_branch_store.py",
+      "symbols": [
+        {
+          "name": "GitBranchSync",
+          "kind": "class",
+          "line_start": 21,
+          "line_end": 123,
+          "signature": "class GitBranchSync"
+        },
+        {
+          "name": "pull",
+          "kind": "method",
+          "line_start": 34,
+          "line_end": 73,
+          "signature": "def pull(self) -> int"
+        },
+        {
+          "name": "push",
+          "kind": "method",
+          "line_start": 75,
+          "line_end": 123,
+          "signature": "def push(self) -> None"
+        },
+        {
+          "name": "SelectiveGitBranchSync",
+          "kind": "class",
+          "line_start": 127,
+          "line_end": 377,
+          "signature": "class SelectiveGitBranchSync"
+        },
+        {
+          "name": "_fetch_tree",
+          "kind": "method",
+          "line_start": 149,
+          "line_end": 165,
+          "signature": "def _fetch_tree(self) -> list[dict[str, object]] | None"
+        },
+        {
+          "name": "pull_manifest",
+          "kind": "method",
+          "line_start": 167,
+          "line_end": 194,
+          "signature": "def pull_manifest(self) -> bool"
+        },
+        {
+          "name": "pull_blobs",
+          "kind": "method",
+          "line_start": 196,
+          "line_end": 231,
+          "signature": "def pull_blobs(self, blob_names"
+        },
+        {
+          "name": "memory_blob_names",
+          "kind": "method",
+          "line_start": 233,
+          "line_end": 250,
+          "signature": "def memory_blob_names(self) -> set[str]"
+        },
+        {
+          "name": "embedding_blob_names",
+          "kind": "method",
+          "line_start": 252,
+          "line_end": 269,
+          "signature": "def embedding_blob_names(self) -> set[str]"
+        },
+        {
+          "name": "pull_all",
+          "kind": "method",
+          "line_start": 271,
+          "line_end": 303,
+          "signature": "def pull_all(self) -> int"
+        },
+        {
+          "name": "push",
+          "kind": "method",
+          "line_start": 305,
+          "line_end": 377,
+          "signature": "def push(self, delete_blobs"
+        }
+      ],
+      "imports": [
+        "base64",
+        "logging",
+        "dataclasses",
+        "pathlib",
+        "argus.infrastructure.github.client"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/storage/memory_store.py",
+      "symbols": [
+        {
+          "name": "_repo_filename",
+          "kind": "function",
+          "line_start": 26,
+          "line_end": 29,
+          "signature": "def _repo_filename(repo_id"
+        },
+        {
+          "name": "FileMemoryStore",
+          "kind": "class",
+          "line_start": 33,
+          "line_end": 70,
+          "signature": "class FileMemoryStore"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 38,
+          "line_end": 54,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 56,
+          "line_end": 67,
+          "signature": "def save(self, memory"
+        },
+        {
+          "name": "_path_for",
+          "kind": "method",
+          "line_start": 69,
+          "line_end": 70,
+          "signature": "def _path_for(self, repo_id"
+        },
+        {
+          "name": "_serialize",
+          "kind": "function",
+          "line_start": 78,
+          "line_end": 87,
+          "signature": "def _serialize(memory"
+        },
+        {
+          "name": "_serialize_outline",
+          "kind": "function",
+          "line_start": 90,
+          "line_end": 96,
+          "signature": "def _serialize_outline(outline"
+        },
+        {
+          "name": "_serialize_pattern",
+          "kind": "function",
+          "line_start": 99,
+          "line_end": 105,
+          "signature": "def _serialize_pattern(pattern"
+        },
+        {
+          "name": "_deserialize",
+          "kind": "function",
+          "line_start": 108,
+          "line_end": 171,
+          "signature": "def _deserialize(data"
+        },
+        {
+          "name": "_parse_confidence",
+          "kind": "function",
+          "line_start": 174,
+          "line_end": 179,
+          "signature": "def _parse_confidence(raw"
+        }
+      ],
+      "imports": [
+        "fcntl",
+        "hashlib",
+        "json",
+        "logging",
+        "dataclasses",
+        "pathlib",
+        "typing",
+        "argus.domain.memory.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_repo_filename",
+        "_serialize",
+        "_serialize_outline",
+        "_serialize_pattern",
+        "_deserialize",
+        "_parse_confidence"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/storage/serializer.py",
+      "symbols": [
+        {
+          "name": "serialize",
+          "kind": "function",
+          "line_start": 23,
+          "line_end": 30,
+          "signature": "def serialize(codebase_map"
+        },
+        {
+          "name": "_iter_entries",
+          "kind": "function",
+          "line_start": 33,
+          "line_end": 37,
+          "signature": "def _iter_entries(codebase_map"
+        },
+        {
+          "name": "_serialize_entry",
+          "kind": "function",
+          "line_start": 40,
+          "line_end": 48,
+          "signature": "def _serialize_entry(entry"
+        },
+        {
+          "name": "_serialize_symbol",
+          "kind": "function",
+          "line_start": 51,
+          "line_end": 60,
+          "signature": "def _serialize_symbol(symbol"
+        },
+        {
+          "name": "_serialize_edge",
+          "kind": "function",
+          "line_start": 63,
+          "line_end": 68,
+          "signature": "def _serialize_edge(edge"
+        },
+        {
+          "name": "deserialize",
+          "kind": "function",
+          "line_start": 76,
+          "line_end": 99,
+          "signature": "def deserialize(data"
+        },
+        {
+          "name": "_deserialize_entry",
+          "kind": "function",
+          "line_start": 102,
+          "line_end": 114,
+          "signature": "def _deserialize_entry(data"
+        },
+        {
+          "name": "_deserialize_symbol",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 126,
+          "signature": "def _deserialize_symbol(data"
+        },
+        {
+          "name": "_deserialize_edge",
+          "kind": "function",
+          "line_start": 129,
+          "line_end": 134,
+          "signature": "def _deserialize_edge(data"
+        }
+      ],
+      "imports": [
+        "json",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "serialize",
+        "_iter_entries",
+        "_serialize_entry",
+        "_serialize_symbol",
+        "_serialize_edge",
+        "deserialize",
+        "_deserialize_entry",
+        "_deserialize_symbol",
+        "_deserialize_edge"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/infrastructure/storage/shard_serializer.py",
+      "symbols": [
+        {
+          "name": "serialize_shard",
+          "kind": "function",
+          "line_start": 31,
+          "line_end": 40,
+          "signature": "def serialize_shard("
+        },
+        {
+          "name": "deserialize_shard",
+          "kind": "function",
+          "line_start": 43,
+          "line_end": 65,
+          "signature": "def deserialize_shard("
+        },
+        {
+          "name": "split_into_shards",
+          "kind": "function",
+          "line_start": 73,
+          "line_end": 131,
+          "signature": "def split_into_shards("
+        },
+        {
+          "name": "assemble_from_shards",
+          "kind": "function",
+          "line_start": 134,
+          "line_end": 172,
+          "signature": "def assemble_from_shards("
+        },
+        {
+          "name": "_serialize_entry",
+          "kind": "function",
+          "line_start": 180,
+          "line_end": 188,
+          "signature": "def _serialize_entry(entry"
+        },
+        {
+          "name": "_serialize_symbol",
+          "kind": "function",
+          "line_start": 191,
+          "line_end": 200,
+          "signature": "def _serialize_symbol(symbol"
+        },
+        {
+          "name": "_serialize_edge",
+          "kind": "function",
+          "line_start": 203,
+          "line_end": 208,
+          "signature": "def _serialize_edge(edge"
+        },
+        {
+          "name": "_deserialize_entry",
+          "kind": "function",
+          "line_start": 211,
+          "line_end": 223,
+          "signature": "def _deserialize_entry(data"
+        },
+        {
+          "name": "_deserialize_symbol",
+          "kind": "function",
+          "line_start": 226,
+          "line_end": 235,
+          "signature": "def _deserialize_symbol(data"
+        },
+        {
+          "name": "_deserialize_edge",
+          "kind": "function",
+          "line_start": 238,
+          "line_end": 243,
+          "signature": "def _deserialize_edge(data"
+        }
+      ],
+      "imports": [
+        "json",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "serialize_shard",
+        "deserialize_shard",
+        "split_into_shards",
+        "assemble_from_shards",
+        "_serialize_entry",
+        "_serialize_symbol",
+        "_serialize_edge",
+        "_deserialize_entry",
+        "_deserialize_symbol",
+        "_deserialize_edge"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

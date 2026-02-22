@@ -1,0 +1,252 @@
+{
+  "entries": [
+    {
+      "path": "tests/unit/domain/test_memory/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_memory/conftest.py",
+      "symbols": [
+        {
+          "name": "sample_outline",
+          "kind": "function",
+          "line_start": 17,
+          "line_end": 23,
+          "signature": "def sample_outline() -> CodebaseOutline"
+        },
+        {
+          "name": "sample_pattern",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 33,
+          "signature": "def sample_pattern() -> PatternEntry"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.memory.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_memory/test_services.py",
+      "symbols": [
+        {
+          "name": "_make_outline",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 18,
+          "signature": "def _make_outline() -> CodebaseOutline"
+        },
+        {
+          "name": "_make_patterns",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 29,
+          "signature": "def _make_patterns(n"
+        },
+        {
+          "name": "FakeAnalyzer",
+          "kind": "class",
+          "line_start": 32,
+          "line_end": 46,
+          "signature": "class FakeAnalyzer"
+        },
+        {
+          "name": "__init__",
+          "kind": "method",
+          "line_start": 35,
+          "line_end": 36,
+          "signature": "def __init__(self, patterns"
+        },
+        {
+          "name": "analyze",
+          "kind": "method",
+          "line_start": 38,
+          "line_end": 39,
+          "signature": "def analyze(self, outline_text"
+        },
+        {
+          "name": "analyze_incremental",
+          "kind": "method",
+          "line_start": 41,
+          "line_end": 46,
+          "signature": "def analyze_incremental("
+        },
+        {
+          "name": "TestProfileService",
+          "kind": "class",
+          "line_start": 49,
+          "line_end": 138,
+          "signature": "class TestProfileService"
+        },
+        {
+          "name": "test_build_profile_returns_memory",
+          "kind": "method",
+          "line_start": 50,
+          "line_end": 58,
+          "signature": "def test_build_profile_returns_memory(self) -> None"
+        },
+        {
+          "name": "test_build_profile_prunes_low_confidence",
+          "kind": "method",
+          "line_start": 60,
+          "line_end": 66,
+          "signature": "def test_build_profile_prunes_low_confidence(self) -> None"
+        },
+        {
+          "name": "test_build_profile_caps_at_max_entries",
+          "kind": "method",
+          "line_start": 68,
+          "line_end": 74,
+          "signature": "def test_build_profile_caps_at_max_entries(self) -> None"
+        },
+        {
+          "name": "test_update_profile_appends_new_patterns",
+          "kind": "method",
+          "line_start": 76,
+          "line_end": 116,
+          "signature": "def test_update_profile_appends_new_patterns(self) -> None"
+        },
+        {
+          "name": "test_prune_and_cap_sorts_by_confidence",
+          "kind": "method",
+          "line_start": 118,
+          "line_end": 138,
+          "signature": "def test_prune_and_cap_sorts_by_confidence(self) -> None"
+        }
+      ],
+      "imports": [
+        "argus.domain.memory.services",
+        "argus.domain.memory.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "_make_outline",
+        "_make_patterns",
+        "FakeAnalyzer",
+        "TestProfileService"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "tests/unit/domain/test_memory/test_value_objects.py",
+      "symbols": [
+        {
+          "name": "test_pattern_category_has_all_members",
+          "kind": "function",
+          "line_start": 21,
+          "line_end": 30,
+          "signature": "def test_pattern_category_has_all_members() -> None"
+        },
+        {
+          "name": "test_pattern_entry_stores_fields",
+          "kind": "function",
+          "line_start": 38,
+          "line_end": 48,
+          "signature": "def test_pattern_entry_stores_fields() -> None"
+        },
+        {
+          "name": "test_pattern_entry_is_immutable",
+          "kind": "function",
+          "line_start": 51,
+          "line_end": 58,
+          "signature": "def test_pattern_entry_is_immutable() -> None"
+        },
+        {
+          "name": "test_pattern_entry_rejects_invalid_confidence",
+          "kind": "function",
+          "line_start": 61,
+          "line_end": 67,
+          "signature": "def test_pattern_entry_rejects_invalid_confidence() -> None"
+        },
+        {
+          "name": "test_pattern_entry_rejects_negative_confidence",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 76,
+          "signature": "def test_pattern_entry_rejects_negative_confidence() -> None"
+        },
+        {
+          "name": "test_file_outline_entry_stores_fields",
+          "kind": "function",
+          "line_start": 84,
+          "line_end": 90,
+          "signature": "def test_file_outline_entry_stores_fields() -> None"
+        },
+        {
+          "name": "test_codebase_outline_file_count",
+          "kind": "function",
+          "line_start": 98,
+          "line_end": 105,
+          "signature": "def test_codebase_outline_file_count() -> None"
+        },
+        {
+          "name": "test_codebase_outline_default_version",
+          "kind": "function",
+          "line_start": 108,
+          "line_end": 110,
+          "signature": "def test_codebase_outline_default_version() -> None"
+        },
+        {
+          "name": "test_codebase_memory_stores_fields",
+          "kind": "function",
+          "line_start": 118,
+          "line_end": 134,
+          "signature": "def test_codebase_memory_stores_fields() -> None"
+        },
+        {
+          "name": "test_codebase_memory_default_version",
+          "kind": "function",
+          "line_start": 137,
+          "line_end": 143,
+          "signature": "def test_codebase_memory_default_version() -> None"
+        },
+        {
+          "name": "test_codebase_memory_analyzed_at_default_none",
+          "kind": "function",
+          "line_start": 146,
+          "line_end": 151,
+          "signature": "def test_codebase_memory_analyzed_at_default_none() -> None"
+        },
+        {
+          "name": "test_codebase_memory_analyzed_at_stores_sha",
+          "kind": "function",
+          "line_start": 154,
+          "line_end": 161,
+          "signature": "def test_codebase_memory_analyzed_at_stores_sha() -> None"
+        }
+      ],
+      "imports": [
+        "pytest",
+        "argus.domain.memory.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "test_pattern_category_has_all_members",
+        "test_pattern_entry_stores_fields",
+        "test_pattern_entry_is_immutable",
+        "test_pattern_entry_rejects_invalid_confidence",
+        "test_pattern_entry_rejects_negative_confidence",
+        "test_file_outline_entry_stores_fields",
+        "test_codebase_outline_file_count",
+        "test_codebase_outline_default_version",
+        "test_codebase_memory_stores_fields",
+        "test_codebase_memory_default_version",
+        "test_codebase_memory_analyzed_at_default_none",
+        "test_codebase_memory_analyzed_at_stores_sha"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

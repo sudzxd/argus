@@ -1,0 +1,253 @@
+{
+  "entries": [
+    {
+      "path": "src/argus/application/__init__.py",
+      "symbols": [],
+      "imports": [],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/application/dto.py",
+      "symbols": [
+        {
+          "name": "IndexCodebaseCommand",
+          "kind": "class",
+          "line_start": 20,
+          "line_end": 25,
+          "signature": "class IndexCodebaseCommand"
+        },
+        {
+          "name": "IndexCodebaseResult",
+          "kind": "class",
+          "line_start": 29,
+          "line_end": 33,
+          "signature": "class IndexCodebaseResult"
+        },
+        {
+          "name": "ReviewPullRequestCommand",
+          "kind": "class",
+          "line_start": 42,
+          "line_end": 53,
+          "signature": "class ReviewPullRequestCommand"
+        },
+        {
+          "name": "ReviewPullRequestResult",
+          "kind": "class",
+          "line_start": 57,
+          "line_end": 63,
+          "signature": "class ReviewPullRequestResult"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.domain.llm.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.value_objects",
+        "argus.shared.types"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/application/index_codebase.py",
+      "symbols": [
+        {
+          "name": "IndexCodebase",
+          "kind": "class",
+          "line_start": 18,
+          "line_end": 57,
+          "signature": "class IndexCodebase"
+        },
+        {
+          "name": "execute",
+          "kind": "method",
+          "line_start": 24,
+          "line_end": 57,
+          "signature": "def execute(self, cmd"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "argus.application.dto",
+        "argus.domain.context.repositories",
+        "argus.domain.context.services",
+        "argus.domain.context.value_objects"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
+      "path": "src/argus/application/review_pull_request.py",
+      "symbols": [
+        {
+          "name": "RetrievalOrchestratorPort",
+          "kind": "class",
+          "line_start": 35,
+          "line_end": 38,
+          "signature": "class RetrievalOrchestratorPort(Protocol)"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 38,
+          "line_end": 38,
+          "signature": "def retrieve(self, query"
+        },
+        {
+          "name": "ReviewGeneratorPort",
+          "kind": "class",
+          "line_start": 41,
+          "line_end": 44,
+          "signature": "class ReviewGeneratorPort(Protocol)"
+        },
+        {
+          "name": "generate",
+          "kind": "method",
+          "line_start": 44,
+          "line_end": 44,
+          "signature": "def generate(self, request"
+        },
+        {
+          "name": "OutlineRendererPort",
+          "kind": "class",
+          "line_start": 47,
+          "line_end": 54,
+          "signature": "class OutlineRendererPort(Protocol)"
+        },
+        {
+          "name": "render",
+          "kind": "method",
+          "line_start": 50,
+          "line_end": 54,
+          "signature": "def render("
+        },
+        {
+          "name": "MemoryRepositoryPort",
+          "kind": "class",
+          "line_start": 57,
+          "line_end": 61,
+          "signature": "class MemoryRepositoryPort(Protocol)"
+        },
+        {
+          "name": "load",
+          "kind": "method",
+          "line_start": 60,
+          "line_end": 60,
+          "signature": "def load(self, repo_id"
+        },
+        {
+          "name": "save",
+          "kind": "method",
+          "line_start": 61,
+          "line_end": 61,
+          "signature": "def save(self, memory"
+        },
+        {
+          "name": "ProfileServicePort",
+          "kind": "class",
+          "line_start": 64,
+          "line_end": 79,
+          "signature": "class ProfileServicePort(Protocol)"
+        },
+        {
+          "name": "build_profile",
+          "kind": "method",
+          "line_start": 67,
+          "line_end": 72,
+          "signature": "def build_profile("
+        },
+        {
+          "name": "update_profile",
+          "kind": "method",
+          "line_start": 74,
+          "line_end": 79,
+          "signature": "def update_profile("
+        },
+        {
+          "name": "ReviewPullRequest",
+          "kind": "class",
+          "line_start": 88,
+          "line_end": 257,
+          "signature": "class ReviewPullRequest"
+        },
+        {
+          "name": "execute",
+          "kind": "method",
+          "line_start": 111,
+          "line_end": 154,
+          "signature": "def execute(self, cmd"
+        },
+        {
+          "name": "_index_changes",
+          "kind": "method",
+          "line_start": 156,
+          "line_end": 178,
+          "signature": "def _index_changes(self, cmd"
+        },
+        {
+          "name": "_extract_changed_symbols",
+          "kind": "method",
+          "line_start": 180,
+          "line_end": 191,
+          "signature": "def _extract_changed_symbols("
+        },
+        {
+          "name": "_build_memory_context",
+          "kind": "method",
+          "line_start": 193,
+          "line_end": 226,
+          "signature": "def _build_memory_context("
+        },
+        {
+          "name": "_build_patterns_text",
+          "kind": "method",
+          "line_start": 228,
+          "line_end": 257,
+          "signature": "def _build_patterns_text("
+        },
+        {
+          "name": "_render_patterns",
+          "kind": "function",
+          "line_start": 260,
+          "line_end": 269,
+          "signature": "def _render_patterns(patterns"
+        }
+      ],
+      "imports": [
+        "logging",
+        "dataclasses",
+        "typing",
+        "argus.application.dto",
+        "argus.domain.context.entities",
+        "argus.domain.context.repositories",
+        "argus.domain.context.services",
+        "argus.domain.llm.value_objects",
+        "argus.domain.memory.value_objects",
+        "argus.domain.retrieval.value_objects",
+        "argus.domain.review.entities",
+        "argus.domain.review.repositories",
+        "argus.domain.review.services",
+        "argus.domain.review.value_objects",
+        "argus.shared.exceptions",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "RetrievalOrchestratorPort",
+        "ReviewGeneratorPort",
+        "OutlineRendererPort",
+        "MemoryRepositoryPort",
+        "ProfileServicePort",
+        "_render_patterns"
+      ],
+      "last_indexed": "",
+      "summary": null
+    }
+  ],
+  "edges": []
+}

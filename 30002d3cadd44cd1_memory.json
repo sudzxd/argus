@@ -1,0 +1,872 @@
+{
+  "repo_id": "sudzxd/argus",
+  "version": 1,
+  "outline": {
+    "version": 0,
+    "entries": [
+      {
+        "path": "src/argus/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/application/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/application/dto.py",
+        "symbols": [
+          "IndexCodebaseCommand",
+          "IndexCodebaseResult",
+          "ReviewPullRequestCommand",
+          "ReviewPullRequestResult"
+        ]
+      },
+      {
+        "path": "src/argus/application/index_codebase.py",
+        "symbols": [
+          "IndexCodebase",
+          "execute"
+        ]
+      },
+      {
+        "path": "src/argus/application/review_pull_request.py",
+        "symbols": [
+          "RetrievalOrchestratorPort",
+          "retrieve",
+          "ReviewGeneratorPort",
+          "generate",
+          "OutlineRendererPort",
+          "render",
+          "MemoryRepositoryPort",
+          "load",
+          "save",
+          "ProfileServicePort",
+          "build_profile",
+          "update_profile",
+          "ReviewPullRequest",
+          "execute",
+          "_index_changes",
+          "_extract_changed_symbols",
+          "_build_memory_context",
+          "_build_patterns_text",
+          "_render_patterns"
+        ]
+      },
+      {
+        "path": "src/argus/config.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/context/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/context/entities.py",
+        "symbols": [
+          "FileEntry",
+          "CodebaseMap",
+          "upsert",
+          "get",
+          "remove",
+          "files",
+          "__contains__",
+          "__len__"
+        ]
+      },
+      {
+        "path": "src/argus/domain/context/repositories.py",
+        "symbols": [
+          "CodebaseMapRepository",
+          "load",
+          "save",
+          "SourceParser",
+          "parse",
+          "supported_languages",
+          "ShardedMapRepository",
+          "load_manifest",
+          "load_shards",
+          "save_shards",
+          "load_full"
+        ]
+      },
+      {
+        "path": "src/argus/domain/context/services.py",
+        "symbols": [
+          "IndexingService",
+          "full_index",
+          "incremental_update"
+        ]
+      },
+      {
+        "path": "src/argus/domain/context/value_objects.py",
+        "symbols": [
+          "SymbolKind",
+          "EdgeKind",
+          "Symbol",
+          "Edge",
+          "Checkpoint",
+          "DependencyGraph",
+          "edges",
+          "add_edge",
+          "dependents_of",
+          "dependencies_of",
+          "remove_file",
+          "files",
+          "EmbeddingIndex",
+          "shard_id_for",
+          "ShardDescriptor",
+          "EmbeddingDescriptor",
+          "CrossShardEdge",
+          "ShardedManifest",
+          "shards_for_files",
+          "adjacent_shards",
+          "dirty_shards",
+          "content_hash_for",
+          "blob_name_for",
+          "to_dict",
+          "to_json",
+          "from_dict",
+          "from_json"
+        ]
+      },
+      {
+        "path": "src/argus/domain/llm/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/llm/services.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/llm/value_objects.py",
+        "symbols": [
+          "LLMUsage",
+          "total_tokens",
+          "__add__",
+          "ModelConfig",
+          "TokenBudget",
+          "__post_init__",
+          "retrieval_tokens",
+          "generation_tokens"
+        ]
+      },
+      {
+        "path": "src/argus/domain/memory/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/memory/repositories.py",
+        "symbols": [
+          "CodebaseMemoryRepository",
+          "load",
+          "save"
+        ]
+      },
+      {
+        "path": "src/argus/domain/memory/services.py",
+        "symbols": [
+          "PatternAnalyzer",
+          "analyze",
+          "analyze_incremental",
+          "ProfileService",
+          "build_profile",
+          "update_profile",
+          "_prune_and_cap"
+        ]
+      },
+      {
+        "path": "src/argus/domain/memory/value_objects.py",
+        "symbols": [
+          "PatternCategory",
+          "PatternEntry",
+          "__post_init__",
+          "FileOutlineEntry",
+          "CodebaseOutline",
+          "file_count",
+          "CodebaseMemory"
+        ]
+      },
+      {
+        "path": "src/argus/domain/retrieval/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/retrieval/embeddings.py",
+        "symbols": [
+          "EmbeddingProvider",
+          "embed",
+          "dimension"
+        ]
+      },
+      {
+        "path": "src/argus/domain/retrieval/ranker.py",
+        "symbols": [
+          "ContextRanker",
+          "rank",
+          "_deduplicate",
+          "_fill_budget"
+        ]
+      },
+      {
+        "path": "src/argus/domain/retrieval/services.py",
+        "symbols": [
+          "RetrievalOrchestrator",
+          "retrieve"
+        ]
+      },
+      {
+        "path": "src/argus/domain/retrieval/strategies.py",
+        "symbols": [
+          "RetrievalStrategy",
+          "retrieve"
+        ]
+      },
+      {
+        "path": "src/argus/domain/retrieval/value_objects.py",
+        "symbols": [
+          "RetrievalQuery",
+          "ContextItem",
+          "RetrievalResult",
+          "total_tokens"
+        ]
+      },
+      {
+        "path": "src/argus/domain/review/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/domain/review/entities.py",
+        "symbols": [
+          "ReviewComment",
+          "Review",
+          "comments_by_severity",
+          "has_critical",
+          "__len__"
+        ]
+      },
+      {
+        "path": "src/argus/domain/review/repositories.py",
+        "symbols": [
+          "ReviewPublisher",
+          "publish"
+        ]
+      },
+      {
+        "path": "src/argus/domain/review/services.py",
+        "symbols": [
+          "NoiseFilter",
+          "filter",
+          "_is_ignored"
+        ]
+      },
+      {
+        "path": "src/argus/domain/review/value_objects.py",
+        "symbols": [
+          "ReviewSummary",
+          "CheckRun",
+          "CIStatus",
+          "GitHealth",
+          "PRComment",
+          "RelatedItem",
+          "PRContext",
+          "ReviewRequest"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/constants.py",
+        "symbols": [
+          "SupportedLanguage",
+          "FileExtension",
+          "FunctionNodeType",
+          "ClassNodeType",
+          "ImportNodeType",
+          "ImportPathNodeType",
+          "SerializerField",
+          "GitHubAPI",
+          "SeverityLabel"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/github/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/github/client.py",
+        "symbols": [
+          "_next_page_url",
+          "GitHubClient",
+          "get_pull_request",
+          "get_pull_request_diff",
+          "get_file_content",
+          "post_issue_comment",
+          "post_review",
+          "get_repo_default_branch_sha",
+          "get_tree_recursive",
+          "compare_commits",
+          "get_check_runs",
+          "get_issue_comments",
+          "get_pr_review_comments",
+          "get_pr_commits",
+          "search_issues",
+          "get_ref_sha",
+          "get_commit_tree_sha",
+          "get_tree_entries_flat",
+          "get_blob_content",
+          "create_blob",
+          "create_tree",
+          "create_commit",
+          "create_ref",
+          "update_ref",
+          "_get",
+          "_get_list",
+          "_post",
+          "_post_json",
+          "_patch",
+          "_request",
+          "_headers"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/github/pr_context_collector.py",
+        "symbols": [
+          "PRContextCollector",
+          "collect",
+          "_extract_labels",
+          "_extract_author",
+          "_extract_behind_by",
+          "_collect_ci_status",
+          "_collect_comments",
+          "_extract_comment_author",
+          "_is_bot",
+          "_compute_git_health",
+          "_collect_related_items"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/github/publisher.py",
+        "symbols": [
+          "GitHubReviewPublisher",
+          "publish",
+          "_post_comments_individually",
+          "_format_summary",
+          "_try_format_comment",
+          "_parse_diff_positions"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/llm_providers/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/llm_providers/factory.py",
+        "symbols": [
+          "create_agent"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/memory/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/memory/llm_analyzer.py",
+        "symbols": [
+          "_PatternOutput",
+          "Pattern",
+          "LLMPatternAnalyzer",
+          "analyze",
+          "analyze_incremental",
+          "_to_entry",
+          "_format_existing_patterns"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/memory/outline_renderer.py",
+        "symbols": [
+          "OutlineRenderer",
+          "render",
+          "render_full",
+          "_render_files"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/parsing/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/parsing/chunker.py",
+        "symbols": [
+          "CodeChunk",
+          "Chunker",
+          "chunk",
+          "_make_chunk"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/parsing/tree_sitter_parser.py",
+        "symbols": [
+          "_load_language",
+          "TreeSitterParser",
+          "parse",
+          "supported_languages",
+          "_language_for_path",
+          "_extract_symbols",
+          "_walk_for_symbols",
+          "_extract_signature",
+          "_extract_imports",
+          "_extract_exports",
+          "_get_node_name",
+          "_get_import_path"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/agentic.py",
+        "symbols": [
+          "SearchPlan",
+          "AgenticRetrievalStrategy",
+          "__post_init__",
+          "retrieve",
+          "_build_prompt",
+          "_execute_sub_queries"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/embeddings/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/embeddings/factory.py",
+        "symbols": [
+          "create_embedding_provider"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/embeddings/google_embeddings.py",
+        "symbols": [
+          "_embed_batch_with_retry",
+          "_call_embed_api",
+          "GoogleEmbeddingProvider",
+          "embed",
+          "dimension"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/embeddings/local_embeddings.py",
+        "symbols": [
+          "_get_model",
+          "_encode",
+          "LocalEmbeddingProvider",
+          "embed",
+          "dimension"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/embeddings/openai_embeddings.py",
+        "symbols": [
+          "_call_embed_api",
+          "OpenAIEmbeddingProvider",
+          "embed",
+          "dimension"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/lexical.py",
+        "symbols": [
+          "LexicalRetrievalStrategy",
+          "__post_init__",
+          "retrieve",
+          "_avg_chunk_cost",
+          "_build_query_text"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/semantic.py",
+        "symbols": [
+          "SemanticRetrievalStrategy",
+          "__post_init__",
+          "retrieve",
+          "_build_query_text",
+          "_cosine_similarity"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/retrieval/structural.py",
+        "symbols": [
+          "StructuralRetrievalStrategy",
+          "retrieve",
+          "_build_content"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/storage/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/infrastructure/storage/artifact_store.py",
+        "symbols": [
+          "legacy_artifact_path",
+          "FileArtifactStore",
+          "load",
+          "save",
+          "_path_for",
+          "ShardedArtifactStore",
+          "load",
+          "save",
+          "load_manifest",
+          "load_shards",
+          "save_shards",
+          "save_shard_data",
+          "load_full",
+          "load_or_migrate",
+          "save_full",
+          "save_incremental",
+          "save_embedding_index",
+          "load_embedding_indices"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/storage/git_branch_store.py",
+        "symbols": [
+          "GitBranchSync",
+          "pull",
+          "push",
+          "SelectiveGitBranchSync",
+          "_fetch_tree",
+          "pull_manifest",
+          "pull_blobs",
+          "memory_blob_names",
+          "embedding_blob_names",
+          "pull_all",
+          "push"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/storage/memory_store.py",
+        "symbols": [
+          "_repo_filename",
+          "FileMemoryStore",
+          "load",
+          "save",
+          "_path_for",
+          "_serialize",
+          "_serialize_outline",
+          "_serialize_pattern",
+          "_deserialize",
+          "_parse_confidence"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/storage/serializer.py",
+        "symbols": [
+          "serialize",
+          "_iter_entries",
+          "_serialize_entry",
+          "_serialize_symbol",
+          "_serialize_edge",
+          "deserialize",
+          "_deserialize_entry",
+          "_deserialize_symbol",
+          "_deserialize_edge"
+        ]
+      },
+      {
+        "path": "src/argus/infrastructure/storage/shard_serializer.py",
+        "symbols": [
+          "serialize_shard",
+          "deserialize_shard",
+          "split_into_shards",
+          "assemble_from_shards",
+          "_serialize_entry",
+          "_serialize_symbol",
+          "_serialize_edge",
+          "_deserialize_entry",
+          "_deserialize_symbol",
+          "_deserialize_edge"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/interfaces/action.py",
+        "symbols": [
+          "run",
+          "_execute_pipeline",
+          "_load_event",
+          "_extract_pr_number",
+          "_extract_head_sha",
+          "_extract_changed_files"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/bootstrap.py",
+        "symbols": [
+          "get_parseable_extensions",
+          "run",
+          "_execute_bootstrap",
+          "_build_embeddings"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/config.py",
+        "symbols": [
+          "ActionConfig",
+          "from_toml"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/env_utils.py",
+        "symbols": [
+          "require_env"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/main.py",
+        "symbols": [
+          "main"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/review_generator.py",
+        "symbols": [
+          "ReviewOutput",
+          "CommentOutput",
+          "LLMReviewGenerator",
+          "generate",
+          "_generate_tool_mode",
+          "_build_prompt",
+          "_format_pr_context",
+          "_to_review",
+          "_to_comment"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/sync_index.py",
+        "symbols": [
+          "_is_parseable",
+          "_extract_after_sha",
+          "run",
+          "_execute",
+          "_handle_legacy_path",
+          "_handle_manifest_path",
+          "_maybe_analyze_patterns",
+          "_maybe_build_embeddings",
+          "_incremental_update_sharded"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/sync_push.py",
+        "symbols": [
+          "run"
+        ]
+      },
+      {
+        "path": "src/argus/interfaces/toml_config.py",
+        "symbols": [
+          "ArgusConfig",
+          "load_argus_config",
+          "_read_tool_section",
+          "_warn_unknown_keys",
+          "_normalize_extensions",
+          "_validate_review_depth",
+          "_validate_ranges"
+        ]
+      },
+      {
+        "path": "src/argus/shared/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/shared/constants.py",
+        "symbols": []
+      },
+      {
+        "path": "src/argus/shared/exceptions.py",
+        "symbols": [
+          "ArgusError",
+          "IndexingError",
+          "__init__",
+          "CheckpointError",
+          "GraphInconsistencyError",
+          "BudgetExceededError",
+          "__init__",
+          "StrategyError",
+          "GenerationError",
+          "PublishError",
+          "ProviderError",
+          "__init__",
+          "RateLimitError",
+          "__init__",
+          "TokenLimitError",
+          "__init__",
+          "ProfileAnalysisError",
+          "ConfigurationError"
+        ]
+      },
+      {
+        "path": "src/argus/shared/types.py",
+        "symbols": [
+          "FilePath",
+          "CommitSHA",
+          "TokenCount",
+          "__add__",
+          "__radd__",
+          "__sub__",
+          "__rsub__",
+          "LineRange",
+          "__post_init__",
+          "__len__",
+          "__contains__",
+          "ReviewDepth",
+          "Severity",
+          "Category"
+        ]
+      },
+      {
+        "path": "tests/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "tests/conftest.py",
+        "symbols": []
+      },
+      {
+        "path": "tests/integration/__init__.py",
+        "symbols": []
+      },
+      {
+        "path": "tests/integration/conftest.py",
+        "symbols": [
+          "github_event",
+          "sample_diff",
+          "sample_file_content",
+          "sample_review_output",
+          "low_confidence_review_output",
+          "ignored_path_review_output",
+          "mock_llm_agent"
+        ]
+      },
+      {
+        "path": "tests/integration/test_action.py",
+        "symbols": [
+          "_make_command",
+          "TestEventParsing",
+          "test_load_event",
+          "test_load_event_missing_file_raises",
+          "test_load_event_invalid_json_raises",
+          "test_extract_pr_number",
+          "test_extract_pr_number_missing_raises",
+          "test_extract_head_sha",
+          "test_extract_head_sha_missing_raises",
+          "test_extract_changed_files",
+          "test_extract_changed_files_multiple",
+          "test_extract_changed_files_rejects_path_traversal",
+          "test_extract_changed_files_rejects_absolute_path",
+          "TestFullPipeline",
+          "test_action_full_review_pipeline",
+          "test_action_no_existing_artifact",
+          "test_action_incremental_with_existing_artifact",
+          "test_action_graceful_degradation_on_llm_failure",
+          "test_action_filters_low_confidence_comments",
+          "test_action_respects_ignored_paths"
+        ]
+      }
+    ]
+  },
+  "patterns": [
+    {
+      "category": "architecture",
+      "description": "The codebase uses a Hexagonal Architecture pattern, defining interfaces (Ports) in the `application` and `domain` layers, typically suffixed with `Port` or `Repository`, and providing concrete implementations (Adapters) in the `infrastructure` layer.",
+      "confidence": 0.9,
+      "examples": [
+        "src/argus/application/review_pull_request.py: RetrievalOrchestratorPort(Protocol)",
+        "src/argus/domain/context/repositories.py: CodebaseMapRepository(Protocol)"
+      ]
+    },
+    {
+      "category": "architecture",
+      "description": "The codebase is structured following Domain-Driven Design principles, with distinct `domain`, `application`, and `infrastructure` layers, each with specific responsibilities.",
+      "confidence": 0.9,
+      "examples": [
+        "src/argus/domain/context/entities.py",
+        "src/argus/application/index_codebase.py"
+      ]
+    },
+    {
+      "category": "error_handling",
+      "description": "The project defines a custom exception hierarchy rooted in `ArgusError` to provide specific error types for different failure scenarios within the application.",
+      "confidence": 0.9,
+      "examples": [
+        "src/argus/shared/exceptions.py: ArgusError(Exception)",
+        "src/argus/shared/exceptions.py: BudgetExceededError(ArgusError)"
+      ]
+    },
+    {
+      "category": "architecture",
+      "description": "Extensive use of small, immutable classes, often found in `domain/*/value_objects.py`, to represent conceptual wholes and enforce domain invariants.",
+      "confidence": 0.8,
+      "examples": [
+        "src/argus/domain/context/value_objects.py: Symbol",
+        "src/argus/shared/types.py: FilePath(str)"
+      ]
+    },
+    {
+      "category": "architecture",
+      "description": "Application services define explicit `Command` and `Result` Data Transfer Objects (DTOs) for their input and output, promoting clear API contracts.",
+      "confidence": 0.8,
+      "examples": [
+        "src/argus/application/dto.py: IndexCodebaseCommand",
+        "src/argus/application/dto.py: ReviewPullRequestResult"
+      ]
+    },
+    {
+      "category": "style",
+      "description": "The project consistently uses `StrEnum` and `IntEnum` for defining enumerations, providing type safety and clear representation for string and integer-backed enums.",
+      "confidence": 0.7,
+      "examples": [
+        "src/argus/domain/context/value_objects.py: SymbolKind(StrEnum)",
+        "src/argus/shared/types.py: Severity(IntEnum)"
+      ]
+    },
+    {
+      "category": "naming",
+      "description": "Application services (use cases) consistently expose a single public method named `execute` to encapsulate their primary operation.",
+      "confidence": 0.7,
+      "examples": [
+        "src/argus/application/index_codebase.py: def execute(self, cmd)",
+        "src/argus/application/review_pull_request.py: def execute(self, cmd)"
+      ]
+    },
+    {
+      "category": "testing",
+      "description": "Test utility functions for generating sample data and mock objects are consistently named with `sample_` and `mock_` prefixes, respectively, and often defined in `conftest.py` files.",
+      "confidence": 0.7,
+      "examples": [
+        "tests/integration/conftest.py: def sample_diff() -> str",
+        "tests/integration/conftest.py: def mock_llm_agent(sample_review_output)"
+      ]
+    },
+    {
+      "category": "style",
+      "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
+      "confidence": 0.6,
+      "examples": [
+        "src/argus/domain/llm/value_objects.py: TokenBudget: def __post_init__(self) -> None",
+        "src/argus/shared/types.py: LineRange: def __post_init__(self) -> None"
+      ]
+    }
+  ],
+  "analyzed_at": "ceba7625704ae20d4041ea6eec4cdb694e823cfb"
+}
