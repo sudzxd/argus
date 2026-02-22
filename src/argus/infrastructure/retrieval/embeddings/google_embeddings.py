@@ -30,7 +30,7 @@ def _embed_batch_with_retry(
         try:
             result = client.models.embed_content(model=model, contents=texts)  # type: ignore[union-attr]  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
             return [e.values for e in result.embeddings]  # type: ignore[no-any-return]
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, OSError) as e:
             err_str = str(e)
             if "429" in err_str and attempt < _MAX_RETRIES - 1:
                 logger.info(

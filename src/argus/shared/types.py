@@ -65,7 +65,7 @@ class LineRange:
     def __contains__(self, line: object) -> bool:
         if isinstance(line, int):
             return self.start <= line <= self.end
-        return NotImplemented
+        return False
 
 
 # =============================================================================

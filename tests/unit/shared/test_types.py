@@ -134,6 +134,11 @@ def test_line_range_single_line() -> None:
     assert len(lr) == 1
 
 
+def test_line_range_contains_non_int_returns_false() -> None:
+    lr = LineRange(start=1, end=10)
+    assert ("hello" in lr) is False
+
+
 def test_line_range_invalid_raises() -> None:
     with pytest.raises(ValueError, match=r"start.*end"):
         LineRange(start=20, end=10)
