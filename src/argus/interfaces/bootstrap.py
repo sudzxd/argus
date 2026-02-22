@@ -299,8 +299,7 @@ def _build_embeddings(
         manifest = sharded_store.load_manifest(repo)
         if manifest is not None:
             manifest.embedding_indices.update(descriptors)
-            manifest_path = sharded_store.storage_dir / "manifest.json"
-            manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+            sharded_store.save_manifest(manifest)
 
     logger.info("Built embeddings for %d shards", built)
 

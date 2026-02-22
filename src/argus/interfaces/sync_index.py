@@ -410,8 +410,7 @@ def _maybe_build_embeddings(
         manifest = store.load_manifest(repo)
         if manifest is not None:
             manifest.embedding_indices.update(descriptors)
-            manifest_path = store.storage_dir / "manifest.json"
-            manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+            store.save_manifest(manifest)
 
 
 def _incremental_update_sharded(

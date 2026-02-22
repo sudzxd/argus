@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
+
 from pathlib import Path
+from unittest.mock import patch
 
 from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.domain.context.value_objects import (
@@ -15,6 +18,7 @@ from argus.domain.context.value_objects import (
 from argus.infrastructure.storage.artifact_store import (
     FileArtifactStore,
     ShardedArtifactStore,
+    _atomic_write_text,
 )
 from argus.shared.types import CommitSHA, FilePath, LineRange
 
@@ -274,3 +278,135 @@ def test_save_incremental_no_orphans_when_unchanged(tmp_path: Path) -> None:
     orphaned = store.save_incremental(manifest, cbm)
 
     assert orphaned == set()
+
+
+# =============================================================================
+# Atomic write safety
+# =============================================================================
+
+
+def test_atomic_write_creates_valid_file(tmp_path: Path) -> None:
+    """_atomic_write_text produces a file with complete content."""
+    path = tmp_path / "test.json"
+    data = json.dumps({"key": "value", "number": 42})
+
+    _atomic_write_text(path, data)
+
+    assert path.exists()
+    assert json.loads(path.read_text(encoding="utf-8")) == {
+        "key": "value",
+        "number": 42,
+    }
+
+
+def test_atomic_write_no_temp_files_left(tmp_path: Path) -> None:
+    """No .tmp files remain after a successful atomic write."""
+    path = tmp_path / "test.json"
+    _atomic_write_text(path, '{"ok": true}')
+
+    tmp_files = list(tmp_path.glob("*.tmp"))
+    assert tmp_files == []
+
+
+def test_save_full_uses_atomic_write(tmp_path: Path) -> None:
+    """save_full leaves no .tmp files behind."""
+    store = ShardedArtifactStore(storage_dir=tmp_path)
+    store.save_full("org/repo", _build_map())
+
+    tmp_files = list(tmp_path.glob("*.tmp"))
+    assert tmp_files == []
+
+    # All shard files and manifest should exist and be valid JSON.
+    manifest_path = tmp_path / "manifest.json"
+    assert manifest_path.exists()
+    json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    for shard_file in tmp_path.glob("shard_*.json"):
+        json.loads(shard_file.read_text(encoding="utf-8"))
+
+
+def test_save_incremental_orphan_deletion_after_manifest(tmp_path: Path) -> None:
+    """Orphan blobs are deleted only after the manifest is written.
+
+    We verify this by patching ``os.replace`` to record the order of
+    file writes (manifest vs blobs) and ``Path.unlink`` to record
+    when orphans are deleted.
+    """
+    store = ShardedArtifactStore(storage_dir=tmp_path)
+    cbm = _build_map()
+    store.save_full("org/repo", cbm)
+
+    manifest = store.load_manifest("org/repo")
+    assert manifest is not None
+
+    # Modify a file so the shard content changes.
+    cbm.upsert(
+        FileEntry(
+            path=FilePath("src/main.py"),
+            symbols=[
+                Symbol(
+                    name="main_v2",
+                    kind=SymbolKind.FUNCTION,
+                    line_range=LineRange(start=1, end=10),
+                ),
+            ],
+            imports=[],
+            exports=["main_v2"],
+            last_indexed=CommitSHA("sha456"),
+        )
+    )
+
+    events: list[str] = []
+    original_replace = Path.replace
+    original_unlink = Path.unlink
+
+    def tracking_replace(self_path: Path, target: object) -> Path:
+        target_str = str(target)
+        if "manifest" in target_str:
+            events.append("manifest_write")
+        elif "shard_" in target_str:
+            events.append("shard_write")
+        return original_replace(self_path, target)
+
+    def tracking_unlink(
+        self_path: Path,
+        missing_ok: bool = False,
+    ) -> None:
+        if "shard_" in self_path.name:
+            events.append("orphan_delete")
+        original_unlink(self_path, missing_ok=missing_ok)
+
+    with (
+        patch.object(Path, "replace", tracking_replace),
+        patch.object(Path, "unlink", tracking_unlink),
+    ):
+        orphaned = store.save_incremental(manifest, cbm)
+
+    assert len(orphaned) >= 1
+    # Manifest write must come before any orphan deletion.
+    assert "manifest_write" in events
+    assert "orphan_delete" in events
+    manifest_idx = events.index("manifest_write")
+    orphan_idx = events.index("orphan_delete")
+    assert manifest_idx < orphan_idx
+
+
+def test_save_manifest_public_method(tmp_path: Path) -> None:
+    """save_manifest() atomically writes a manifest."""
+    store = ShardedArtifactStore(storage_dir=tmp_path)
+    cbm = _build_map()
+    store.save_full("org/repo", cbm)
+
+    manifest = store.load_manifest("org/repo")
+    assert manifest is not None
+
+    # Modify and re-save via the public method.
+    manifest.indexed_at = CommitSHA("new_sha")
+    store.save_manifest(manifest)
+
+    reloaded = store.load_manifest("org/repo")
+    assert reloaded is not None
+    assert reloaded.indexed_at == CommitSHA("new_sha")
+
+    # No temp files left.
+    assert list(tmp_path.glob("*.tmp")) == []

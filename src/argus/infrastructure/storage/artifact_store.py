@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import logging
+import os
+import tempfile
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +25,34 @@ from argus.infrastructure.storage import serializer, shard_serializer
 logger = logging.getLogger(__name__)
 
 MANIFEST_FILENAME = "manifest.json"
+
+
+def _atomic_write_text(path: Path, data: str) -> None:
+    """Write *data* to *path* atomically via a temp file + ``Path.replace``.
+
+    The temp file is created in the same directory so the rename is
+    guaranteed to be atomic on POSIX (same filesystem).
+    """
+    tmp_path: Path | None = None
+    try:
+        fd = tempfile.NamedTemporaryFile(  # noqa: SIM115
+            mode="w",
+            dir=path.parent,
+            suffix=".tmp",
+            delete=False,
+            encoding="utf-8",
+        )
+        tmp_path = Path(fd.name)
+        with fd:
+            fd.write(data)
+            fd.flush()
+            os.fsync(fd.fileno())
+        tmp_path.replace(path)
+    except BaseException:
+        if tmp_path is not None:
+            with contextlib.suppress(OSError):
+                tmp_path.unlink()
+        raise
 
 
 def legacy_artifact_path(storage_dir: Path, repo_id: str) -> Path:
@@ -126,6 +157,11 @@ class ShardedArtifactStore:
             logger.warning("Corrupt manifest for %s, returning None", repo_id)
             return None
 
+    def save_manifest(self, manifest: ShardedManifest) -> None:
+        """Atomically persist a manifest to disk."""
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
+
     def load_shards(
         self,
         repo_id: str,
@@ -169,8 +205,7 @@ class ShardedArtifactStore:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
 
         # Save manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
 
     def save_shard_data(self, shard_data: dict[ShardId, str]) -> None:
         """Write shard JSON files to disk."""
@@ -182,8 +217,7 @@ class ShardedArtifactStore:
             # Compute blob name from content hash.
             content_hash = hashlib.sha256(json_str.encode()).hexdigest()[:16]
             blob_name = f"shard_{content_hash}.json"
-            blob_path = self.storage_dir / blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / blob_name, json_str)
 
     def load_full(self, repo_id: str) -> CodebaseMap | None:
         """Load the complete CodebaseMap by loading all shards."""
@@ -217,12 +251,10 @@ class ShardedArtifactStore:
         # Write shard files.
         for sid, json_str in shard_data.items():
             desc = manifest.shards[sid]
-            blob_path = self.storage_dir / desc.blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / desc.blob_name, json_str)
 
         # Write manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, manifest.to_json())
 
         # Clean up legacy flat file if it exists.
         legacy_path = legacy_artifact_path(self.storage_dir, repo_id)
@@ -280,8 +312,12 @@ class ShardedArtifactStore:
         # Write only the changed shard files.
         for sid, json_str in shard_data.items():
             desc = new_manifest.shards[sid]
-            blob_path = self.storage_dir / desc.blob_name
-            blob_path.write_text(json_str, encoding="utf-8")
+            _atomic_write_text(self.storage_dir / desc.blob_name, json_str)
+
+        # Write merged manifest BEFORE deleting orphans.  A crash after
+        # this point leaves unreferenced old blobs (harmless, cleaned up
+        # next run) instead of a manifest referencing deleted files.
+        _atomic_write_text(self.storage_dir / MANIFEST_FILENAME, merged.to_json())
 
         # Delete orphaned blob files from local storage.
         for blob_name in orphaned_blobs:
@@ -289,10 +325,6 @@ class ShardedArtifactStore:
             if orphan_path.exists():
                 orphan_path.unlink()
                 logger.info("Removed orphaned shard blob %s", blob_name)
-
-        # Write merged manifest.
-        manifest_path = self.storage_dir / MANIFEST_FILENAME
-        manifest_path.write_text(merged.to_json(), encoding="utf-8")
 
         return orphaned_blobs
 
@@ -318,7 +350,7 @@ class ShardedArtifactStore:
         hash_input = f"{index.shard_id}:{index.model}"
         content_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
         blob_name = f"{content_hash}_embeddings.json"
-        (self.storage_dir / blob_name).write_text(json_str, encoding="utf-8")
+        _atomic_write_text(self.storage_dir / blob_name, json_str)
         return EmbeddingDescriptor(
             shard_id=index.shard_id,
             model=index.model,
