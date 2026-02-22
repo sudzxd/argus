@@ -473,73 +473,80 @@
           "signature": "def test_cosine_similarity_zero_vector() -> None"
         },
         {
-          "name": "test_cosine_similarity_mismatched_dimensions_raises",
+          "name": "test_cosine_similarity_near_zero_vector",
           "kind": "function",
           "line_start": 44,
-          "line_end": 48,
+          "line_end": 49,
+          "signature": "def test_cosine_similarity_near_zero_vector() -> None"
+        },
+        {
+          "name": "test_cosine_similarity_mismatched_dimensions_raises",
+          "kind": "function",
+          "line_start": 52,
+          "line_end": 56,
           "signature": "def test_cosine_similarity_mismatched_dimensions_raises() -> None"
         },
         {
           "name": "FakeEmbeddingProvider",
           "kind": "class",
-          "line_start": 56,
-          "line_end": 72,
+          "line_start": 64,
+          "line_end": 80,
           "signature": "class FakeEmbeddingProvider"
         },
         {
           "name": "__init__",
           "kind": "method",
-          "line_start": 59,
-          "line_end": 61,
+          "line_start": 67,
+          "line_end": 69,
           "signature": "def __init__(self, embeddings"
         },
         {
           "name": "embed",
           "kind": "method",
-          "line_start": 63,
-          "line_end": 66,
+          "line_start": 71,
+          "line_end": 74,
           "signature": "def embed(self, texts"
         },
         {
           "name": "dimension",
           "kind": "method",
-          "line_start": 69,
-          "line_end": 72,
+          "line_start": 77,
+          "line_end": 80,
           "signature": "def dimension(self) -> int"
         },
         {
           "name": "_make_chunk",
           "kind": "function",
-          "line_start": 75,
-          "line_end": 81,
+          "line_start": 83,
+          "line_end": 89,
           "signature": "def _make_chunk(path"
         },
         {
           "name": "test_retrieve_returns_top_k_by_similarity",
           "kind": "function",
-          "line_start": 84,
-          "line_end": 122,
+          "line_start": 92,
+          "line_end": 130,
           "signature": "def test_retrieve_returns_top_k_by_similarity() -> None"
         },
         {
           "name": "test_retrieve_respects_budget",
           "kind": "function",
-          "line_start": 125,
-          "line_end": 152,
+          "line_start": 133,
+          "line_end": 160,
           "signature": "def test_retrieve_respects_budget() -> None"
         },
         {
           "name": "test_retrieve_empty_query",
           "kind": "function",
-          "line_start": 155,
-          "line_end": 167,
+          "line_start": 163,
+          "line_end": 175,
           "signature": "def test_retrieve_empty_query() -> None"
         },
         {
           "name": "test_retrieve_skips_mismatched_dimension",
           "kind": "function",
-          "line_start": 170,
-          "line_end": 205,
+          "line_start": 178,
+          "line_end": 213,
           "signature": "def test_retrieve_skips_mismatched_dimension("
         }
       ],
@@ -556,6 +563,7 @@
         "test_cosine_similarity_orthogonal_vectors",
         "test_cosine_similarity_opposite_vectors",
         "test_cosine_similarity_zero_vector",
+        "test_cosine_similarity_near_zero_vector",
         "test_cosine_similarity_mismatched_dimensions_raises",
         "FakeEmbeddingProvider",
         "_make_chunk",

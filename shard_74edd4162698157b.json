@@ -199,7 +199,7 @@
           "name": "TestLLMReviewGenerator",
           "kind": "class",
           "line_start": 80,
-          "line_end": 271,
+          "line_end": 313,
           "signature": "class TestLLMReviewGenerator"
         },
         {
@@ -238,31 +238,38 @@
           "signature": "def test_prompt_includes_pr_context("
         },
         {
+          "name": "test_generate_logs_warning_on_unknown_severity_category",
+          "kind": "method",
+          "line_start": 274,
+          "line_end": 313,
+          "signature": "def test_generate_logs_warning_on_unknown_severity_category("
+        },
+        {
           "name": "TestFormatPrContext",
           "kind": "class",
-          "line_start": 274,
-          "line_end": 372,
+          "line_start": 316,
+          "line_end": 414,
           "signature": "class TestFormatPrContext"
         },
         {
           "name": "test_format_includes_all_sections",
           "kind": "method",
-          "line_start": 277,
-          "line_end": 308,
+          "line_start": 319,
+          "line_end": 350,
           "signature": "def test_format_includes_all_sections(self, model_config"
         },
         {
           "name": "test_format_flags_missing_description",
           "kind": "method",
-          "line_start": 310,
-          "line_end": 325,
+          "line_start": 352,
+          "line_end": 367,
           "signature": "def test_format_flags_missing_description(self, model_config"
         },
         {
           "name": "test_format_review_comments_with_file_and_line",
           "kind": "method",
-          "line_start": 327,
-          "line_end": 372,
+          "line_start": 369,
+          "line_end": 414,
           "signature": "def test_format_review_comments_with_file_and_line("
         }
       ],

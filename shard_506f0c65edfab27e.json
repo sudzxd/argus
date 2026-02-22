@@ -22,7 +22,7 @@
           "name": "TestLLMPatternAnalyzer",
           "kind": "class",
           "line_start": 25,
-          "line_end": 196,
+          "line_end": 210,
           "signature": "class TestLLMPatternAnalyzer"
         },
         {
@@ -54,17 +54,24 @@
           "signature": "def test_analyze_wraps_errors("
         },
         {
-          "name": "test_analyze_incremental_uses_incremental_prompt",
+          "name": "test_analyze_does_not_catch_keyboard_interrupt",
           "kind": "method",
           "line_start": 128,
-          "line_end": 166,
+          "line_end": 139,
+          "signature": "def test_analyze_does_not_catch_keyboard_interrupt("
+        },
+        {
+          "name": "test_analyze_incremental_uses_incremental_prompt",
+          "kind": "method",
+          "line_start": 142,
+          "line_end": 180,
           "signature": "def test_analyze_incremental_uses_incremental_prompt("
         },
         {
           "name": "test_analyze_incremental_empty_existing_falls_back",
           "kind": "method",
-          "line_start": 169,
-          "line_end": 196,
+          "line_start": 183,
+          "line_end": 210,
           "signature": "def test_analyze_incremental_empty_existing_falls_back("
         }
       ],

@@ -292,45 +292,52 @@
           "signature": "def test_line_range_single_line() -> None"
         },
         {
-          "name": "test_line_range_invalid_raises",
+          "name": "test_line_range_contains_non_int_returns_false",
           "kind": "function",
           "line_start": 137,
           "line_end": 139,
+          "signature": "def test_line_range_contains_non_int_returns_false() -> None"
+        },
+        {
+          "name": "test_line_range_invalid_raises",
+          "kind": "function",
+          "line_start": 142,
+          "line_end": 144,
           "signature": "def test_line_range_invalid_raises() -> None"
         },
         {
           "name": "test_severity_has_all_members",
           "kind": "function",
-          "line_start": 147,
-          "line_end": 149,
+          "line_start": 152,
+          "line_end": 154,
           "signature": "def test_severity_has_all_members() -> None"
         },
         {
           "name": "test_severity_critical_outranks_warning",
           "kind": "function",
-          "line_start": 152,
-          "line_end": 153,
+          "line_start": 157,
+          "line_end": 158,
           "signature": "def test_severity_critical_outranks_warning() -> None"
         },
         {
           "name": "test_severity_warning_outranks_suggestion",
           "kind": "function",
-          "line_start": 156,
-          "line_end": 157,
+          "line_start": 161,
+          "line_end": 162,
           "signature": "def test_severity_warning_outranks_suggestion() -> None"
         },
         {
           "name": "test_severity_suggestion_outranks_praise",
           "kind": "function",
-          "line_start": 160,
-          "line_end": 161,
+          "line_start": 165,
+          "line_end": 166,
           "signature": "def test_severity_suggestion_outranks_praise() -> None"
         },
         {
           "name": "test_category_has_all_members",
           "kind": "function",
-          "line_start": 169,
-          "line_end": 171,
+          "line_start": 174,
+          "line_end": 176,
           "signature": "def test_category_has_all_members() -> None"
         }
       ],
@@ -361,6 +368,7 @@
         "test_line_range_contains_within",
         "test_line_range_contains_outside",
         "test_line_range_single_line",
+        "test_line_range_contains_non_int_returns_false",
         "test_line_range_invalid_raises",
         "test_severity_has_all_members",
         "test_severity_critical_outranks_warning",

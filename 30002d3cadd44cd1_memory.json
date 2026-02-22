@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 3,
+  "version": 4,
   "outline": {
     "version": 0,
     "entries": [
@@ -815,6 +815,24 @@
     },
     {
       "category": "architecture",
+      "description": "The codebase consistently uses Pydantic's `BaseModel` for defining data structures, particularly for Data Transfer Objects (DTOs) and other structured data, leveraging its features for validation, serialization, and clear schema definition.",
+      "confidence": 0.9,
+      "examples": [
+        "_PatternOutput(BaseModel)",
+        "ReviewOutput(BaseModel)"
+      ]
+    },
+    {
+      "category": "architecture",
+      "description": "The project defines custom types by inheriting from Python's built-in primitives (e.g., `str`, `int`) to introduce semantic meaning and enforce domain-specific constraints or behaviors, often including operator overloading. These are typically found in `shared/types.py`.",
+      "confidence": 0.9,
+      "examples": [
+        "FilePath(str)",
+        "TokenCount(int)"
+      ]
+    },
+    {
+      "category": "architecture",
       "description": "Extensive use of small, immutable classes, often found in `domain/*/value_objects.py`, to represent conceptual wholes and enforce domain invariants.",
       "confidence": 0.8,
       "examples": [
@@ -893,6 +911,14 @@
       ]
     },
     {
+      "category": "testing",
+      "description": "Test doubles (e.g., fakes, mocks) are often implemented as dedicated classes, particularly when mimicking complex dependencies or interfaces, allowing for stateful behavior and method overriding in tests.",
+      "confidence": 0.7,
+      "examples": [
+        "FakeEmbeddingProvider"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -909,7 +935,15 @@
         "src/argus/infrastructure/storage/artifact_store.py:_atomic_write_text",
         "src/argus/interfaces/sync_index.py:_execute"
       ]
+    },
+    {
+      "category": "testing",
+      "description": "Tests are organized using nested classes to group related test cases or scenarios for a specific component or functionality, improving readability and structure within larger test files.",
+      "confidence": 0.5,
+      "examples": [
+        "class TestLLMReviewGenerator containing class TestFormatPrContext"
+      ]
     }
   ],
-  "analyzed_at": "f300331c6405fa8cf6748fb376c5b1b04bc74955"
+  "analyzed_at": "fd2b195b1f16dd9aec466f5e654e721d59815651"
 }
