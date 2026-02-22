@@ -178,3 +178,17 @@ def test_parse_js_extracts_function(parser: TreeSitterParser) -> None:
     assert len(entry.symbols) >= 1
     func = next(s for s in entry.symbols if s.name == "greet")
     assert func.kind == SymbolKind.FUNCTION
+
+
+# =============================================================================
+# Encoding robustness
+# =============================================================================
+
+
+def test_parse_handles_replacement_characters(parser: TreeSitterParser) -> None:
+    """Non-UTF-8 replacement chars should not crash the parser."""
+    code = "def hello():\n    x = '\ufffd'\n    return x\n"
+    entry = parser.parse(FilePath("replaced.py"), code)
+
+    assert entry.path == FilePath("replaced.py")
+    assert len(entry.symbols) >= 1

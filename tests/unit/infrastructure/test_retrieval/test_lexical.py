@@ -101,9 +101,18 @@ def test_handles_empty_corpus_gracefully() -> None:
         diff_text="login user",
     )
 
+    assert strategy._empty is True
     items = strategy.retrieve(query)
-
     assert items == []
+
+
+def test_non_empty_corpus_sets_empty_false() -> None:
+    chunks = [
+        _make_chunk("auth.py", "login", "def login_user(): ..."),
+    ]
+    strategy = LexicalRetrievalStrategy(chunks=chunks)
+
+    assert strategy._empty is False
 
 
 def test_handles_empty_query_gracefully() -> None:

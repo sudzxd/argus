@@ -65,6 +65,36 @@ def test_token_count_subtraction() -> None:
     assert int(TokenCount(500) - TokenCount(200)) == 300
 
 
+def test_token_count_radd_returns_token_count() -> None:
+    result = 10 + TokenCount(200)
+    assert isinstance(result, TokenCount)
+    assert int(result) == 210
+
+
+def test_token_count_rsub_returns_token_count() -> None:
+    result = 500 - TokenCount(200)
+    assert isinstance(result, TokenCount)
+    assert int(result) == 300
+
+
+def test_token_count_sum_returns_token_count() -> None:
+    result = sum([TokenCount(1), TokenCount(2), TokenCount(3)])
+    assert isinstance(result, TokenCount)
+    assert int(result) == 6
+
+
+def test_token_count_sum_with_start_returns_token_count() -> None:
+    result = sum([TokenCount(10), TokenCount(20)], start=TokenCount(0))
+    assert isinstance(result, TokenCount)
+    assert int(result) == 30
+
+
+def test_token_count_sum_empty_with_start_returns_token_count() -> None:
+    result = sum([], start=TokenCount(0))
+    assert isinstance(result, TokenCount)
+    assert int(result) == 0
+
+
 def test_token_count_less_than() -> None:
     assert TokenCount(100) < TokenCount(200)
 

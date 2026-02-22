@@ -29,19 +29,23 @@ class LexicalRetrievalStrategy:
     chunks: list[CodeChunk]
     _top_k: int = _DEFAULT_TOP_K
     _index: bm25s.BM25 = field(init=False, repr=False)
+    _empty: bool = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         self._index = bm25s.BM25()
-        if self.chunks:
-            corpus = [chunk.content for chunk in self.chunks]
-            corpus_tokens = bm25s.tokenize(corpus, stopwords="en", show_progress=False)
-            self._index.index(corpus_tokens, show_progress=False)
+        if not self.chunks:
+            self._empty = True
+            return
+        self._empty = False
+        corpus = [chunk.content for chunk in self.chunks]
+        corpus_tokens = bm25s.tokenize(corpus, stopwords="en", show_progress=False)
+        self._index.index(corpus_tokens, show_progress=False)
 
     def retrieve(
         self, query: RetrievalQuery, budget: TokenCount | None = None
     ) -> list[ContextItem]:
         """Retrieve context items relevant to the query via BM25."""
-        if not self.chunks:
+        if self._empty:
             return []
 
         query_text = self._build_query_text(query)

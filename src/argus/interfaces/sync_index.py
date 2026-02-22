@@ -57,8 +57,13 @@ def _is_parseable(path: str, extensions: frozenset[str]) -> bool:
 
 def _extract_after_sha(event_path: str) -> str:
     """Extract the HEAD (after) SHA from a push event payload."""
-    with Path(event_path).open() as f:
-        event: dict[str, object] = json.load(f)
+    try:
+        with Path(event_path).open() as f:
+            event: dict[str, object] = json.load(f)
+    except FileNotFoundError as e:
+        raise ConfigurationError(f"Event file not found: {event_path}") from e
+    except json.JSONDecodeError as e:
+        raise ConfigurationError(f"Invalid event JSON: {e}") from e
     after = event.get("after")
     if not isinstance(after, str):
         msg = "Cannot extract 'after' SHA from push event"
