@@ -112,7 +112,7 @@ class LLMPatternAnalyzer:
                 f"## Codebase Outline\n```\n{outline_text}\n```",
             )
             return [self._to_entry(p) for p in result.output.patterns]
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, OSError) as e:
             raise ProfileAnalysisError(f"Pattern analysis failed: {e}") from e
 
     def analyze_incremental(
@@ -141,7 +141,7 @@ class LLMPatternAnalyzer:
             )
             result = agent.run_sync(prompt)
             return [self._to_entry(p) for p in result.output.patterns]
-        except Exception as e:
+        except (RuntimeError, ValueError, TypeError, OSError) as e:
             raise ProfileAnalysisError(f"Pattern analysis failed: {e}") from e
 
     @staticmethod

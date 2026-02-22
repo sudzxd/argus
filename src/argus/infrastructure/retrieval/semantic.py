@@ -16,6 +16,8 @@ from argus.shared.types import FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
 
+_EPSILON = 1e-12
+
 
 @dataclass
 class SemanticRetrievalStrategy:
@@ -114,6 +116,6 @@ def _cosine_similarity(a: list[float], b: list[float]) -> float:
     dot = sum(x * y for x, y in zip(a, b, strict=True))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(x * x for x in b))
-    if norm_a == 0.0 or norm_b == 0.0:
+    if norm_a < _EPSILON or norm_b < _EPSILON:
         return 0.0
     return dot / (norm_a * norm_b)

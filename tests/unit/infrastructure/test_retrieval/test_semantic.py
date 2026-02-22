@@ -41,6 +41,14 @@ def test_cosine_similarity_zero_vector() -> None:
     assert _cosine_similarity(a, b) == 0.0
 
 
+def test_cosine_similarity_near_zero_vector() -> None:
+    """Vectors with near-zero norms should return 0.0, not NaN/Inf."""
+    a = [1e-15, 1e-15]
+    b = [1.0, 0.0]
+    result = _cosine_similarity(a, b)
+    assert result == 0.0
+
+
 def test_cosine_similarity_mismatched_dimensions_raises() -> None:
     a = [1.0, 0.0, 0.0]
     b = [1.0, 0.0]

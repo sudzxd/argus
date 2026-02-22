@@ -125,6 +125,20 @@ class TestLLMPatternAnalyzer:
             analyzer.analyze("text")
 
     @patch("argus.infrastructure.memory.llm_analyzer.create_agent")
+    def test_analyze_does_not_catch_keyboard_interrupt(
+        self,
+        mock_create_agent: MagicMock,
+        model_config: ModelConfig,
+    ) -> None:
+        """KeyboardInterrupt must propagate, not be swallowed."""
+        mock_create_agent.side_effect = KeyboardInterrupt
+
+        analyzer = LLMPatternAnalyzer(config=model_config)
+
+        with pytest.raises(KeyboardInterrupt):
+            analyzer.analyze("text")
+
+    @patch("argus.infrastructure.memory.llm_analyzer.create_agent")
     def test_analyze_incremental_uses_incremental_prompt(
         self,
         mock_create_agent: MagicMock,

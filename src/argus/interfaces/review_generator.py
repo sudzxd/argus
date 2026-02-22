@@ -264,11 +264,19 @@ class LLMReviewGenerator:
         return Review(summary=summary, comments=comments)
 
     def _to_comment(self, c: ReviewOutput.CommentOutput) -> ReviewComment:
+        severity = _SEVERITY_MAP.get(c.severity.lower())
+        if severity is None:
+            logger.warning("Unknown severity %r, defaulting to SUGGESTION", c.severity)
+            severity = Severity.SUGGESTION
+        category = _CATEGORY_MAP.get(c.category.lower())
+        if category is None:
+            logger.warning("Unknown category %r, defaulting to STYLE", c.category)
+            category = Category.STYLE
         return ReviewComment(
             file=FilePath(c.file),
             line_range=LineRange(c.line_start, c.line_end),
-            severity=_SEVERITY_MAP.get(c.severity.lower(), Severity.SUGGESTION),
-            category=_CATEGORY_MAP.get(c.category.lower(), Category.STYLE),
+            severity=severity,
+            category=category,
             body=c.body,
             confidence=c.confidence,
             suggestion=c.suggestion,
