@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "indexed_at": "82f5cef638c0c74bfa2fd3cc9aae2c7add9df342",
+  "indexed_at": "f300331c6405fa8cf6748fb376c5b1b04bc74955",
   "shards": {
     "src/argus": {
       "directory": "src/argus",
@@ -269,23 +269,11 @@
   },
   "cross_shard_edges": [],
   "embedding_indices": {
-    "src/argus/interfaces": {
-      "shard_id": "src/argus/interfaces",
+    "website/src/components": {
+      "shard_id": "website/src/components",
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
-      "blob_name": "e58139a4b76be89b_embeddings.json"
-    },
-    "src/argus/infrastructure/storage": {
-      "shard_id": "src/argus/infrastructure/storage",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "d0db4055393add63_embeddings.json"
-    },
-    "tests/unit/infrastructure/test_storage": {
-      "shard_id": "tests/unit/infrastructure/test_storage",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "d0e437d0ba85dc53_embeddings.json"
+      "blob_name": "0470b1d56830c3ec_embeddings.json"
     }
   }
 }

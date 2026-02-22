@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 2,
+  "version": 3,
   "outline": {
     "version": 0,
     "entries": [
@@ -842,6 +842,14 @@
     },
     {
       "category": "style",
+      "description": "The frontend part of the codebase uses TypeScript for development, indicated by `.tsx` file extensions.",
+      "confidence": 0.8,
+      "examples": [
+        "website/src/components/Hero.tsx"
+      ]
+    },
+    {
+      "category": "style",
       "description": "The project consistently uses `StrEnum` and `IntEnum` for defining enumerations, providing type safety and clear representation for string and integer-backed enums.",
       "confidence": 0.7,
       "examples": [
@@ -877,6 +885,14 @@
       ]
     },
     {
+      "category": "architecture",
+      "description": "The codebase includes a frontend application structured with a `components` directory, suggesting a component-based architecture, likely using a framework like React.",
+      "confidence": 0.7,
+      "examples": [
+        "website/src/components/Hero.tsx"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -895,5 +911,5 @@
       ]
     }
   ],
-  "analyzed_at": "82f5cef638c0c74bfa2fd3cc9aae2c7add9df342"
+  "analyzed_at": "f300331c6405fa8cf6748fb376c5b1b04bc74955"
 }
