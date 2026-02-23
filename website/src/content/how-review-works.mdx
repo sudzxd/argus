@@ -1,0 +1,156 @@
+---
+title: How a Review Works
+description: A step-by-step walkthrough of the Argus review pipeline — from PR event to inline comments.
+order: 2
+---
+
+## Pipeline at a Glance
+
+When a pull request opens (or a new commit is pushed), Argus executes this pipeline:
+
+1. **GitHub webhook** fires a `pull_request` event
+2. **Config loading** — reads `[tool.argus]` from `pyproject.toml`, merges with env secrets
+3. **Diff extraction** — fetches the PR diff via the GitHub REST API
+4. **PR context collection** — gathers PR metadata, CI status, review comments, and git health
+5. **Artifact pull** — downloads the codebase map manifest and relevant shards from the `argus-data` orphan branch
+6. **Codebase map reconstruction** — loads only the shards touched by the diff plus their 1-hop neighbors
+7. **Retrieval** — four strategies run in parallel to find relevant context for each changed file
+8. **Ranking** — the Context Ranker deduplicates, scores, and budget-constrains all retrieved items
+9. **Prompt assembly** — the diff, PR context, retrieved context, outline, and patterns are assembled in priority order
+10. **LLM review** — the prompt is sent to your configured LLM provider for structured review generation
+11. **Noise filtering** — low-confidence and ignored-path comments are dropped
+12. **Publishing** — surviving comments are posted as inline PR review annotations via the GitHub API
+
+## Retrieval Strategies
+
+Argus uses four complementary retrieval strategies, each allocated a fraction of the retrieval token budget. They run independently and their results are merged by the Context Ranker.
+
+### Structural (40% of retrieval budget)
+
+Walks the dependency graph stored in the codebase map. For each changed file, it collects:
+
+- **Direct dependents** (files that import/call the changed code) — scored at **0.9** relevance
+- **Direct dependencies** (files the changed code imports/calls) — scored at **0.8** relevance
+
+This is deterministic and instant — no LLM or search index required. It answers "what else might break if this file changes?"
+
+### Lexical / BM25 (30% of retrieval budget)
+
+Sparse token-based retrieval using BM25 ranking. Extracts keywords from the diff and searches the indexed codebase for files containing those terms.
+
+Key behaviors:
+- **Excludes changed files** from results (you already have those in the diff)
+- **Dynamic k** — adjusts the number of results based on budget
+- Works without any embeddings or LLM calls
+
+Good at finding files that share domain terminology with the change — e.g., if you modify a `PaymentError` class, BM25 finds other files that reference `PaymentError`.
+
+### Semantic / Embeddings (20% of retrieval budget)
+
+Cosine similarity search against pre-computed embedding indices. Requires `embedding_model` to be configured (e.g., `"local:all-MiniLM-L6-v2"`, `"google:text-embedding-004"`, or `"openai:text-embedding-3-small"`).
+
+Key behaviors:
+- **Dimension validation** — if the query embedding dimension doesn't match stored index dimensions, the index is skipped (logged as a warning, never crashes)
+- Finds conceptually similar code even when terminology differs
+
+This is optional — if no `embedding_model` is configured, this strategy contributes nothing and its budget is unused.
+
+### Agentic / LLM-Guided (10% of retrieval budget)
+
+An LLM examines the diff and already-retrieved context, then generates a `SearchPlan` — a structured output containing:
+
+- `queries` — keyword search queries targeting symbols or concepts not yet covered
+- `needs_more_context` — whether another iteration would help
+
+The strategy iterates up to **3 times** (configurable via `MAX_AGENTIC_ITERATIONS`). Each iteration runs the search plan's queries against the codebase and feeds the results back for the next round.
+
+This is the most expensive strategy but catches context that pure structural and keyword approaches miss — for example, related configuration files, test fixtures, or cross-module patterns.
+
+Requires `enable_agentic: true` in your config. Off by default.
+
+## Context Ranker
+
+After all strategies return their results, the Context Ranker processes the combined list in three steps:
+
+1. **Deduplicate** — if multiple strategies found the same source file, keep only the highest-scored item
+2. **Sort** — order all items by relevance score, highest first
+3. **Greedy budget fill** — walk the sorted list and include items until the token budget is exhausted
+
+This ensures the most relevant context always makes it into the prompt, regardless of which strategy found it.
+
+## Prompt Assembly
+
+The LLM prompt is assembled in strict priority order. Each section is included only if it fits within the remaining token budget — if adding a section would exceed the budget, it's dropped entirely:
+
+1. **Diff** (always included) — the actual code changes
+2. **PR context** — PR title, description, CI status, review comments, git health
+3. **Retrieved context** — the ranked code snippets from retrieval
+4. **Codebase outline** — a structural summary of the repository
+5. **Codebase patterns** — learned conventions and anti-patterns from pattern memory
+
+This priority ordering means the LLM always sees the diff and PR context. On large diffs, lower-priority sections like patterns may be dropped to stay within budget.
+
+## Noise Filter
+
+Before posting, every generated comment passes through the Noise Filter:
+
+- **Confidence threshold** — comments with confidence below the threshold (default **0.7**) are dropped. You can tune this with `confidence_threshold` in your config.
+- **Path prefix exclusion** — comments on files matching `ignored_paths` glob patterns are dropped. Useful for generated code, vendored dependencies, or documentation.
+
+Both checks must pass for a comment to be published.
+
+## Failure Handling
+
+Argus is designed to degrade gracefully rather than fail entirely:
+
+- **Codebase map loading** — if the sharded format fails, falls back to legacy flat format, then to an empty map. A review with no codebase context is still better than no review at all.
+- **Per-file errors** — if retrieval or review fails for a single file, that file is skipped and the rest of the PR is still reviewed.
+- **Optional features** — semantic retrieval, agentic retrieval, pattern memory, and PR context collection are all optional. If any fails, it's logged and skipped — it never blocks the review.
+- **Exception hierarchy** — Argus defines 11 typed exception classes so failures are specific and catchable at the right level.
+
+The design principle: **the review pipeline should always produce output**. Partial context is better than no review.
+
+## Token Budget Breakdown
+
+The total token budget (default 128,000 tokens) is split into two pools:
+
+| Pool | Share | Purpose |
+|------|-------|---------|
+| **Retrieval** | 60% (76,800 tokens) | Finding relevant context |
+| **Generation** | 40% (51,200 tokens) | LLM prompt + response |
+
+The retrieval budget is further divided among strategies:
+
+| Strategy | Share of Retrieval | Tokens (at 128k total) |
+|----------|-------------------|------------------------|
+| Structural | 40% | ~30,700 |
+| Lexical (BM25) | 30% | ~23,000 |
+| Semantic (embeddings) | 20% | ~15,400 |
+| Agentic (LLM-guided) | 10% | ~7,700 |
+
+These splits are hardcoded defaults. If a strategy is disabled (e.g., no `embedding_model`), its budget allocation is unused — it doesn't redistribute to other strategies.
+
+## Concrete Example
+
+Imagine you open a PR that modifies `src/api/handlers.ts` — specifically the `handlePayment()` function. Here's what each strategy finds:
+
+**Structural retrieval** walks the codebase map's dependency graph:
+- `src/api/routes.ts` (imports `handlePayment`) — scored 0.9 as a dependent
+- `src/db/transactions.ts` (called by `handlePayment`) — scored 0.8 as a dependency
+- `src/errors/payment.ts` (imported by `handlePayment`) — scored 0.8 as a dependency
+
+**Lexical retrieval** searches for terms from the diff (`PaymentError`, `db.charge`, `db.commit`):
+- `src/tests/payment.test.ts` — contains `PaymentError` assertions
+- `src/db/migrations/003_payments.ts` — references `charge` and `commit` patterns
+
+**Semantic retrieval** (if configured) finds conceptually similar code:
+- `src/api/refund-handler.ts` — similar payment processing logic, different terminology
+
+**Agentic retrieval** (if enabled) — the LLM notices the diff adds error handling and generates queries for error handling patterns:
+- `src/middleware/error-boundary.ts` — the project's error handling middleware
+
+**Ranker** deduplicates (e.g., if both structural and lexical found `transactions.ts`, keeps the higher score), sorts by relevance, and fills the budget greedily.
+
+**Prompt assembly** packs it all together: the diff first, then PR metadata, then the ranked context snippets, then the codebase outline if it fits.
+
+The LLM sees the full picture — not just the three lines you changed, but the routes that call them, the database layer underneath, the test coverage, and the error handling patterns your project uses.

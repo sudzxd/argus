@@ -1,7 +1,7 @@
 ---
 title: Configuration
 description: All available configuration options for the Argus GitHub Action.
-order: 2
+order: 3
 ---
 
 ## TOML Configuration
@@ -24,6 +24,20 @@ analyze_patterns = true
 ```
 
 The `[tool.argus]` section provides defaults for all modes. The `[tool.argus.index]` subsection overrides values only when running in `index` or `bootstrap` mode.
+
+## What to Tune First
+
+These five settings have the most impact on review quality. Adjust them in this order:
+
+1. **`model`** — The single biggest lever. Claude Sonnet gives the best quality-to-cost ratio. GPT-4o and Gemini Flash are viable alternatives. Cheaper models produce noticeably weaker reviews.
+
+2. **`review_depth`** — Controls how much context the LLM sees. `"quick"` skips memory context entirely. `"standard"` (default) includes the codebase outline. `"deep"` adds learned patterns on top. Start with `"standard"` and upgrade to `"deep"` once you've bootstrapped pattern memory.
+
+3. **`confidence_threshold`** — The noise filter dial. Default `0.7` is a good balance. Lower it (e.g., `0.5`) to see more comments at the cost of more noise. Raise it (e.g., `0.85`) for only high-confidence findings.
+
+4. **`enable_agentic`** — Enables LLM-guided retrieval that iterates up to 3 times to find context other strategies miss. Produces better reviews on complex changes but costs more LLM tokens. Off by default.
+
+5. **`embedding_model`** — Enables semantic retrieval via pre-computed embedding indices. Set to `"local:all-MiniLM-L6-v2"` for free local embeddings, or use `"google:text-embedding-004"` / `"openai:text-embedding-3-small"` for cloud providers. Empty string (default) disables semantic retrieval.
 
 ### Core Settings
 

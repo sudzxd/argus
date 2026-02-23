@@ -23,7 +23,7 @@ const features = [
     ),
     title: "Hybrid Retrieval",
     description:
-      "Combines structural analysis, BM25 lexical search, and optional agentic exploration to find exactly the right context for every change.",
+      "Four strategies — structural graph-walk, BM25 lexical search, embedding-based semantic similarity, and LLM-guided agentic exploration — feed a Context Ranker that deduplicates, scores, and budget-constrains the results.",
   },
   {
     icon: (
@@ -43,7 +43,7 @@ const features = [
     ),
     title: "Zero Infrastructure",
     description:
-      "Runs as a GitHub Action with artifacts stored on an orphan branch. No databases, no servers, no external services to maintain.",
+      "Runs as a GitHub Action with all artifacts stored on an orphan branch in your repo. No data leaves your repository except diffs and selected context snippets sent to your chosen LLM provider.",
   },
   {
     icon: (
@@ -63,7 +63,7 @@ const features = [
     ),
     title: "Pattern Memory",
     description:
-      "Learns your codebase's conventions and anti-patterns through incremental analysis. Reviews reference this memory, getting smarter with every indexed commit.",
+      "Bootstrap runs a full LLM-powered analysis of your codebase's conventions and anti-patterns. Incremental indexing keeps patterns current on every push. Reviews reference this memory, getting smarter over time.",
   },
 ];
 
