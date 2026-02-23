@@ -270,6 +270,48 @@ class TestLLMReviewGenerator:
         assert "@reviewer" in prompt
         assert "Fix auth timeout" in prompt
 
+    @patch("argus.interfaces.review_generator.create_agent")
+    def test_generate_logs_warning_on_unknown_severity_category(
+        self,
+        mock_create_agent: MagicMock,
+        model_config: ModelConfig,
+        review_request: ReviewRequest,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        import logging
+
+        output = ReviewOutput(
+            summary_description="Review",
+            summary_risks=[],
+            summary_strengths=[],
+            summary_verdict="Approve",
+            comments=[
+                ReviewOutput.CommentOutput(
+                    file="a.py",
+                    line_start=1,
+                    line_end=1,
+                    severity="alien",
+                    category="quantum",
+                    body="Unknown types",
+                    confidence=0.5,
+                ),
+            ],
+        )
+        mock_agent = MagicMock()
+        mock_result = MagicMock()
+        mock_result.output = output
+        mock_agent.run_sync.return_value = mock_result
+        mock_create_agent.return_value = mock_agent
+
+        generator = LLMReviewGenerator(config=model_config)
+        with caplog.at_level(logging.WARNING):
+            review, _usage = generator.generate(review_request)
+
+        assert review.comments[0].severity == Severity.SUGGESTION
+        assert review.comments[0].category == Category.STYLE
+        assert "Unknown severity 'alien'" in caplog.text
+        assert "Unknown category 'quantum'" in caplog.text
+
 
 class TestFormatPrContext:
     """Test _format_pr_context helper."""
