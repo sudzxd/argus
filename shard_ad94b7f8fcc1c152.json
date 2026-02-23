@@ -43,8 +43,8 @@
         {
           "name": "Home",
           "kind": "function",
-          "line_start": 8,
-          "line_end": 21,
+          "line_start": 9,
+          "line_end": 23,
           "signature": "function Home()"
         }
       ],
@@ -52,6 +52,7 @@
         "@/components/Navbar",
         "@/components/Hero",
         "@/components/Features",
+        "@/components/PrivacySection",
         "@/components/HowItWorks",
         "@/components/QuickSetup",
         "@/components/Footer"

@@ -127,6 +127,17 @@
       "summary": null
     },
     {
+      "path": "website/src/components/PrivacySection.tsx",
+      "symbols": [],
+      "imports": [
+        "framer-motion",
+        "./GlassCard"
+      ],
+      "exports": [],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
       "path": "website/src/components/QuickSetup.tsx",
       "symbols": [],
       "imports": [

@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 4,
+  "version": 5,
   "outline": {
     "version": 0,
     "entries": [
@@ -945,5 +945,5 @@
       ]
     }
   ],
-  "analyzed_at": "fd2b195b1f16dd9aec466f5e654e721d59815651"
+  "analyzed_at": "a29167076ca52d2ba0c76c7fe15953e0f686d370"
 }
