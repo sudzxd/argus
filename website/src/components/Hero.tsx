@@ -47,15 +47,15 @@ function PRReviewDemo() {
   return (
     <div className="rounded-xl overflow-hidden border border-border glow-amber">
       {/* PR header bar */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-surface/60 border-b border-border">
-        <svg className="w-4 h-4 text-jade" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-surface/60 border-b border-border min-w-0">
+        <svg className="w-4 h-4 text-jade shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
-        <span className="text-xs text-cream-muted" style={{ fontFamily: "var(--font-mono)" }}>
+        <span className="text-xs text-cream-muted shrink-0" style={{ fontFamily: "var(--font-mono)" }}>
           PR #142
         </span>
-        <span className="text-xs text-cream-dim">feat: add payment error handling</span>
-        <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-jade/10 text-jade border border-jade/20">
+        <span className="text-xs text-cream-dim truncate min-w-0">feat: add payment error handling</span>
+        <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-jade/10 text-jade border border-jade/20 shrink-0 whitespace-nowrap">
           +2 -1
         </span>
       </div>
@@ -126,9 +126,9 @@ function PRReviewDemo() {
               <p className="text-[11px] text-cream-muted leading-relaxed">
                 {inlineComment.body}
               </p>
-              <div className="mt-2 rounded bg-jade/5 border border-jade/15 px-2 py-1.5">
+              <div className="mt-2 rounded bg-jade/5 border border-jade/15 px-2 py-1.5 overflow-x-auto">
                 <span className="text-[10px] text-jade/70 block mb-1">Suggested change:</span>
-                <pre className="text-[10px] text-jade whitespace-pre leading-relaxed">
+                <pre className="text-[10px] text-jade whitespace-pre-wrap break-words leading-relaxed">
                   {inlineComment.suggestion}
                 </pre>
               </div>
