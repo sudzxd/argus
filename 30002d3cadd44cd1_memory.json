@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 6,
+  "version": 7,
   "outline": {
     "version": 0,
     "entries": [
@@ -833,6 +833,15 @@
     },
     {
       "category": "architecture",
+      "description": "The frontend application uses Next.js App Router conventions, specifically for defining global layouts in `src/app/layout.tsx` with a `RootLayout` component.",
+      "confidence": 0.9,
+      "examples": [
+        "website/src/app/layout.tsx",
+        "function RootLayout({"
+      ]
+    },
+    {
+      "category": "architecture",
       "description": "Extensive use of small, immutable classes, often found in `domain/*/value_objects.py`, to represent conceptual wholes and enforce domain invariants.",
       "confidence": 0.8,
       "examples": [
@@ -945,5 +954,5 @@
       ]
     }
   ],
-  "analyzed_at": "9b248c12f19d43785ccec2e0ff2a82e00df4a84e"
+  "analyzed_at": "8867545c744aa7c6c213b3ea84c04b2b426bb97a"
 }
