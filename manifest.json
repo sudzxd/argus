@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "indexed_at": "a29167076ca52d2ba0c76c7fe15953e0f686d370",
+  "indexed_at": "9b248c12f19d43785ccec2e0ff2a82e00df4a84e",
   "shards": {
     "src/argus": {
       "directory": "src/argus",
@@ -274,12 +274,6 @@
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
       "blob_name": "0470b1d56830c3ec_embeddings.json"
-    },
-    "website/src/app": {
-      "shard_id": "website/src/app",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "6de3679ba975bc61_embeddings.json"
     }
   }
 }
