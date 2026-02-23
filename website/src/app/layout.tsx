@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Argus indexes your entire codebase, retrieves relevant context for every diff, and delivers precise inline review comments on your pull requests.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.svg",
   },
 };
 
