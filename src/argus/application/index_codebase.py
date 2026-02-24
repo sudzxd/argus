@@ -44,7 +44,8 @@ class IndexCodebase:
                 commit_sha=cmd.commit_sha,
                 file_contents=cmd.file_contents,
             )
-            self.repository.save(cmd.repo_id, codebase_map)
+
+        self.repository.save(cmd.repo_id, codebase_map)
 
         checkpoint = Checkpoint(
             commit_sha=cmd.commit_sha,

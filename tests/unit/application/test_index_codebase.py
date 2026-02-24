@@ -86,6 +86,7 @@ def test_full_index_when_no_existing_map(
     assert result.files_indexed == 2
     assert result.checkpoint.commit_sha == CommitSHA("abc123")
     mock_indexing_service.full_index.assert_called_once()
+    mock_repository.save.assert_called_once()
 
 
 # =============================================================================
