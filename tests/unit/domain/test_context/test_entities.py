@@ -22,15 +22,15 @@ from argus.shared.types import CommitSHA, FilePath, LineRange
 def file_entry() -> FileEntry:
     return FileEntry(
         path=FilePath("src/auth/login.py"),
-        symbols=[
+        symbols=(
             Symbol(
                 name="login_user",
                 kind=SymbolKind.FUNCTION,
                 line_range=LineRange(start=10, end=25),
             ),
-        ],
-        imports=[FilePath("src/db/models.py")],
-        exports=["login_user"],
+        ),
+        imports=(FilePath("src/db/models.py"),),
+        exports=("login_user",),
         last_indexed=CommitSHA("abc123"),
     )
 
@@ -39,8 +39,8 @@ def test_file_entry_stores_fields(file_entry: FileEntry) -> None:
     assert file_entry.path == FilePath("src/auth/login.py")
     assert len(file_entry.symbols) == 1
     assert file_entry.symbols[0].name == "login_user"
-    assert file_entry.imports == [FilePath("src/db/models.py")]
-    assert file_entry.exports == ["login_user"]
+    assert file_entry.imports == (FilePath("src/db/models.py"),)
+    assert file_entry.exports == ("login_user",)
     assert file_entry.last_indexed == CommitSHA("abc123")
 
 
@@ -51,9 +51,9 @@ def test_file_entry_summary_defaults_none(file_entry: FileEntry) -> None:
 def test_file_entry_with_summary() -> None:
     entry = FileEntry(
         path=FilePath("src/main.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("abc"),
         summary="Application entry point.",
     )
@@ -96,9 +96,9 @@ def test_codebase_map_upsert_replaces_entry(
 ) -> None:
     updated = FileEntry(
         path=FilePath("src/auth/login.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("def456"),
         summary="Updated.",
     )
@@ -147,9 +147,9 @@ def test_codebase_map_graph_tracks_edges(
 
     entry = FileEntry(
         path=login,
-        symbols=[],
-        imports=[models],
-        exports=[],
+        symbols=(),
+        imports=(models,),
+        exports=(),
         last_indexed=CommitSHA("abc"),
     )
     codebase_map.upsert(entry)
@@ -168,9 +168,9 @@ def test_codebase_map_remove_cleans_graph(
 
     entry = FileEntry(
         path=login,
-        symbols=[],
-        imports=[models],
-        exports=[],
+        symbols=(),
+        imports=(models,),
+        exports=(),
         last_indexed=CommitSHA("abc"),
     )
     codebase_map.upsert(entry)

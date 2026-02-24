@@ -93,7 +93,7 @@ def test_review_pr_result_stores_fields() -> None:
             strengths=["Clean"],
             verdict="Approve",
         ),
-        comments=[],
+        comments=(),
     )
     result = ReviewPullRequestResult(
         review=review,

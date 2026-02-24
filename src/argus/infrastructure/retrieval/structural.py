@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from argus.domain.context.entities import CodebaseMap
@@ -76,7 +77,7 @@ class StructuralRetrievalStrategy:
 
         return items
 
-    def _build_content(self, path: FilePath, exports: list[str]) -> str:
+    def _build_content(self, path: FilePath, exports: Sequence[str]) -> str:
         if exports:
             symbols = ", ".join(exports)
             return f"# {path}\nExports: {symbols}"

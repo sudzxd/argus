@@ -38,9 +38,9 @@ def use_case(
 def _make_file_entry(path: str, sha: str = "abc") -> FileEntry:
     return FileEntry(
         path=FilePath(path),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA(sha),
     )
 

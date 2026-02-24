@@ -19,7 +19,10 @@ class NoiseFilter:
     confidence_threshold: float
     ignored_paths: list[FilePath] = field(default_factory=list[FilePath])
 
-    def filter(self, comments: list[ReviewComment]) -> list[ReviewComment]:
+    def filter(
+        self,
+        comments: tuple[ReviewComment, ...] | list[ReviewComment],
+    ) -> list[ReviewComment]:
         """Remove comments below confidence threshold or in ignored paths.
 
         Args:

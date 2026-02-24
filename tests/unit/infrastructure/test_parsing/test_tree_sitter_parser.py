@@ -134,9 +134,9 @@ def test_parse_python_empty_file(parser: TreeSitterParser) -> None:
     entry = parser.parse(FilePath("empty.py"), "")
 
     assert entry.path == FilePath("empty.py")
-    assert entry.symbols == []
-    assert entry.imports == []
-    assert entry.exports == []
+    assert entry.symbols == ()
+    assert entry.imports == ()
+    assert entry.exports == ()
 
 
 def test_parse_python_line_ranges_are_1_indexed(

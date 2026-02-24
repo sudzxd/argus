@@ -14,7 +14,7 @@ from argus.shared.types import FilePath
 
 def _make_outline() -> CodebaseOutline:
     return CodebaseOutline(
-        entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+        entries=(FileOutlineEntry(path=FilePath("main.py"), symbols=("main",)),)
     )
 
 
@@ -76,7 +76,7 @@ class TestProfileService:
     def test_update_profile_appends_new_patterns(self) -> None:
         from argus.domain.memory.value_objects import CodebaseMemory
 
-        existing_patterns = [
+        existing_patterns = (
             PatternEntry(
                 category=PatternCategory.STYLE,
                 description="Old pattern",
@@ -87,7 +87,7 @@ class TestProfileService:
                 description="Naming pattern",
                 confidence=0.7,
             ),
-        ]
+        )
         existing = CodebaseMemory(
             repo_id="org/repo",
             outline=_make_outline(),

@@ -33,24 +33,24 @@ def _build_map() -> CodebaseMap:
     cbm.upsert(
         FileEntry(
             path=FilePath("src/main.py"),
-            symbols=[
+            symbols=(
                 Symbol(
                     name="main",
                     kind=SymbolKind.FUNCTION,
                     line_range=LineRange(start=1, end=5),
                 ),
-            ],
-            imports=[FilePath("lib/utils.py")],
-            exports=["main"],
+            ),
+            imports=(FilePath("lib/utils.py"),),
+            exports=("main",),
             last_indexed=CommitSHA("sha123"),
         )
     )
     cbm.upsert(
         FileEntry(
             path=FilePath("lib/utils.py"),
-            symbols=[],
-            imports=[],
-            exports=["helper"],
+            symbols=(),
+            imports=(),
+            exports=("helper",),
             last_indexed=CommitSHA("sha123"),
         )
     )
@@ -165,9 +165,9 @@ def test_load_or_migrate_legacy(tmp_path: Path) -> None:
     cbm.upsert(
         FileEntry(
             path=FilePath("old.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("legacy"),
         )
     )
@@ -241,15 +241,15 @@ def test_save_incremental_returns_orphaned_blobs(tmp_path: Path) -> None:
     cbm.upsert(
         FileEntry(
             path=FilePath("src/main.py"),
-            symbols=[
+            symbols=(
                 Symbol(
                     name="main_v2",
                     kind=SymbolKind.FUNCTION,
                     line_range=LineRange(start=1, end=10),
                 ),
-            ],
-            imports=[],
-            exports=["main_v2"],
+            ),
+            imports=(),
+            exports=("main_v2",),
             last_indexed=CommitSHA("sha456"),
         )
     )
@@ -343,15 +343,15 @@ def test_save_incremental_orphan_deletion_after_manifest(tmp_path: Path) -> None
     cbm.upsert(
         FileEntry(
             path=FilePath("src/main.py"),
-            symbols=[
+            symbols=(
                 Symbol(
                     name="main_v2",
                     kind=SymbolKind.FUNCTION,
                     line_range=LineRange(start=1, end=10),
                 ),
-            ],
-            imports=[],
-            exports=["main_v2"],
+            ),
+            imports=(),
+            exports=("main_v2",),
             last_indexed=CommitSHA("sha456"),
         )
     )

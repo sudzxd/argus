@@ -16,9 +16,9 @@ from argus.shared.types import CommitSHA, FilePath, TokenCount
 def _make_entry(path: str) -> FileEntry:
     return FileEntry(
         path=FilePath(path),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("sha"),
     )
 
@@ -187,9 +187,9 @@ def test_content_includes_exports() -> None:
     cbm.upsert(
         FileEntry(
             path=FilePath("utils.py"),
-            symbols=[],
-            imports=[],
-            exports=["helper", "validate"],
+            symbols=(),
+            imports=(),
+            exports=("helper", "validate"),
             last_indexed=CommitSHA("sha"),
         )
     )

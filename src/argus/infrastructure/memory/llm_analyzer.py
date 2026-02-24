@@ -118,7 +118,7 @@ class LLMPatternAnalyzer:
     def analyze_incremental(
         self,
         outline_text: str,
-        existing_patterns: list[PatternEntry],
+        existing_patterns: tuple[PatternEntry, ...] | list[PatternEntry],
     ) -> list[PatternEntry]:
         """Analyze a codebase outline, only returning genuinely new patterns.
 
@@ -158,11 +158,13 @@ class LLMPatternAnalyzer:
             category=category,
             description=p.description,
             confidence=confidence,
-            examples=p.examples,
+            examples=tuple(p.examples),
         )
 
 
-def _format_existing_patterns(patterns: list[PatternEntry]) -> str:
+def _format_existing_patterns(
+    patterns: tuple[PatternEntry, ...] | list[PatternEntry],
+) -> str:
     """Format existing patterns as text for the LLM prompt."""
     lines: list[str] = []
     for p in patterns:

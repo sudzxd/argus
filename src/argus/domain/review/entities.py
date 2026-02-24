@@ -30,7 +30,7 @@ class Review:
     """Aggregate root — the complete review of a pull request."""
 
     summary: ReviewSummary
-    comments: list[ReviewComment]
+    comments: tuple[ReviewComment, ...]
 
     def comments_by_severity(self, severity: Severity) -> list[ReviewComment]:
         """Filter comments by severity level."""

@@ -80,7 +80,7 @@ def test_review_has_critical_false() -> None:
             strengths=["Clean code."],
             verdict="Approved.",
         ),
-        comments=[],
+        comments=(),
     )
     assert review.has_critical is False
 

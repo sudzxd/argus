@@ -44,7 +44,7 @@ SAMPLE_DIFF = """\
 
 
 def _make_review(
-    comments: list[ReviewComment] | None = None,
+    comments: tuple[ReviewComment, ...] | None = None,
 ) -> Review:
     return Review(
         summary=ReviewSummary(
@@ -53,7 +53,7 @@ def _make_review(
             strengths=["Clean code"],
             verdict="Approve with suggestions",
         ),
-        comments=comments or [],
+        comments=comments or (),
     )
 
 
@@ -82,7 +82,7 @@ def _make_comment(
 def test_publish_with_comments_in_diff_uses_post_review() -> None:
     mock_client = MagicMock()
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
-    review = _make_review(comments=[_make_comment()])
+    review = _make_review(comments=(_make_comment(),))
 
     publisher.publish(review, pr_number=42)
 
@@ -92,7 +92,7 @@ def test_publish_with_comments_in_diff_uses_post_review() -> None:
 def test_publish_without_comments_uses_issue_comment() -> None:
     mock_client = MagicMock()
     publisher = GitHubReviewPublisher(client=mock_client)
-    review = _make_review(comments=[])
+    review = _make_review(comments=())
 
     publisher.publish(review, pr_number=42)
 
@@ -119,7 +119,7 @@ def test_publish_formats_comment_with_severity_label() -> None:
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
 
     comment = _make_comment(severity=Severity.CRITICAL)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -133,7 +133,7 @@ def test_publish_includes_suggestion_in_comment() -> None:
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
 
     comment = _make_comment()
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -149,7 +149,7 @@ def test_publish_comment_uses_position() -> None:
 
     # Single-line comment on line 10 → position 3
     comment = _make_comment(start=10, end=10)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -164,7 +164,7 @@ def test_publish_comment_uses_end_line_position() -> None:
 
     # Multi-line comment: lines 10-15, end line 15 -> position 8
     comment = _make_comment(start=10, end=15)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -182,7 +182,7 @@ def test_comments_outside_diff_go_to_body() -> None:
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
 
     comment = _make_comment(file="other_file.py", start=1, end=1)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -198,7 +198,7 @@ def test_body_fallback_suggestion_uses_suggestion_fence() -> None:
 
     # Comment on a file not in the diff → goes to body
     comment = _make_comment(file="other_file.py", start=1, end=1)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -212,7 +212,7 @@ def test_no_diff_puts_all_comments_in_body() -> None:
     publisher = GitHubReviewPublisher(client=mock_client)  # no diff
 
     comment = _make_comment()
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -227,7 +227,7 @@ def test_line_outside_hunk_goes_to_body() -> None:
 
     # Line 50 is not in the hunk (8-19)
     comment = _make_comment(start=50, end=50)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -244,7 +244,7 @@ def test_fallback_posts_comments_individually() -> None:
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
 
     comment = _make_comment()
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -258,7 +258,7 @@ def test_fallback_collects_failed_individual_comments() -> None:
     publisher = GitHubReviewPublisher(client=mock_client, diff=SAMPLE_DIFF)
 
     comment = _make_comment()
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 
@@ -381,7 +381,7 @@ def test_comment_line_falls_back_to_nearest_in_range() -> None:
 
     # Comment on lines 10-20: line 20 is not in diff, but line 15 is
     comment = _make_comment(start=10, end=20)
-    review = _make_review(comments=[comment])
+    review = _make_review(comments=(comment,))
 
     publisher.publish(review, pr_number=42)
 

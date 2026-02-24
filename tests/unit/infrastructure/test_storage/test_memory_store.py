@@ -29,19 +29,19 @@ def store(storage_dir: Path) -> FileMemoryStore:
 
 def _make_memory(repo_id: str = "org/repo") -> CodebaseMemory:
     outline = CodebaseOutline(
-        entries=[
-            FileOutlineEntry(path=FilePath("main.py"), symbols=["main", "helper"]),
-        ],
+        entries=(
+            FileOutlineEntry(path=FilePath("main.py"), symbols=("main", "helper")),
+        ),
         version=1,
     )
-    patterns = [
+    patterns = (
         PatternEntry(
             category=PatternCategory.STYLE,
             description="Use snake_case",
             confidence=0.9,
-            examples=["def my_func(): ..."],
+            examples=("def my_func(): ...",),
         ),
-    ]
+    )
     return CodebaseMemory(
         repo_id=repo_id,
         outline=outline,
@@ -67,11 +67,11 @@ class TestFileMemoryStore:
         assert loaded.outline.version == 1
         assert len(loaded.outline.entries) == 1
         assert loaded.outline.entries[0].path == FilePath("main.py")
-        assert loaded.outline.entries[0].symbols == ["main", "helper"]
+        assert loaded.outline.entries[0].symbols == ("main", "helper")
         assert len(loaded.patterns) == 1
         assert loaded.patterns[0].category == PatternCategory.STYLE
         assert loaded.patterns[0].confidence == 0.9
-        assert loaded.patterns[0].examples == ["def my_func(): ..."]
+        assert loaded.patterns[0].examples == ("def my_func(): ...",)
 
     def test_save_creates_storage_dir(
         self, storage_dir: Path, store: FileMemoryStore
@@ -98,7 +98,7 @@ class TestFileMemoryStore:
     ) -> None:
         memory = CodebaseMemory(
             repo_id="org/repo",
-            outline=CodebaseOutline(entries=[]),
+            outline=CodebaseOutline(entries=()),
             version=1,
             analyzed_at=CommitSHA("abc123def456"),
         )

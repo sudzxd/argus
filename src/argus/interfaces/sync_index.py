@@ -22,6 +22,7 @@ import json
 import logging
 import sys
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import httpx
@@ -30,7 +31,6 @@ from argus.domain.context.entities import CodebaseMap
 from argus.domain.context.value_objects import ShardedManifest
 from argus.domain.llm.value_objects import ModelConfig
 from argus.domain.memory.services import ProfileService
-from argus.domain.memory.value_objects import CodebaseMemory
 from argus.infrastructure.constants import DATA_BRANCH
 from argus.infrastructure.github.client import GitHubClient
 from argus.infrastructure.memory.llm_analyzer import LLMPatternAnalyzer
@@ -316,12 +316,6 @@ def _maybe_analyze_patterns(
         existing_memory,
         existing_memory.outline,
         outline_text,
-    )
-    memory = CodebaseMemory(
-        repo_id=memory.repo_id,
-        outline=memory.outline,
-        patterns=memory.patterns,
-        version=memory.version,
         analyzed_at=CommitSHA(after_sha),
     )
     memory_store.save(memory)
@@ -413,6 +407,34 @@ def _maybe_build_embeddings(
             store.save_manifest(manifest)
 
 
+_MAX_FETCH_WORKERS = 8
+
+
+def _fetch_files_parallel(
+    client: GitHubClient,
+    paths: list[FilePath],
+    *,
+    ref: str,
+) -> dict[FilePath, str]:
+    """Fetch file contents in parallel using a thread pool."""
+    if not paths:
+        return {}
+
+    results: dict[FilePath, str] = {}
+    with ThreadPoolExecutor(max_workers=_MAX_FETCH_WORKERS) as pool:
+        futures = {
+            pool.submit(client.get_file_content, path, ref=ref): path for path in paths
+        }
+        for future in as_completed(futures):
+            path = futures[future]
+            try:
+                results[path] = future.result()
+            except (ArgusError, httpx.HTTPError) as exc:
+                logger.debug("Could not fetch %s: %s", path, exc)
+
+    return results
+
+
 def _incremental_update_sharded(
     client: GitHubClient,
     parser: TreeSitterParser,
@@ -444,16 +466,17 @@ def _incremental_update_sharded(
         len(changed_paths),
     )
 
+    fps = [FilePath(p) for p in source_paths]
+    fetched = _fetch_files_parallel(client, fps, ref=after_sha)
+
     updated = 0
-    for path_str in source_paths:
-        fp = FilePath(path_str)
+    for fp, content in fetched.items():
         try:
-            content = client.get_file_content(fp, ref=after_sha)
             entry = parser.parse(fp, content)
             codebase_map.upsert(entry)
             updated += 1
-        except (ArgusError, IndexingError, httpx.HTTPError) as e:
-            logger.debug("Skipping %s: %s", path_str, e)
+        except (IndexingError, ArgusError) as e:
+            logger.debug("Skipping %s: %s", fp, e)
 
     codebase_map.indexed_at = CommitSHA(after_sha)
     logger.info("Updated %d files in codebase map", updated)

@@ -224,9 +224,9 @@ def _serialize_edge(edge: Edge) -> dict[str, str]:
 
 
 def _deserialize_entry(data: dict[str, object]) -> FileEntry:
-    symbols = [_deserialize_symbol(s) for s in data.get(F.SYMBOLS, [])]  # type: ignore[union-attr]
-    imports = [FilePath(str(p)) for p in data.get(F.IMPORTS, [])]  # type: ignore[union-attr]
-    exports = [str(e) for e in data.get(F.EXPORTS, [])]  # type: ignore[union-attr]
+    symbols = tuple(_deserialize_symbol(s) for s in data.get(F.SYMBOLS, []))  # type: ignore[union-attr]
+    imports = tuple(FilePath(str(p)) for p in data.get(F.IMPORTS, []))  # type: ignore[union-attr]
+    exports = tuple(str(e) for e in data.get(F.EXPORTS, []))  # type: ignore[union-attr]
 
     return FileEntry(
         path=FilePath(str(data[F.PATH])),

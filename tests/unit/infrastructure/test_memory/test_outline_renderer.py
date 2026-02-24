@@ -19,7 +19,7 @@ def _make_entry(
 ) -> FileEntry:
     return FileEntry(
         path=FilePath(path),
-        symbols=[
+        symbols=tuple(
             Symbol(
                 name=name,
                 kind=kind,
@@ -27,9 +27,9 @@ def _make_entry(
                 signature=sig,
             )
             for name, kind, sig in symbols
-        ],
-        imports=[],
-        exports=[],
+        ),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("abc"),
     )
 

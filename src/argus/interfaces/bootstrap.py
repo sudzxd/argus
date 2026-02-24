@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import sys
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import httpx
@@ -125,21 +126,19 @@ def _execute_bootstrap() -> None:
 
     logger.info("Found %d parseable source files", len(source_paths))
 
-    # 3. Fetch file contents and build codebase map.
+    # 3. Fetch file contents in parallel and build codebase map.
     codebase_map = CodebaseMap(indexed_at=CommitSHA(head_sha))
-    file_contents: dict[FilePath, str] = {}
-    fetched = 0
+    fps = [FilePath(p) for p in source_paths]
+    file_contents = _fetch_files_parallel(client, fps, ref=head_sha)
 
-    for path_str in source_paths:
-        fp = FilePath(path_str)
+    fetched = 0
+    for fp, content in file_contents.items():
         try:
-            content = client.get_file_content(fp, ref=head_sha)
-            file_contents[fp] = content
             entry = parser.parse(fp, content)
             codebase_map.upsert(entry)
             fetched += 1
-        except (ArgusError, IndexingError, httpx.HTTPError) as e:
-            logger.debug("Skipping %s: %s", path_str, e)
+        except (IndexingError, ArgusError) as e:
+            logger.debug("Skipping %s: %s", fp, e)
 
     logger.info("Parsed %d files into codebase map", fetched)
 
@@ -189,6 +188,7 @@ def _execute_bootstrap() -> None:
                 existing_memory,
                 full_outline,
                 outline_text,
+                analyzed_at=CommitSHA(head_sha),
             )
         else:
             logger.info("No files changed, keeping existing patterns")
@@ -197,20 +197,14 @@ def _execute_bootstrap() -> None:
                 outline=full_outline,
                 patterns=existing_memory.patterns,
                 version=existing_memory.version,
+                analyzed_at=CommitSHA(head_sha),
             )
     else:
         # Fresh: analyze the full codebase.
         outline_text, outline = outline_renderer.render_full(codebase_map)
-        memory = profile_service.build_profile(repo, outline, outline_text)
-
-    # Stamp analyzed_at so index mode knows where to diff from.
-    memory = CodebaseMemory(
-        repo_id=memory.repo_id,
-        outline=memory.outline,
-        patterns=memory.patterns,
-        version=memory.version,
-        analyzed_at=CommitSHA(head_sha),
-    )
+        memory = profile_service.build_profile(
+            repo, outline, outline_text, analyzed_at=CommitSHA(head_sha)
+        )
     memory_store.save(memory)
 
     # 7. Optionally build embedding indices.
@@ -229,6 +223,34 @@ def _execute_bootstrap() -> None:
         len(memory.patterns),
         memory.version,
     )
+
+
+_MAX_FETCH_WORKERS = 8
+
+
+def _fetch_files_parallel(
+    client: GitHubClient,
+    paths: list[FilePath],
+    *,
+    ref: str,
+) -> dict[FilePath, str]:
+    """Fetch file contents in parallel using a thread pool."""
+    if not paths:
+        return {}
+
+    results: dict[FilePath, str] = {}
+    with ThreadPoolExecutor(max_workers=_MAX_FETCH_WORKERS) as pool:
+        futures = {
+            pool.submit(client.get_file_content, path, ref=ref): path for path in paths
+        }
+        for future in as_completed(futures):
+            path = futures[future]
+            try:
+                results[path] = future.result()
+            except (ArgusError, httpx.HTTPError) as exc:
+                logger.debug("Could not fetch %s: %s", path, exc)
+
+    return results
 
 
 def _build_embeddings(

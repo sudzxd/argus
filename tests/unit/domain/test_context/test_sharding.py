@@ -131,12 +131,24 @@ def test_shards_for_files_multiple_dirs() -> None:
 def test_adjacent_shards_1hop(
     manifest_with_edges: ShardedManifest,
 ) -> None:
-    # Starting from src/auth, 1-hop neighbors are src/db and src/api.
+    # Starting from src/auth, only outgoing dependency is src/db.
+    # src/api depends on src/auth (reverse direction), so not included.
     result = manifest_with_edges.adjacent_shards(
         {ShardId("src/auth")},
         hops=1,
     )
-    assert result == {ShardId("src/db"), ShardId("src/api")}
+    assert result == {ShardId("src/db")}
+
+
+def test_adjacent_shards_follows_dependency_direction(
+    manifest_with_edges: ShardedManifest,
+) -> None:
+    """Starting from src/api, its dependency src/auth is reachable."""
+    result = manifest_with_edges.adjacent_shards(
+        {ShardId("src/api")},
+        hops=1,
+    )
+    assert result == {ShardId("src/auth")}
 
 
 def test_adjacent_shards_no_edges() -> None:
@@ -215,6 +227,40 @@ def test_manifest_embedding_indices_round_trip() -> None:
     assert desc.model == "test-model"
     assert desc.dimension == 384
     assert desc.blob_name == "abc_embeddings.json"
+
+
+def test_manifest_from_dict_skips_malformed_shards(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Malformed shard descriptors are skipped with a warning."""
+    import logging
+
+    data: dict[str, object] = {
+        "version": 2,
+        "indexed_at": "sha1",
+        "shards": {
+            "good": {
+                "directory": "good",
+                "file_count": 1,
+                "content_hash": "abc",
+                "blob_name": "shard_abc.json",
+            },
+            "bad_type": "not a dict",
+            "missing_field": {"directory": "x"},
+        },
+        "cross_shard_edges": [
+            "not a dict",
+            {"source_shard": "a"},  # missing fields
+        ],
+    }
+    with caplog.at_level(logging.WARNING):
+        m = ShardedManifest.from_dict(data)
+
+    assert len(m.shards) == 1
+    assert ShardId("good") in m.shards
+    assert len(m.cross_shard_edges) == 0
+    assert "Invalid shard descriptor" in caplog.text
+    assert "Missing fields" in caplog.text
 
 
 def test_manifest_from_dict_without_embedding_indices() -> None:

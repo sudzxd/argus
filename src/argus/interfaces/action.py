@@ -6,6 +6,7 @@ import json
 import logging
 import sys
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path, PurePosixPath
 from posixpath import normpath
 from typing import cast
@@ -106,13 +107,9 @@ def _execute_pipeline(config: ActionConfig) -> None:
     publisher = GitHubReviewPublisher(client=client, diff=diff)
     changed_files = _extract_changed_files(diff)
 
-    file_contents: dict[FilePath, str] = {}
-    for path in changed_files:
-        try:
-            content = client.get_file_content(path, ref=head_sha)
-            file_contents[path] = content
-        except (ArgusError, httpx.HTTPError) as e:
-            logger.warning("Could not fetch %s, skipping: %s", path, e)
+    file_contents = _fetch_files_parallel(
+        client, changed_files, ref=head_sha, log_level="warning"
+    )
 
     # 3b. Collect PR context (metadata, CI, comments, git health)
     pr_context: PRContext | None = None
@@ -196,15 +193,8 @@ def _execute_pipeline(config: ActionConfig) -> None:
 
     # 5. Build chunks for lexical retrieval from context files (non-changed)
     changed_set = set(changed_files)
-    context_contents: dict[FilePath, str] = {}
-    for path in codebase_map.files():
-        if path in changed_set:
-            continue
-        try:
-            content = client.get_file_content(path, ref=head_sha)
-            context_contents[path] = content
-        except (ArgusError, httpx.HTTPError) as e:
-            logger.debug("Could not fetch context file %s: %s", path, e)
+    context_paths = [p for p in codebase_map.files() if p not in changed_set]
+    context_contents = _fetch_files_parallel(client, context_paths, ref=head_sha)
 
     chunks: list[CodeChunk] = []
     for path, content in context_contents.items():
@@ -390,6 +380,47 @@ def _execute_pipeline(config: ActionConfig) -> None:
             agentic_usage.total_tokens,
             agentic_usage.requests,
         )
+
+
+_MAX_FETCH_WORKERS = 8
+
+
+def _fetch_files_parallel(
+    client: GitHubClient,
+    paths: list[FilePath],
+    *,
+    ref: str,
+    log_level: str = "debug",
+) -> dict[FilePath, str]:
+    """Fetch file contents in parallel using a thread pool.
+
+    Args:
+        client: GitHub API client.
+        paths: File paths to fetch.
+        ref: Git ref (SHA or branch) to fetch from.
+        log_level: Log level for fetch failures ("debug" or "warning").
+
+    Returns:
+        Mapping of path to content for successfully fetched files.
+    """
+    if not paths:
+        return {}
+
+    results: dict[FilePath, str] = {}
+    log_fn = logger.warning if log_level == "warning" else logger.debug
+
+    with ThreadPoolExecutor(max_workers=_MAX_FETCH_WORKERS) as pool:
+        futures = {
+            pool.submit(client.get_file_content, path, ref=ref): path for path in paths
+        }
+        for future in as_completed(futures):
+            path = futures[future]
+            try:
+                results[path] = future.result()
+            except (ArgusError, httpx.HTTPError) as exc:
+                log_fn("Could not fetch %s: %s", path, exc)
+
+    return results
 
 
 def _load_event(event_path: str) -> dict[str, object]:

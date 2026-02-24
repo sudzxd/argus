@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 
 from collections import deque
 from dataclasses import dataclass, field
@@ -12,6 +13,8 @@ from pathlib import PurePosixPath
 from typing import NewType, cast
 
 from argus.shared.types import CommitSHA, FilePath, LineRange
+
+logger = logging.getLogger(__name__)
 
 ShardId = NewType("ShardId", str)
 """Shard identifier — the POSIX parent directory of files in the shard."""
@@ -165,6 +168,11 @@ class CrossShardEdge:
     kind: EdgeKind
 
 
+_SHARD_FIELDS = ("directory", "file_count", "content_hash", "blob_name")
+_EDGE_FIELDS = ("source_shard", "target_shard", "source_file", "target_file", "kind")
+_EMB_FIELDS = ("shard_id", "model", "dimension", "blob_name")
+
+
 @dataclass
 class ShardedManifest:
     """DAG index describing shards and cross-shard dependencies.
@@ -198,11 +206,10 @@ class ShardedManifest:
         if not self.cross_shard_edges:
             return set()
 
-        # Build adjacency from cross-shard edges.
+        # Build directional adjacency — only follow dependencies (outgoing).
         adj: dict[ShardId, set[ShardId]] = {}
         for edge in self.cross_shard_edges:
             adj.setdefault(edge.source_shard, set()).add(edge.target_shard)
-            adj.setdefault(edge.target_shard, set()).add(edge.source_shard)
 
         visited: set[ShardId] = set()
         queue: deque[tuple[ShardId, int]] = deque()
@@ -278,7 +285,11 @@ class ShardedManifest:
 
     @classmethod
     def from_dict(cls, data: dict[str, object]) -> ShardedManifest:
-        """Deserialize manifest from a dict."""
+        """Deserialize manifest from a dict.
+
+        Values are validated at runtime with ``isinstance`` checks before
+        ``cast`` narrows the type for pyright.
+        """
         indexed_at = CommitSHA(str(data["indexed_at"]))
 
         shards: dict[ShardId, ShardDescriptor] = {}
@@ -287,14 +298,17 @@ class ShardedManifest:
             shards_dict = cast(dict[str, object], raw_shards)
             for sid_str, desc_obj in shards_dict.items():
                 if not isinstance(desc_obj, dict):
+                    logger.warning("Invalid shard descriptor for %s, skipping", sid_str)
                     continue
-                desc_data = cast(dict[str, object], desc_obj)
-                sid = ShardId(sid_str)
-                shards[sid] = ShardDescriptor(
-                    directory=ShardId(str(desc_data["directory"])),
-                    file_count=int(str(desc_data["file_count"])),
-                    content_hash=str(desc_data["content_hash"]),
-                    blob_name=str(desc_data["blob_name"]),
+                desc = cast(dict[str, object], desc_obj)
+                if any(k not in desc for k in _SHARD_FIELDS):
+                    logger.warning("Missing fields in shard %s, skipping", sid_str)
+                    continue
+                shards[ShardId(sid_str)] = ShardDescriptor(
+                    directory=ShardId(str(desc["directory"])),
+                    file_count=int(str(desc["file_count"])),
+                    content_hash=str(desc["content_hash"]),
+                    blob_name=str(desc["blob_name"]),
                 )
 
         cross_shard_edges: list[CrossShardEdge] = []
@@ -304,14 +318,17 @@ class ShardedManifest:
             for edge_obj in edges_list:
                 if not isinstance(edge_obj, dict):
                     continue
-                edge_data = cast(dict[str, object], edge_obj)
+                edge = cast(dict[str, object], edge_obj)
+                if any(k not in edge for k in _EDGE_FIELDS):
+                    logger.warning("Malformed cross-shard edge, skipping")
+                    continue
                 cross_shard_edges.append(
                     CrossShardEdge(
-                        source_shard=ShardId(str(edge_data["source_shard"])),
-                        target_shard=ShardId(str(edge_data["target_shard"])),
-                        source_file=FilePath(str(edge_data["source_file"])),
-                        target_file=FilePath(str(edge_data["target_file"])),
-                        kind=EdgeKind(str(edge_data["kind"])),
+                        source_shard=ShardId(str(edge["source_shard"])),
+                        target_shard=ShardId(str(edge["target_shard"])),
+                        source_file=FilePath(str(edge["source_file"])),
+                        target_file=FilePath(str(edge["target_file"])),
+                        kind=EdgeKind(str(edge["kind"])),
                     )
                 )
 
@@ -319,16 +336,22 @@ class ShardedManifest:
         raw_embeddings = data.get("embedding_indices", {})
         if isinstance(raw_embeddings, dict):
             emb_dict = cast(dict[str, object], raw_embeddings)
-            for sid_str, desc_obj in emb_dict.items():
-                if not isinstance(desc_obj, dict):
+            for sid_str, emb_obj in emb_dict.items():
+                if not isinstance(emb_obj, dict):
+                    logger.warning(
+                        "Invalid embedding descriptor for %s, skipping",
+                        sid_str,
+                    )
                     continue
-                desc_data = cast(dict[str, object], desc_obj)
-                sid = ShardId(sid_str)
-                embedding_indices[sid] = EmbeddingDescriptor(
-                    shard_id=ShardId(str(desc_data["shard_id"])),
-                    model=str(desc_data["model"]),
-                    dimension=int(str(desc_data["dimension"])),
-                    blob_name=str(desc_data["blob_name"]),
+                emb = cast(dict[str, object], emb_obj)
+                if any(k not in emb for k in _EMB_FIELDS):
+                    logger.warning("Missing fields in embedding %s, skipping", sid_str)
+                    continue
+                embedding_indices[ShardId(sid_str)] = EmbeddingDescriptor(
+                    shard_id=ShardId(str(emb["shard_id"])),
+                    model=str(emb["model"]),
+                    dimension=int(str(emb["dimension"])),
+                    blob_name=str(emb["blob_name"]),
                 )
 
         return cls(

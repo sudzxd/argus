@@ -40,15 +40,15 @@ from argus.shared.types import (
 def _make_file_entry(path: str, sha: str = "abc") -> FileEntry:
     return FileEntry(
         path=FilePath(path),
-        symbols=[],
-        imports=[],
-        exports=["func"],
+        symbols=(),
+        imports=(),
+        exports=("func",),
         last_indexed=CommitSHA(sha),
     )
 
 
 def _make_review(n_comments: int = 1) -> Review:
-    comments = [
+    comments = tuple(
         ReviewComment(
             file=FilePath("file.py"),
             line_range=LineRange(start=1, end=5),
@@ -58,7 +58,7 @@ def _make_review(n_comments: int = 1) -> Review:
             confidence=0.9,
         )
         for _ in range(n_comments)
-    ]
+    )
     return Review(
         summary=ReviewSummary(
             description="Review",
@@ -313,7 +313,7 @@ def test_execute_with_outline_renderer(
     mock_outline_renderer.render.return_value = (
         "# main.py\n  function main",
         CodebaseOutline(
-            entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+            entries=(FileOutlineEntry(path=FilePath("main.py"), symbols=("main",)),)
         ),
     )
 
@@ -399,7 +399,7 @@ def test_execute_deep_depth_includes_patterns(
 
     mock_outline_renderer = MagicMock()
     outline = CodebaseOutline(
-        entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+        entries=(FileOutlineEntry(path=FilePath("main.py"), symbols=("main",)),)
     )
     mock_outline_renderer.render.return_value = ("# outline text", outline)
 
@@ -410,13 +410,13 @@ def test_execute_deep_depth_includes_patterns(
     mock_profile_service.build_profile.return_value = CodebaseMemory(
         repo_id="org/repo",
         outline=outline,
-        patterns=[
+        patterns=(
             PatternEntry(
                 category=PatternCategory.STYLE,
                 description="Use snake_case",
                 confidence=0.9,
             ),
-        ],
+        ),
         version=1,
     )
 
@@ -465,7 +465,7 @@ def test_execute_deep_depth_empty_patterns_not_saved(
 
     mock_outline_renderer = MagicMock()
     outline = CodebaseOutline(
-        entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+        entries=(FileOutlineEntry(path=FilePath("main.py"), symbols=("main",)),)
     )
     mock_outline_renderer.render.return_value = ("# outline text", outline)
 
@@ -476,7 +476,7 @@ def test_execute_deep_depth_empty_patterns_not_saved(
     mock_profile_service.build_profile.return_value = CodebaseMemory(
         repo_id="org/repo",
         outline=outline,
-        patterns=[],  # empty patterns
+        patterns=(),  # empty patterns
         version=1,
     )
 
@@ -524,7 +524,7 @@ def test_execute_deep_depth_warns_when_memory_not_configured(
     mock_outline_renderer.render.return_value = (
         "# outline",
         CodebaseOutline(
-            entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+            entries=(FileOutlineEntry(path=FilePath("main.py"), symbols=("main",)),)
         ),
     )
 

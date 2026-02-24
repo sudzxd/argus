@@ -24,15 +24,15 @@ def populated_map() -> CodebaseMap:
     cbm = CodebaseMap(indexed_at=CommitSHA("abc123"))
     entry = FileEntry(
         path=FilePath("src/main.py"),
-        symbols=[
+        symbols=(
             Symbol(
                 name="main",
                 kind=SymbolKind.FUNCTION,
                 line_range=LineRange(start=1, end=5),
             ),
-        ],
-        imports=[FilePath("src/utils.py")],
-        exports=["main"],
+        ),
+        imports=(FilePath("src/utils.py"),),
+        exports=("main",),
         last_indexed=CommitSHA("abc123"),
         summary="Entry point.",
     )

@@ -16,10 +16,10 @@ from argus.shared.types import FilePath
 @pytest.fixture
 def sample_outline() -> CodebaseOutline:
     return CodebaseOutline(
-        entries=[
-            FileOutlineEntry(path=FilePath("src/main.py"), symbols=["main"]),
-            FileOutlineEntry(path=FilePath("src/utils.py"), symbols=["helper"]),
-        ]
+        entries=(
+            FileOutlineEntry(path=FilePath("src/main.py"), symbols=("main",)),
+            FileOutlineEntry(path=FilePath("src/utils.py"), symbols=("helper",)),
+        )
     )
 
 
@@ -29,5 +29,5 @@ def sample_pattern() -> PatternEntry:
         category=PatternCategory.STYLE,
         description="Use snake_case for functions",
         confidence=0.9,
-        examples=["def my_func(): ..."],
+        examples=("def my_func(): ...",),
     )

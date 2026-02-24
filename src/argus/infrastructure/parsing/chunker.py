@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from argus.domain.context.value_objects import Symbol
@@ -36,7 +37,7 @@ class Chunker:
         self,
         path: FilePath,
         content: str,
-        symbols: list[Symbol],
+        symbols: Sequence[Symbol],
     ) -> list[CodeChunk]:
         """Split a file into chunks based on symbol boundaries.
 

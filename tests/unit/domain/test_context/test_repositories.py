@@ -48,9 +48,9 @@ def test_codebase_map_repository_save_and_load_roundtrip() -> None:
     cbm = CodebaseMap(indexed_at=CommitSHA("abc123"))
     entry = FileEntry(
         path=FilePath("src/main.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("abc123"),
     )
     cbm.upsert(entry)
@@ -74,15 +74,15 @@ def test_source_parser_protocol_accepts_conforming_class() -> None:
         def parse(self, path: FilePath, content: str) -> FileEntry:
             return FileEntry(
                 path=path,
-                symbols=[
+                symbols=(
                     Symbol(
                         name="main",
                         kind=SymbolKind.FUNCTION,
                         line_range=LineRange(start=1, end=3),
-                    )
-                ],
-                imports=[],
-                exports=["main"],
+                    ),
+                ),
+                imports=(),
+                exports=("main",),
                 last_indexed=CommitSHA("000"),
             )
 
@@ -103,9 +103,9 @@ def test_source_parser_supported_languages() -> None:
         def parse(self, path: FilePath, content: str) -> FileEntry:
             return FileEntry(
                 path=path,
-                symbols=[],
-                imports=[],
-                exports=[],
+                symbols=(),
+                imports=(),
+                exports=(),
                 last_indexed=CommitSHA("000"),
             )
 

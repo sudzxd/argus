@@ -91,9 +91,9 @@ def test_incremental_update_sharded_processes_changed_files(
     parser = MagicMock()
     mock_entry = FileEntry(
         path=FilePath("src/auth.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("bbb222"),
     )
     parser.parse.return_value = mock_entry

@@ -12,13 +12,13 @@ def test_render_patterns_formats_output() -> None:
             category=PatternCategory.STYLE,
             description="Use snake_case",
             confidence=0.9,
-            examples=["def my_func(): ..."],
+            examples=("def my_func(): ...",),
         ),
         PatternEntry(
             category=PatternCategory.ARCHITECTURE,
             description="Layer deps go downward",
             confidence=0.85,
-            examples=["domain never imports infra", "app uses domain"],
+            examples=("domain never imports infra", "app uses domain"),
         ),
     ]
     result = _render_patterns(patterns)

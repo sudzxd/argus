@@ -260,7 +260,7 @@ class LLMReviewGenerator:
             strengths=output.summary_strengths,
             verdict=output.summary_verdict,
         )
-        comments = [self._to_comment(c) for c in output.comments]
+        comments = tuple(self._to_comment(c) for c in output.comments)
         return Review(summary=summary, comments=comments)
 
     def _to_comment(self, c: ReviewOutput.CommentOutput) -> ReviewComment:

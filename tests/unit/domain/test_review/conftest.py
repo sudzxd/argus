@@ -73,7 +73,7 @@ def sample_review(
 ) -> Review:
     return Review(
         summary=review_summary,
-        comments=[critical_comment, suggestion_comment],
+        comments=(critical_comment, suggestion_comment),
     )
 
 

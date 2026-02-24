@@ -17,9 +17,9 @@ class FileEntry:
     """A single source file's parsed representation."""
 
     path: FilePath
-    symbols: list[Symbol]
-    imports: list[FilePath]
-    exports: list[str]
+    symbols: tuple[Symbol, ...]
+    imports: tuple[FilePath, ...]
+    exports: tuple[str, ...]
     last_indexed: CommitSHA
     summary: str | None = None
 

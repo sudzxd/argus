@@ -23,7 +23,7 @@ from argus.domain.review.repositories import ReviewPublisher
 from argus.domain.review.services import NoiseFilter
 from argus.domain.review.value_objects import ReviewRequest
 from argus.shared.exceptions import ArgusError
-from argus.shared.types import FilePath, ReviewDepth
+from argus.shared.types import CommitSHA, FilePath, ReviewDepth
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +69,7 @@ class ProfileServicePort(Protocol):
         repo_id: str,
         outline: CodebaseOutline,
         outline_text: str,
+        analyzed_at: CommitSHA | None = None,
     ) -> CodebaseMemory: ...
 
     def update_profile(
@@ -76,6 +77,7 @@ class ProfileServicePort(Protocol):
         existing: CodebaseMemory,
         outline: CodebaseOutline,
         outline_text: str,
+        analyzed_at: CommitSHA | None = None,
     ) -> CodebaseMemory: ...
 
 
@@ -140,7 +142,7 @@ class ReviewPullRequest:
         filtered_comments = self.noise_filter.filter(review.comments)
         review = Review(
             summary=review.summary,
-            comments=filtered_comments,
+            comments=tuple(filtered_comments),
         )
 
         # 7. Publish
@@ -263,7 +265,7 @@ class ReviewPullRequest:
         return _render_patterns(memory.patterns)
 
 
-def _render_patterns(patterns: list[PatternEntry]) -> str:
+def _render_patterns(patterns: tuple[PatternEntry, ...]) -> str:
     """Format patterns as readable text for the LLM prompt."""
     lines: list[str] = []
     for p in patterns:

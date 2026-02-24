@@ -11,6 +11,7 @@ from argus.domain.memory.value_objects import (
     PatternEntry,
 )
 from argus.shared.constants import MAX_PATTERN_ENTRIES, MIN_PATTERN_CONFIDENCE
+from argus.shared.types import CommitSHA
 
 
 class PatternAnalyzer(Protocol):
@@ -23,7 +24,7 @@ class PatternAnalyzer(Protocol):
     def analyze_incremental(
         self,
         outline_text: str,
-        existing_patterns: list[PatternEntry],
+        existing_patterns: tuple[PatternEntry, ...] | list[PatternEntry],
     ) -> list[PatternEntry]:
         """Analyze a codebase outline, aware of existing patterns.
 
@@ -47,6 +48,7 @@ class ProfileService:
         repo_id: str,
         outline: CodebaseOutline,
         outline_text: str,
+        analyzed_at: CommitSHA | None = None,
     ) -> CodebaseMemory:
         """Build a fresh codebase memory profile.
 
@@ -54,6 +56,7 @@ class ProfileService:
             repo_id: Repository identifier.
             outline: Structural outline of the codebase.
             outline_text: Rendered text of the outline for LLM analysis.
+            analyzed_at: Commit SHA at which patterns were analyzed.
 
         Returns:
             A new CodebaseMemory with analyzed patterns.
@@ -63,8 +66,9 @@ class ProfileService:
         return CodebaseMemory(
             repo_id=repo_id,
             outline=outline,
-            patterns=patterns,
+            patterns=tuple(patterns),
             version=1,
+            analyzed_at=analyzed_at,
         )
 
     def update_profile(
@@ -72,6 +76,7 @@ class ProfileService:
         existing: CodebaseMemory,
         outline: CodebaseOutline,
         outline_text: str,
+        analyzed_at: CommitSHA | None = None,
     ) -> CodebaseMemory:
         """Update an existing profile with fresh analysis.
 
@@ -90,8 +95,9 @@ class ProfileService:
         return CodebaseMemory(
             repo_id=existing.repo_id,
             outline=outline,
-            patterns=patterns,
+            patterns=tuple(patterns),
             version=existing.version + 1,
+            analyzed_at=analyzed_at,
         )
 
     @staticmethod

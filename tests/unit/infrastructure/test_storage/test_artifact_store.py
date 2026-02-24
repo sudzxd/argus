@@ -24,9 +24,9 @@ def test_save_and_load_roundtrip(tmp_path: Path) -> None:
     cbm.upsert(
         FileEntry(
             path=FilePath("a.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("sha1"),
         )
     )

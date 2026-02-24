@@ -33,15 +33,15 @@ class FakeParser:
             raise IndexingError(path, "unsupported language")
         return FileEntry(
             path=path,
-            symbols=[
+            symbols=(
                 Symbol(
                     name=f"sym_{path}",
                     kind=SymbolKind.FUNCTION,
                     line_range=LineRange(start=1, end=5),
                 ),
-            ],
-            imports=[],
-            exports=[f"sym_{path}"],
+            ),
+            imports=(),
+            exports=(f"sym_{path}",),
             last_indexed=CommitSHA("new_sha"),
         )
 
@@ -148,9 +148,9 @@ def test_incremental_update_adds_new_files(
     existing.upsert(
         FileEntry(
             path=FilePath("a.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("old"),
         )
     )
@@ -172,9 +172,9 @@ def test_incremental_update_reparses_changed_files(
     existing = CodebaseMap(indexed_at=CommitSHA("old"))
     old_entry = FileEntry(
         path=FilePath("a.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("old"),
     )
     existing.upsert(old_entry)
@@ -196,9 +196,9 @@ def test_incremental_update_preserves_unchanged_files(
     existing = CodebaseMap(indexed_at=CommitSHA("old"))
     unchanged = FileEntry(
         path=FilePath("a.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("old"),
     )
     existing.upsert(unchanged)
@@ -219,9 +219,9 @@ def test_incremental_update_removes_graph_edges_for_reparsed_files(
     existing.upsert(
         FileEntry(
             path=FilePath("a.py"),
-            symbols=[],
-            imports=[FilePath("b.py")],
-            exports=[],
+            symbols=(),
+            imports=(FilePath("b.py"),),
+            exports=(),
             last_indexed=CommitSHA("old"),
         )
     )
@@ -252,9 +252,9 @@ def test_incremental_update_skips_unparseable_keeps_old_entry(
     existing = CodebaseMap(indexed_at=CommitSHA("old"))
     old_entry = FileEntry(
         path=FilePath("a.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("old"),
     )
     existing.upsert(old_entry)
@@ -277,9 +277,9 @@ def test_incremental_update_mutates_in_place(
     existing.upsert(
         FileEntry(
             path=FilePath("a.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("old"),
         )
     )

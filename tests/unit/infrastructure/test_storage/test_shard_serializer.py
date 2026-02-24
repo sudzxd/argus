@@ -34,15 +34,15 @@ def multi_dir_map() -> CodebaseMap:
     cbm.upsert(
         FileEntry(
             path=FilePath("src/auth/login.py"),
-            symbols=[
+            symbols=(
                 Symbol(
                     name="login",
                     kind=SymbolKind.FUNCTION,
                     line_range=LineRange(start=1, end=10),
                 ),
-            ],
-            imports=[FilePath("src/db/models.py")],
-            exports=["login"],
+            ),
+            imports=(FilePath("src/db/models.py"),),
+            exports=("login",),
             last_indexed=CommitSHA("abc123"),
         )
     )
@@ -51,9 +51,9 @@ def multi_dir_map() -> CodebaseMap:
     cbm.upsert(
         FileEntry(
             path=FilePath("src/auth/utils.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("abc123"),
         )
     )
@@ -62,15 +62,15 @@ def multi_dir_map() -> CodebaseMap:
     cbm.upsert(
         FileEntry(
             path=FilePath("src/db/models.py"),
-            symbols=[
+            symbols=(
                 Symbol(
                     name="User",
                     kind=SymbolKind.CLASS,
                     line_range=LineRange(start=1, end=20),
                 ),
-            ],
-            imports=[],
-            exports=["User"],
+            ),
+            imports=(),
+            exports=("User",),
             last_indexed=CommitSHA("abc123"),
             summary="Database models.",
         )
@@ -105,9 +105,9 @@ def multi_dir_map() -> CodebaseMap:
 def test_serialize_shard_returns_json() -> None:
     entry = FileEntry(
         path=FilePath("a.py"),
-        symbols=[],
-        imports=[],
-        exports=[],
+        symbols=(),
+        imports=(),
+        exports=(),
         last_indexed=CommitSHA("sha1"),
     )
     result = serialize_shard([entry], [])
@@ -118,16 +118,16 @@ def test_serialize_shard_returns_json() -> None:
 def test_shard_round_trip() -> None:
     entry = FileEntry(
         path=FilePath("src/main.py"),
-        symbols=[
+        symbols=(
             Symbol(
                 name="main",
                 kind=SymbolKind.FUNCTION,
                 line_range=LineRange(start=1, end=5),
                 signature="def main()",
             ),
-        ],
-        imports=[FilePath("src/utils.py")],
-        exports=["main"],
+        ),
+        imports=(FilePath("src/utils.py"),),
+        exports=("main",),
         last_indexed=CommitSHA("abc"),
         summary="Entry point.",
     )
@@ -297,9 +297,9 @@ def test_split_single_file() -> None:
     cbm.upsert(
         FileEntry(
             path=FilePath("main.py"),
-            symbols=[],
-            imports=[],
-            exports=[],
+            symbols=(),
+            imports=(),
+            exports=(),
             last_indexed=CommitSHA("sha1"),
         )
     )

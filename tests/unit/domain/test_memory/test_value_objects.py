@@ -40,12 +40,12 @@ def test_pattern_entry_stores_fields() -> None:
         category=PatternCategory.STYLE,
         description="Use snake_case for functions",
         confidence=0.9,
-        examples=["def my_func(): ..."],
+        examples=("def my_func(): ...",),
     )
     assert entry.category == PatternCategory.STYLE
     assert entry.description == "Use snake_case for functions"
     assert entry.confidence == 0.9
-    assert entry.examples == ["def my_func(): ..."]
+    assert entry.examples == ("def my_func(): ...",)
 
 
 def test_pattern_entry_is_immutable() -> None:
@@ -84,10 +84,10 @@ def test_pattern_entry_rejects_negative_confidence() -> None:
 def test_file_outline_entry_stores_fields() -> None:
     entry = FileOutlineEntry(
         path=FilePath("src/main.py"),
-        symbols=["main", "helper"],
+        symbols=("main", "helper"),
     )
     assert entry.path == FilePath("src/main.py")
-    assert entry.symbols == ["main", "helper"]
+    assert entry.symbols == ("main", "helper")
 
 
 # =============================================================================
@@ -97,16 +97,16 @@ def test_file_outline_entry_stores_fields() -> None:
 
 def test_codebase_outline_file_count() -> None:
     outline = CodebaseOutline(
-        entries=[
-            FileOutlineEntry(path=FilePath("a.py"), symbols=["foo"]),
-            FileOutlineEntry(path=FilePath("b.py"), symbols=["bar"]),
-        ]
+        entries=(
+            FileOutlineEntry(path=FilePath("a.py"), symbols=("foo",)),
+            FileOutlineEntry(path=FilePath("b.py"), symbols=("bar",)),
+        )
     )
     assert outline.file_count == 2
 
 
 def test_codebase_outline_default_version() -> None:
-    outline = CodebaseOutline(entries=[])
+    outline = CodebaseOutline(entries=())
     assert outline.version == 0
 
 
@@ -116,7 +116,7 @@ def test_codebase_outline_default_version() -> None:
 
 
 def test_codebase_memory_stores_fields() -> None:
-    outline = CodebaseOutline(entries=[])
+    outline = CodebaseOutline(entries=())
     pattern = PatternEntry(
         category=PatternCategory.NAMING,
         description="PascalCase for classes",
@@ -125,7 +125,7 @@ def test_codebase_memory_stores_fields() -> None:
     memory = CodebaseMemory(
         repo_id="org/repo",
         outline=outline,
-        patterns=[pattern],
+        patterns=(pattern,),
         version=1,
     )
     assert memory.repo_id == "org/repo"
@@ -137,16 +137,16 @@ def test_codebase_memory_stores_fields() -> None:
 def test_codebase_memory_default_version() -> None:
     memory = CodebaseMemory(
         repo_id="org/repo",
-        outline=CodebaseOutline(entries=[]),
+        outline=CodebaseOutline(entries=()),
     )
     assert memory.version == 0
-    assert memory.patterns == []
+    assert memory.patterns == ()
 
 
 def test_codebase_memory_analyzed_at_default_none() -> None:
     memory = CodebaseMemory(
         repo_id="org/repo",
-        outline=CodebaseOutline(entries=[]),
+        outline=CodebaseOutline(entries=()),
     )
     assert memory.analyzed_at is None
 
@@ -155,7 +155,7 @@ def test_codebase_memory_analyzed_at_stores_sha() -> None:
     sha = CommitSHA("abc123")
     memory = CodebaseMemory(
         repo_id="org/repo",
-        outline=CodebaseOutline(entries=[]),
+        outline=CodebaseOutline(entries=()),
         analyzed_at=sha,
     )
     assert memory.analyzed_at == sha

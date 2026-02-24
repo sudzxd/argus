@@ -106,7 +106,9 @@ class OutlineRenderer:
 
             lines.append(section)
             used += len(section)
-            outline_entries.append(FileOutlineEntry(path=path, symbols=symbol_names))
+            outline_entries.append(
+                FileOutlineEntry(path=path, symbols=tuple(symbol_names))
+            )
 
-        outline = CodebaseOutline(entries=outline_entries)
+        outline = CodebaseOutline(entries=tuple(outline_entries))
         return "".join(lines), outline

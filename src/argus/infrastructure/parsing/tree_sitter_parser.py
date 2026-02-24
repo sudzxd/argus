@@ -99,9 +99,9 @@ class TreeSitterParser:
 
         return FileEntry(
             path=path,
-            symbols=symbols,
-            imports=imports,
-            exports=exports,
+            symbols=tuple(symbols),
+            imports=tuple(imports),
+            exports=tuple(exports),
             last_indexed=CommitSHA(""),
         )
 

@@ -126,13 +126,13 @@ def _deserialize(data: dict[str, object]) -> CodebaseMemory:
             entries.append(
                 FileOutlineEntry(
                     path=FilePath(str(e["path"])),
-                    symbols=symbols,
+                    symbols=tuple(symbols),
                 )
             )
 
     raw_version = outline_data.get("version", 0)
     outline = CodebaseOutline(
-        entries=entries,
+        entries=tuple(entries),
         version=int(raw_version) if isinstance(raw_version, (int, float)) else 0,
     )
 
@@ -153,7 +153,7 @@ def _deserialize(data: dict[str, object]) -> CodebaseMemory:
                     category=PatternCategory(str(p["category"])),
                     description=str(p["description"]),
                     confidence=_parse_confidence(raw_confidence),
-                    examples=examples,
+                    examples=tuple(examples),
                 )
             )
 
@@ -165,7 +165,7 @@ def _deserialize(data: dict[str, object]) -> CodebaseMemory:
     return CodebaseMemory(
         repo_id=str(data["repo_id"]),
         outline=outline,
-        patterns=patterns,
+        patterns=tuple(patterns),
         version=int(raw_ver) if isinstance(raw_ver, (int, float)) else 0,
         analyzed_at=analyzed_at,
     )
