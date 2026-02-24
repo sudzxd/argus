@@ -9,6 +9,69 @@
       "summary": null
     },
     {
+      "path": "src/argus/infrastructure/storage/_serial_helpers.py",
+      "symbols": [
+        {
+          "name": "serialize_entry",
+          "kind": "function",
+          "line_start": 15,
+          "line_end": 24,
+          "signature": "def serialize_entry(entry"
+        },
+        {
+          "name": "serialize_symbol",
+          "kind": "function",
+          "line_start": 27,
+          "line_end": 37,
+          "signature": "def serialize_symbol(symbol"
+        },
+        {
+          "name": "serialize_edge",
+          "kind": "function",
+          "line_start": 40,
+          "line_end": 46,
+          "signature": "def serialize_edge(edge"
+        },
+        {
+          "name": "deserialize_entry",
+          "kind": "function",
+          "line_start": 54,
+          "line_end": 67,
+          "signature": "def deserialize_entry(data"
+        },
+        {
+          "name": "deserialize_symbol",
+          "kind": "function",
+          "line_start": 70,
+          "line_end": 80,
+          "signature": "def deserialize_symbol(data"
+        },
+        {
+          "name": "deserialize_edge",
+          "kind": "function",
+          "line_start": 83,
+          "line_end": 89,
+          "signature": "def deserialize_edge(data"
+        }
+      ],
+      "imports": [
+        "argus.domain.context.entities",
+        "argus.domain.context.value_objects",
+        "argus.infrastructure.constants",
+        "argus.shared.types"
+      ],
+      "exports": [
+        "serialize_entry",
+        "serialize_symbol",
+        "serialize_edge",
+        "deserialize_entry",
+        "deserialize_symbol",
+        "deserialize_edge"
+      ],
+      "last_indexed": "",
+      "summary": null
+    },
+    {
       "path": "src/argus/infrastructure/storage/artifact_store.py",
       "symbols": [
         {
@@ -57,7 +120,7 @@
           "name": "ShardedArtifactStore",
           "kind": "class",
           "line_start": 109,
-          "line_end": 400,
+          "line_end": 402,
           "signature": "class ShardedArtifactStore"
         },
         {
@@ -148,7 +211,7 @@
           "name": "load_embedding_indices",
           "kind": "method",
           "line_start": 361,
-          "line_end": 400,
+          "line_end": 402,
           "signature": "def load_embedding_indices("
         }
       ],
@@ -379,53 +442,11 @@
           "signature": "def _iter_entries(codebase_map"
         },
         {
-          "name": "_serialize_entry",
-          "kind": "function",
-          "line_start": 40,
-          "line_end": 48,
-          "signature": "def _serialize_entry(entry"
-        },
-        {
-          "name": "_serialize_symbol",
-          "kind": "function",
-          "line_start": 51,
-          "line_end": 60,
-          "signature": "def _serialize_symbol(symbol"
-        },
-        {
-          "name": "_serialize_edge",
-          "kind": "function",
-          "line_start": 63,
-          "line_end": 68,
-          "signature": "def _serialize_edge(edge"
-        },
-        {
           "name": "deserialize",
           "kind": "function",
-          "line_start": 76,
-          "line_end": 99,
+          "line_start": 45,
+          "line_end": 68,
           "signature": "def deserialize(data"
-        },
-        {
-          "name": "_deserialize_entry",
-          "kind": "function",
-          "line_start": 102,
-          "line_end": 114,
-          "signature": "def _deserialize_entry(data"
-        },
-        {
-          "name": "_deserialize_symbol",
-          "kind": "function",
-          "line_start": 117,
-          "line_end": 126,
-          "signature": "def _deserialize_symbol(data"
-        },
-        {
-          "name": "_deserialize_edge",
-          "kind": "function",
-          "line_start": 129,
-          "line_end": 134,
-          "signature": "def _deserialize_edge(data"
         }
       ],
       "imports": [
@@ -433,18 +454,13 @@
         "argus.domain.context.entities",
         "argus.domain.context.value_objects",
         "argus.infrastructure.constants",
+        "argus.infrastructure.storage._serial_helpers",
         "argus.shared.types"
       ],
       "exports": [
         "serialize",
         "_iter_entries",
-        "_serialize_entry",
-        "_serialize_symbol",
-        "_serialize_edge",
-        "deserialize",
-        "_deserialize_entry",
-        "_deserialize_symbol",
-        "_deserialize_edge"
+        "deserialize"
       ],
       "last_indexed": "",
       "summary": null
@@ -455,72 +471,30 @@
         {
           "name": "serialize_shard",
           "kind": "function",
-          "line_start": 34,
-          "line_end": 43,
+          "line_start": 36,
+          "line_end": 45,
           "signature": "def serialize_shard("
         },
         {
           "name": "deserialize_shard",
           "kind": "function",
-          "line_start": 46,
-          "line_end": 68,
+          "line_start": 48,
+          "line_end": 70,
           "signature": "def deserialize_shard("
         },
         {
           "name": "split_into_shards",
           "kind": "function",
-          "line_start": 76,
-          "line_end": 134,
+          "line_start": 78,
+          "line_end": 136,
           "signature": "def split_into_shards("
         },
         {
           "name": "assemble_from_shards",
           "kind": "function",
-          "line_start": 137,
-          "line_end": 187,
+          "line_start": 139,
+          "line_end": 189,
           "signature": "def assemble_from_shards("
-        },
-        {
-          "name": "_serialize_entry",
-          "kind": "function",
-          "line_start": 195,
-          "line_end": 203,
-          "signature": "def _serialize_entry(entry"
-        },
-        {
-          "name": "_serialize_symbol",
-          "kind": "function",
-          "line_start": 206,
-          "line_end": 215,
-          "signature": "def _serialize_symbol(symbol"
-        },
-        {
-          "name": "_serialize_edge",
-          "kind": "function",
-          "line_start": 218,
-          "line_end": 223,
-          "signature": "def _serialize_edge(edge"
-        },
-        {
-          "name": "_deserialize_entry",
-          "kind": "function",
-          "line_start": 226,
-          "line_end": 238,
-          "signature": "def _deserialize_entry(data"
-        },
-        {
-          "name": "_deserialize_symbol",
-          "kind": "function",
-          "line_start": 241,
-          "line_end": 250,
-          "signature": "def _deserialize_symbol(data"
-        },
-        {
-          "name": "_deserialize_edge",
-          "kind": "function",
-          "line_start": 253,
-          "line_end": 258,
-          "signature": "def _deserialize_edge(data"
         }
       ],
       "imports": [
@@ -529,19 +503,13 @@
         "argus.domain.context.entities",
         "argus.domain.context.value_objects",
         "argus.infrastructure.constants",
-        "argus.shared.types"
+        "argus.infrastructure.storage._serial_helpers"
       ],
       "exports": [
         "serialize_shard",
         "deserialize_shard",
         "split_into_shards",
-        "assemble_from_shards",
-        "_serialize_entry",
-        "_serialize_symbol",
-        "_serialize_edge",
-        "_deserialize_entry",
-        "_deserialize_symbol",
-        "_deserialize_edge"
+        "assemble_from_shards"
       ],
       "last_indexed": "",
       "summary": null

@@ -84,7 +84,7 @@
           "name": "TestProfileService",
           "kind": "class",
           "line_start": 49,
-          "line_end": 138,
+          "line_end": 167,
           "signature": "class TestProfileService"
         },
         {
@@ -116,10 +116,24 @@
           "signature": "def test_update_profile_appends_new_patterns(self) -> None"
         },
         {
-          "name": "test_prune_and_cap_sorts_by_confidence",
+          "name": "test_build_profile_passes_analyzed_at",
           "kind": "method",
           "line_start": 118,
-          "line_end": 138,
+          "line_end": 127,
+          "signature": "def test_build_profile_passes_analyzed_at(self) -> None"
+        },
+        {
+          "name": "test_update_profile_passes_analyzed_at",
+          "kind": "method",
+          "line_start": 129,
+          "line_end": 145,
+          "signature": "def test_update_profile_passes_analyzed_at(self) -> None"
+        },
+        {
+          "name": "test_prune_and_cap_sorts_by_confidence",
+          "kind": "method",
+          "line_start": 147,
+          "line_end": 167,
           "signature": "def test_prune_and_cap_sorts_by_confidence(self) -> None"
         }
       ],

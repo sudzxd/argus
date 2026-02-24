@@ -278,59 +278,66 @@
           "signature": "def test_google_embed_import_error_raises_config_error(mock_api"
         },
         {
+          "name": "test_google_backoff_cap_raises_after_budget_exhausted",
+          "kind": "function",
+          "line_start": 103,
+          "line_end": 118,
+          "signature": "def test_google_backoff_cap_raises_after_budget_exhausted("
+        },
+        {
           "name": "test_openai_embed_missing_api_key_raises",
           "kind": "function",
-          "line_start": 107,
-          "line_end": 117,
+          "line_start": 126,
+          "line_end": 136,
           "signature": "def test_openai_embed_missing_api_key_raises() -> None"
         },
         {
           "name": "test_openai_embed_returns_embeddings",
           "kind": "function",
-          "line_start": 121,
-          "line_end": 132,
+          "line_start": 140,
+          "line_end": 151,
           "signature": "def test_openai_embed_returns_embeddings(mock_api"
         },
         {
           "name": "test_openai_embed_import_error_raises_config_error",
           "kind": "function",
-          "line_start": 136,
-          "line_end": 147,
+          "line_start": 155,
+          "line_end": 166,
           "signature": "def test_openai_embed_import_error_raises_config_error(mock_api"
         },
         {
           "name": "test_local_embed_returns_embeddings",
           "kind": "function",
-          "line_start": 157,
-          "line_end": 173,
+          "line_start": 176,
+          "line_end": 192,
           "signature": "def test_local_embed_returns_embeddings("
         },
         {
           "name": "test_local_embed_import_error_raises_config_error",
           "kind": "function",
-          "line_start": 177,
-          "line_end": 190,
+          "line_start": 196,
+          "line_end": 209,
           "signature": "def test_local_embed_import_error_raises_config_error("
         },
         {
           "name": "test_google_dimension_not_mutated_on_second_call",
           "kind": "function",
-          "line_start": 199,
-          "line_end": 213,
+          "line_start": 218,
+          "line_end": 232,
           "signature": "def test_google_dimension_not_mutated_on_second_call(mock_api"
         },
         {
           "name": "test_openai_dimension_not_mutated_on_second_call",
           "kind": "function",
-          "line_start": 217,
-          "line_end": 230,
+          "line_start": 236,
+          "line_end": 249,
           "signature": "def test_openai_dimension_not_mutated_on_second_call(mock_api"
         },
         {
           "name": "test_local_dimension_not_mutated_on_second_call",
           "kind": "function",
-          "line_start": 235,
-          "line_end": 254,
+          "line_start": 254,
+          "line_end": 273,
           "signature": "def test_local_dimension_not_mutated_on_second_call("
         }
       ],

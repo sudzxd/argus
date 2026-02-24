@@ -60,14 +60,14 @@
           "name": "IndexCodebase",
           "kind": "class",
           "line_start": 18,
-          "line_end": 57,
+          "line_end": 58,
           "signature": "class IndexCodebase"
         },
         {
           "name": "execute",
           "kind": "method",
           "line_start": 24,
-          "line_end": 57,
+          "line_end": 58,
           "signature": "def execute(self, cmd"
         }
       ],

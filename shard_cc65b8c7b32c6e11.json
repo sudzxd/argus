@@ -531,7 +531,7 @@
           "name": "_validate_ranges",
           "kind": "function",
           "line_start": 222,
-          "line_end": 232,
+          "line_end": 237,
           "signature": "def _validate_ranges(merged"
         }
       ],

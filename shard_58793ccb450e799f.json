@@ -38,35 +38,35 @@
           "name": "_embed_batch_with_retry",
           "kind": "function",
           "line_start": 25,
-          "line_end": 54,
+          "line_end": 56,
           "signature": "def _embed_batch_with_retry("
         },
         {
           "name": "_call_embed_api",
           "kind": "function",
-          "line_start": 57,
-          "line_end": 96,
+          "line_start": 59,
+          "line_end": 98,
           "signature": "def _call_embed_api(api_key"
         },
         {
           "name": "GoogleEmbeddingProvider",
           "kind": "class",
-          "line_start": 100,
-          "line_end": 126,
+          "line_start": 102,
+          "line_end": 128,
           "signature": "class GoogleEmbeddingProvider"
         },
         {
           "name": "embed",
           "kind": "method",
-          "line_start": 106,
-          "line_end": 121,
+          "line_start": 108,
+          "line_end": 123,
           "signature": "def embed(self, texts"
         },
         {
           "name": "dimension",
           "kind": "method",
-          "line_start": 124,
-          "line_end": 126,
+          "line_start": 126,
+          "line_end": 128,
           "signature": "def dimension(self) -> int"
         }
       ],
@@ -141,28 +141,28 @@
           "name": "_call_embed_api",
           "kind": "function",
           "line_start": 15,
-          "line_end": 21,
+          "line_end": 24,
           "signature": "def _call_embed_api(api_key"
         },
         {
           "name": "OpenAIEmbeddingProvider",
           "kind": "class",
-          "line_start": 25,
-          "line_end": 51,
+          "line_start": 28,
+          "line_end": 54,
           "signature": "class OpenAIEmbeddingProvider"
         },
         {
           "name": "embed",
           "kind": "method",
-          "line_start": 31,
-          "line_end": 46,
+          "line_start": 34,
+          "line_end": 49,
           "signature": "def embed(self, texts"
         },
         {
           "name": "dimension",
           "kind": "method",
-          "line_start": 49,
-          "line_end": 51,
+          "line_start": 52,
+          "line_end": 54,
           "signature": "def dimension(self) -> int"
         }
       ],

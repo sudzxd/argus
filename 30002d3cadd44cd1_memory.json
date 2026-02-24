@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 10,
+  "version": 11,
   "outline": {
     "version": 0,
     "entries": [
@@ -842,6 +842,23 @@
     },
     {
       "category": "architecture",
+      "description": "The codebase implements a sharding strategy for managing large data structures, with explicit functions for splitting data into shards and assembling them back.",
+      "confidence": 0.9,
+      "examples": [
+        "def split_into_shards()",
+        "def assemble_from_shards()"
+      ]
+    },
+    {
+      "category": "dependency",
+      "description": "The project uses a dedicated utility function (`require_env`) to strictly enforce the presence and validity of environment variables, raising errors if they are missing, empty, or malformed.",
+      "confidence": 0.9,
+      "examples": [
+        "def require_env(name)"
+      ]
+    },
+    {
+      "category": "architecture",
       "description": "Extensive use of small, immutable classes, often found in `domain/*/value_objects.py`, to represent conceptual wholes and enforce domain invariants.",
       "confidence": 0.8,
       "examples": [
@@ -900,6 +917,24 @@
       "examples": [
         "tests/unit/infrastructure/test_parsing/test_tree_sitter_parser.py: test_parse_python_extracts_function",
         "tests/unit/infrastructure/test_github/test_publisher.py: test_publish_with_comments_in_diff_uses_post_review"
+      ]
+    },
+    {
+      "category": "style",
+      "description": "The codebase consistently uses `frozenset` for immutable collections and `set` for unique, mutable collections within domain objects and data structures, emphasizing immutability and uniqueness where appropriate.",
+      "confidence": 0.8,
+      "examples": [
+        "def edges(self) -> frozenset[Edge]",
+        "def files(self) -> set[FilePath]"
+      ]
+    },
+    {
+      "category": "architecture",
+      "description": "Configuration loading includes explicit validation steps, often implemented as private helper methods (e.g., `_validate_`, `_warn_`) to ensure data integrity and provide feedback on malformed settings.",
+      "confidence": 0.8,
+      "examples": [
+        "def _validate_review_depth(raw)",
+        "def _warn_unknown_keys(section)"
       ]
     },
     {
@@ -973,6 +1008,24 @@
       ]
     },
     {
+      "category": "naming",
+      "description": "Functions that perform optional or conditionally executed operations are consistently prefixed with `_maybe_`.",
+      "confidence": 0.7,
+      "examples": [
+        "def _maybe_analyze_patterns(...)",
+        "def _maybe_build_embeddings(...)"
+      ]
+    },
+    {
+      "category": "naming",
+      "description": "Test function names consistently follow a `test_feature_when_condition` or `test_feature_behavior` pattern, clearly describing the specific scenario or behavior being tested.",
+      "confidence": 0.7,
+      "examples": [
+        "test_full_index_when_no_existing_map",
+        "test_collect_ci_status_detects_failure()"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -999,5 +1052,5 @@
       ]
     }
   ],
-  "analyzed_at": "9a17d602825521ecf5bbb55fde2bedd116906f9c"
+  "analyzed_at": "9c3b49407c07658eac67fbf57ebf035462c34b38"
 }

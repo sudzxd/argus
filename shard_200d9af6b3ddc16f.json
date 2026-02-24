@@ -106,14 +106,14 @@
           "name": "test_full_index_when_no_existing_map",
           "kind": "function",
           "line_start": 60,
-          "line_end": 88,
+          "line_end": 89,
           "signature": "def test_full_index_when_no_existing_map("
         },
         {
           "name": "test_incremental_update_when_map_exists",
           "kind": "function",
-          "line_start": 96,
-          "line_end": 126,
+          "line_start": 97,
+          "line_end": 127,
           "signature": "def test_incremental_update_when_map_exists("
         }
       ],

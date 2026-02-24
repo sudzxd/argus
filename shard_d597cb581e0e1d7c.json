@@ -128,42 +128,43 @@
         {
           "name": "SemanticRetrievalStrategy",
           "kind": "class",
-          "line_start": 23,
-          "line_end": 111,
+          "line_start": 24,
+          "line_end": 112,
           "signature": "class SemanticRetrievalStrategy"
         },
         {
           "name": "__post_init__",
           "kind": "method",
-          "line_start": 37,
-          "line_end": 40,
+          "line_start": 38,
+          "line_end": 41,
           "signature": "def __post_init__(self) -> None"
         },
         {
           "name": "retrieve",
           "kind": "method",
-          "line_start": 42,
-          "line_end": 101,
+          "line_start": 43,
+          "line_end": 102,
           "signature": "def retrieve("
         },
         {
           "name": "_build_query_text",
           "kind": "method",
-          "line_start": 103,
-          "line_end": 111,
+          "line_start": 104,
+          "line_end": 112,
           "signature": "def _build_query_text(self, query"
         },
         {
           "name": "_cosine_similarity",
           "kind": "function",
-          "line_start": 114,
-          "line_end": 121,
+          "line_start": 115,
+          "line_end": 122,
           "signature": "def _cosine_similarity(a"
         }
       ],
       "imports": [
         "logging",
         "math",
+        "collections.abc",
         "dataclasses",
         "argus.domain.context.value_objects",
         "argus.domain.retrieval.embeddings",

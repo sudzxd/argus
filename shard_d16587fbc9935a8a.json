@@ -311,50 +311,72 @@
         {
           "name": "populated_map",
           "kind": "function",
-          "line_start": 23,
-          "line_end": 47,
+          "line_start": 28,
+          "line_end": 52,
           "signature": "def populated_map() -> CodebaseMap"
         },
         {
           "name": "test_serialize_returns_json_string",
           "kind": "function",
-          "line_start": 55,
-          "line_end": 59,
+          "line_start": 60,
+          "line_end": 64,
           "signature": "def test_serialize_returns_json_string(populated_map"
         },
         {
           "name": "test_round_trip_preserves_entries",
           "kind": "function",
-          "line_start": 62,
-          "line_end": 79,
+          "line_start": 67,
+          "line_end": 84,
           "signature": "def test_round_trip_preserves_entries(populated_map"
         },
         {
           "name": "test_round_trip_preserves_edges",
           "kind": "function",
-          "line_start": 82,
-          "line_end": 90,
+          "line_start": 87,
+          "line_end": 95,
           "signature": "def test_round_trip_preserves_edges(populated_map"
         },
         {
           "name": "test_deserialize_invalid_json_raises_value_error",
           "kind": "function",
-          "line_start": 93,
-          "line_end": 95,
+          "line_start": 98,
+          "line_end": 100,
           "signature": "def test_deserialize_invalid_json_raises_value_error() -> None"
         },
         {
           "name": "test_serialize_empty_map",
           "kind": "function",
-          "line_start": 98,
-          "line_end": 104,
+          "line_start": 103,
+          "line_end": 109,
           "signature": "def test_serialize_empty_map() -> None"
+        },
+        {
+          "name": "test_deserialize_entry_missing_path_raises",
+          "kind": "function",
+          "line_start": 117,
+          "line_end": 119,
+          "signature": "def test_deserialize_entry_missing_path_raises() -> None"
+        },
+        {
+          "name": "test_deserialize_symbol_missing_kind_raises",
+          "kind": "function",
+          "line_start": 122,
+          "line_end": 124,
+          "signature": "def test_deserialize_symbol_missing_kind_raises() -> None"
+        },
+        {
+          "name": "test_deserialize_edge_invalid_kind_raises",
+          "kind": "function",
+          "line_start": 127,
+          "line_end": 135,
+          "signature": "def test_deserialize_edge_invalid_kind_raises() -> None"
         }
       ],
       "imports": [
         "pytest",
         "argus.domain.context.entities",
         "argus.domain.context.value_objects",
+        "argus.infrastructure.storage._serial_helpers",
         "argus.infrastructure.storage.serializer",
         "argus.shared.types"
       ],
@@ -363,7 +385,10 @@
         "test_round_trip_preserves_entries",
         "test_round_trip_preserves_edges",
         "test_deserialize_invalid_json_raises_value_error",
-        "test_serialize_empty_map"
+        "test_serialize_empty_map",
+        "test_deserialize_entry_missing_path_raises",
+        "test_deserialize_symbol_missing_kind_raises",
+        "test_deserialize_edge_invalid_kind_raises"
       ],
       "last_indexed": "",
       "summary": null
