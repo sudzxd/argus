@@ -233,6 +233,10 @@ class ReviewPullRequest:
     ) -> str | None:
         """Load or build codebase patterns, return rendered text."""
         if self.memory_repository is None or self.profile_service is None:
+            logger.warning(
+                "DEEP review requested but memory components not configured; "
+                "patterns will not be included"
+            )
             return None
 
         existing = self.memory_repository.load(repo_id)
@@ -246,12 +250,14 @@ class ReviewPullRequest:
                 memory = self.profile_service.update_profile(
                     existing, outline, outline_text
                 )
+
+            if not memory.patterns:
+                logger.info("Pattern analysis returned no patterns, skipping save")
+                return None
+
             self.memory_repository.save(memory)
         except ArgusError:
             logger.exception("Pattern analysis failed, continuing without patterns")
-            return None
-
-        if not memory.patterns:
             return None
 
         return _render_patterns(memory.patterns)

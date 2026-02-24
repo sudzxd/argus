@@ -135,10 +135,23 @@ def test_get_tree_recursive_warns_on_truncation(
     import logging
 
     with _patch_httpx(response), caplog.at_level(logging.WARNING):
-        result = client.get_tree_recursive("abc123")
+        entries, was_truncated = client.get_tree_recursive("abc123")
 
-    assert len(result) == 1
+    assert len(entries) == 1
+    assert was_truncated is True
     assert "truncated" in caplog.text
+
+
+def test_get_tree_recursive_not_truncated(client: GitHubClient) -> None:
+    response = _mock_response(
+        json_data={"tree": [{"path": "b.py", "type": "blob"}], "truncated": False}
+    )
+
+    with _patch_httpx(response):
+        entries, was_truncated = client.get_tree_recursive("abc123")
+
+    assert len(entries) == 1
+    assert was_truncated is False
 
 
 # =============================================================================
@@ -197,3 +210,78 @@ def test_get_list_empty_response(client: GitHubClient) -> None:
         result = client.get_issue_comments(42)
 
     assert result == []
+
+
+# =============================================================================
+# Rate limit retry (429)
+# =============================================================================
+
+
+def test_request_retries_on_429(client: GitHubClient) -> None:
+    """GET requests retry on 429 then succeed."""
+    rate_limited = _mock_response(
+        status_code=429,
+        text="rate limited",
+        headers={"Retry-After": "0"},
+    )
+    ok = _mock_response(json_data={"number": 1, "title": "PR"})
+
+    mock_client = MagicMock()
+    mock_client.get.side_effect = [rate_limited, ok]
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "argus.infrastructure.github.client.httpx.Client",
+        return_value=mock_client,
+    ):
+        result = client.get_pull_request(1)
+
+    assert result["number"] == 1
+    assert mock_client.get.call_count == 2
+
+
+def test_post_retries_on_429(client: GitHubClient) -> None:
+    """POST requests retry on 429 then succeed."""
+    rate_limited = _mock_response(
+        status_code=429,
+        text="rate limited",
+        headers={"Retry-After": "0"},
+    )
+    ok = _mock_response(status_code=201)
+
+    mock_client = MagicMock()
+    mock_client.post.side_effect = [rate_limited, ok]
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=False)
+
+    with patch(
+        "argus.infrastructure.github.client.httpx.Client",
+        return_value=mock_client,
+    ):
+        client.post_issue_comment(42, "comment")
+
+    assert mock_client.post.call_count == 2
+
+
+def test_request_raises_after_exhausting_retries(client: GitHubClient) -> None:
+    """After max retries on 429, raises PublishError."""
+    rate_limited = _mock_response(
+        status_code=429,
+        text="rate limited",
+        headers={"Retry-After": "0"},
+    )
+
+    mock_client = MagicMock()
+    mock_client.get.return_value = rate_limited
+    mock_client.__enter__ = MagicMock(return_value=mock_client)
+    mock_client.__exit__ = MagicMock(return_value=False)
+
+    with (
+        patch(
+            "argus.infrastructure.github.client.httpx.Client",
+            return_value=mock_client,
+        ),
+        pytest.raises(PublishError, match="429"),
+    ):
+        client.get_pull_request(1)

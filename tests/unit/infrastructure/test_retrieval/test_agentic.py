@@ -222,6 +222,45 @@ def test_deduplicates_items_by_source() -> None:
     assert sources.count(FilePath("dup.py")) == 1
 
 
+def test_keeps_highest_scoring_item_per_source() -> None:
+    low_score = _make_context_item(source="dup.py", score=0.5, tokens=20)
+    high_score = _make_context_item(source="dup.py", score=0.9, tokens=30)
+
+    call_count = 0
+
+    class SwitchingStrategy:
+        def retrieve(
+            self, query: RetrievalQuery, budget: TokenCount | None = None
+        ) -> list[ContextItem]:
+            nonlocal call_count
+            call_count += 1
+            return [low_score] if call_count == 1 else [high_score]
+
+    strategy = AgenticRetrievalStrategy(
+        config=_make_config(),
+        fallback_strategies=[SwitchingStrategy()],
+        max_iterations=2,
+    )
+
+    plan1 = SearchPlan(queries=["search"], needs_more_context=True)
+    plan2 = SearchPlan(queries=["refine"], needs_more_context=False)
+
+    iter_count = 0
+
+    def side_effect(prompt: str) -> MagicMock:
+        nonlocal iter_count
+        iter_count += 1
+        plan = plan1 if iter_count == 1 else plan2
+        return _make_mock_run_result(plan)
+
+    with patch.object(strategy._agent, "run_sync", side_effect=side_effect):
+        items = strategy.retrieve(_make_query())
+
+    assert len(items) == 1
+    assert items[0].relevance_score == 0.9
+    assert items[0].token_cost == TokenCount(30)
+
+
 def test_respects_max_iterations() -> None:
     fallback = FakeStrategy(items=[_make_context_item()])
 

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import re
+import time
+import typing
 import urllib.parse
 
 from dataclasses import dataclass
@@ -19,6 +21,9 @@ from argus.shared.types import FilePath
 logger = logging.getLogger(__name__)
 
 _LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
+_RATE_LIMIT_STATUS = 429
+_MAX_RATE_LIMIT_RETRIES = 3
+_DEFAULT_RETRY_AFTER = 60
 
 
 def _next_page_url(response: httpx.Response) -> str | None:
@@ -122,26 +127,27 @@ class GitHubClient:
         msg = "Cannot extract default branch SHA"
         raise PublishError(msg)
 
-    def get_tree_recursive(self, sha: str) -> list[dict[str, object]]:
+    def get_tree_recursive(self, sha: str) -> tuple[list[dict[str, object]], bool]:
         """Fetch the full file tree for a commit SHA (recursive).
 
         Returns:
-            List of tree entries with 'path', 'type', 'size' fields.
+            Tuple of (entries, was_truncated). ``was_truncated`` is True
+            when the GitHub API could not return the full tree (>100k files).
 
         Raises:
             PublishError: If the API call fails.
         """
         data = self._get(f"/repos/{self.repo}/git/trees/{sha}?recursive=1")
-        if data.get("truncated"):
+        truncated = bool(data.get("truncated"))
+        if truncated:
             logger.warning(
                 "GitHub tree response was truncated for SHA %s; "
                 "some files may be missing from the codebase map",
                 sha,
             )
         tree = data.get("tree")
-        if isinstance(tree, list):
-            return tree  # type: ignore[return-value]
-        return []
+        entries: list[dict[str, object]] = tree if isinstance(tree, list) else []  # type: ignore[assignment]
+        return entries, truncated
 
     def compare_commits(self, base: str, head: str) -> list[str]:
         """Get the list of changed file paths between two commits.
@@ -420,58 +426,62 @@ class GitHubClient:
         return all_items
 
     def _post(self, url: str, payload: dict[str, object]) -> None:
-        try:
-            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
-                response = client.post(url, json=payload, headers=self._headers())
-        except httpx.HTTPError as e:
-            raise PublishError(f"GitHub API error: {e}") from e
-
-        if response.status_code > _STATUS_OK_MAX:
-            raise PublishError(
-                f"GitHub API HTTP {response.status_code}: {response.text}"
-            )
+        headers = self._headers()
+        self._do_with_retry(lambda c: c.post(url, json=payload, headers=headers))
 
     def _post_json(self, path: str, payload: dict[str, object]) -> dict[str, object]:
         """POST and return the response JSON body."""
         url = f"{GitHubAPI.BASE_URL}{path}"
-        try:
-            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
-                response = client.post(url, json=payload, headers=self._headers())
-        except httpx.HTTPError as e:
-            raise PublishError(f"GitHub API error: {e}") from e
-
-        if response.status_code > _STATUS_OK_MAX:
-            raise PublishError(
-                f"GitHub API HTTP {response.status_code}: {response.text}"
-            )
+        response = self._do_with_retry(
+            lambda c: c.post(url, json=payload, headers=self._headers())
+        )
         return response.json()  # type: ignore[no-any-return]
 
     def _patch(self, path: str, payload: dict[str, object]) -> None:
         """PATCH request."""
         url = f"{GitHubAPI.BASE_URL}{path}"
-        try:
-            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
-                response = client.patch(url, json=payload, headers=self._headers())
-        except httpx.HTTPError as e:
-            raise PublishError(f"GitHub API error: {e}") from e
-
-        if response.status_code > _STATUS_OK_MAX:
-            raise PublishError(
-                f"GitHub API HTTP {response.status_code}: {response.text}"
-            )
+        self._do_with_retry(
+            lambda c: c.patch(url, json=payload, headers=self._headers())
+        )
 
     def _request(self, url: str, headers: dict[str, str]) -> httpx.Response:
-        try:
-            with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
-                response = client.get(url, headers=headers)
-        except httpx.HTTPError as e:
-            raise PublishError(f"GitHub API error: {e}") from e
+        return self._do_with_retry(lambda c: c.get(url, headers=headers))
 
-        if response.status_code > _STATUS_OK_MAX:
-            raise PublishError(
-                f"GitHub API HTTP {response.status_code}: {response.text}"
-            )
-        return response
+    @staticmethod
+    def _do_with_retry(
+        send: typing.Callable[[httpx.Client], httpx.Response],
+    ) -> httpx.Response:
+        """Execute an HTTP request with retry on 429 rate limits."""
+        for attempt in range(_MAX_RATE_LIMIT_RETRIES):
+            try:
+                with httpx.Client(timeout=DEFAULT_TIMEOUT_SECONDS) as client:
+                    response = send(client)
+            except httpx.HTTPError as e:
+                raise PublishError(f"GitHub API error: {e}") from e
+
+            is_rate_limited = response.status_code == _RATE_LIMIT_STATUS
+            if is_rate_limited and attempt < _MAX_RATE_LIMIT_RETRIES - 1:
+                retry_after = int(
+                    response.headers.get("Retry-After", _DEFAULT_RETRY_AFTER)
+                )
+                logger.warning(
+                    "GitHub rate limited (429), retrying in %ds (attempt %d/%d)",
+                    retry_after,
+                    attempt + 1,
+                    _MAX_RATE_LIMIT_RETRIES,
+                )
+                time.sleep(retry_after)
+                continue
+
+            if response.status_code > _STATUS_OK_MAX:
+                raise PublishError(
+                    f"GitHub API HTTP {response.status_code}: {response.text}"
+                )
+            return response
+
+        # Unreachable — last attempt either returns or raises above.
+        msg = "GitHub API rate limit retries exhausted"
+        raise PublishError(msg)
 
     def _headers(self) -> dict[str, str]:
         return {

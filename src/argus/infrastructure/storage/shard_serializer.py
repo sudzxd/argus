@@ -7,6 +7,7 @@ partial maps from selected shards.
 from __future__ import annotations
 
 import json
+import logging
 
 from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.domain.context.value_objects import (
@@ -22,6 +23,8 @@ from argus.domain.context.value_objects import (
 )
 from argus.infrastructure.constants import SerializerField as F
 from argus.shared.types import CommitSHA, FilePath, LineRange
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # SHARD SERIALIZATION
@@ -156,6 +159,8 @@ def assemble_from_shards(
         loaded_shards.add(sid)
 
     # Restore cross-shard edges where both shards are loaded.
+    restored = 0
+    dropped = 0
     for cross_edge in manifest.cross_shard_edges:
         if (
             cross_edge.source_shard in loaded_shards
@@ -168,6 +173,16 @@ def assemble_from_shards(
                     kind=cross_edge.kind,
                 )
             )
+            restored += 1
+        else:
+            dropped += 1
+
+    if dropped > 0:
+        logger.debug(
+            "Restored %d cross-shard edges, dropped %d (shards not loaded)",
+            restored,
+            dropped,
+        )
 
     return codebase_map
 

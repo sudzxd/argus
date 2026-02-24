@@ -16,8 +16,9 @@ _DEFAULT_MODEL = "gemini-embedding-001"
 _DEFAULT_DIMENSION = 3072
 _MAX_CHARS_PER_TEXT = 7500  # ~2048 tokens, stay under per-text limit
 _BATCH_SIZE = 20  # Small batches to stay under per-minute token limits
-_MAX_RETRIES = 7
+_MAX_RETRIES = 4
 _INITIAL_BACKOFF = 10.0  # seconds — generous for free tier rate limits
+_MAX_TOTAL_BACKOFF = 120.0  # seconds — cap total retry time
 _REQUEST_DELAY = 3.0  # seconds between requests to stay under token/min limit
 
 
@@ -26,6 +27,7 @@ def _embed_batch_with_retry(
 ) -> list[list[float]]:
     """Embed a single batch with exponential backoff on rate limits."""
     backoff = _INITIAL_BACKOFF
+    elapsed = 0.0
     for attempt in range(_MAX_RETRIES):
         try:
             result = client.models.embed_content(model=model, contents=texts)  # type: ignore[union-attr]  # pyright: ignore[reportUnknownVariableType,reportUnknownMemberType]
@@ -33,6 +35,11 @@ def _embed_batch_with_retry(
         except (RuntimeError, ValueError, TypeError, OSError) as e:
             err_str = str(e)
             if "429" in err_str and attempt < _MAX_RETRIES - 1:
+                if elapsed + backoff > _MAX_TOTAL_BACKOFF:
+                    logger.warning(
+                        "Embedding retry budget exhausted (%.0fs elapsed)", elapsed
+                    )
+                    raise
                 logger.info(
                     "Rate limited, waiting %.0fs (attempt %d/%d)",
                     backoff,
@@ -40,6 +47,7 @@ def _embed_batch_with_retry(
                     _MAX_RETRIES,
                 )
                 time.sleep(backoff)
+                elapsed += backoff
                 backoff *= 2
             else:
                 raise

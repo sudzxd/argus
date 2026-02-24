@@ -264,6 +264,23 @@ def test_assemble_partial_no_cross_shard_edges(
     assert edge.target == FilePath("src/auth/utils.py")
 
 
+def test_assemble_partial_logs_dropped_edges(
+    multi_dir_map: CodebaseMap,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Dropped cross-shard edges are logged at DEBUG level."""
+    import logging
+
+    manifest, shard_data = split_into_shards(multi_dir_map)
+
+    partial_data = {ShardId("src/auth"): shard_data[ShardId("src/auth")]}
+    with caplog.at_level(logging.DEBUG):
+        assemble_from_shards(manifest, partial_data)
+
+    assert "dropped 1" in caplog.text
+    assert "Restored 0" in caplog.text
+
+
 def test_assemble_empty_shard_data() -> None:
     manifest = split_into_shards(CodebaseMap(indexed_at=CommitSHA("empty")))[0]
     result = assemble_from_shards(manifest, {})

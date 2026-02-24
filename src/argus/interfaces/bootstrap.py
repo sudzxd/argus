@@ -105,7 +105,9 @@ def _execute_bootstrap() -> None:
     # 1. Get the default branch SHA and full tree.
     logger.info("Fetching repository tree for %s...", repo)
     head_sha = client.get_repo_default_branch_sha()
-    tree_entries = client.get_tree_recursive(head_sha)
+    tree_entries, was_truncated = client.get_tree_recursive(head_sha)
+    if was_truncated:
+        logger.warning("Repository tree was truncated; codebase map will be incomplete")
 
     # 2. Filter to parseable source files.
     parseable = get_parseable_extensions(cfg.extra_extensions)

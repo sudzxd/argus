@@ -96,15 +96,19 @@ class AgenticRetrievalStrategy:
 
             budget_exhausted = False
             for item in new_items:
-                if item.source in all_items:
-                    continue
-                if budget is not None and accumulated_tokens + int(
-                    item.token_cost
-                ) > int(budget):
+                existing = all_items.get(item.source)
+                if existing is not None:
+                    if existing.relevance_score >= item.relevance_score:
+                        continue
+                    # Replace with higher-scoring item; adjust token accounting.
+                    accumulated_tokens -= int(existing.token_cost)
+
+                cost = int(item.token_cost)
+                if budget is not None and accumulated_tokens + cost > int(budget):
                     budget_exhausted = True
                     break
                 all_items[item.source] = item
-                accumulated_tokens += int(item.token_cost)
+                accumulated_tokens += cost
 
             if budget_exhausted:
                 break

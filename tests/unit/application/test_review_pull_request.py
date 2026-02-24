@@ -449,6 +449,116 @@ def test_execute_deep_depth_includes_patterns(
     assert "snake_case" in call_args.codebase_patterns_text
 
 
+def test_execute_deep_depth_empty_patterns_not_saved(
+    mock_indexing_service: MagicMock,
+    mock_repository: MagicMock,
+    mock_orchestrator: MagicMock,
+    mock_review_generator: MagicMock,
+    mock_noise_filter: MagicMock,
+    mock_publisher: MagicMock,
+) -> None:
+    from argus.domain.memory.value_objects import (
+        CodebaseMemory,
+        CodebaseOutline,
+        FileOutlineEntry,
+    )
+
+    mock_outline_renderer = MagicMock()
+    outline = CodebaseOutline(
+        entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+    )
+    mock_outline_renderer.render.return_value = ("# outline text", outline)
+
+    mock_memory_repo = MagicMock()
+    mock_memory_repo.load.return_value = None
+
+    mock_profile_service = MagicMock()
+    mock_profile_service.build_profile.return_value = CodebaseMemory(
+        repo_id="org/repo",
+        outline=outline,
+        patterns=[],  # empty patterns
+        version=1,
+    )
+
+    uc = ReviewPullRequest(
+        indexing_service=mock_indexing_service,
+        repository=mock_repository,
+        orchestrator=mock_orchestrator,
+        review_generator=mock_review_generator,
+        noise_filter=mock_noise_filter,
+        publisher=mock_publisher,
+        outline_renderer=mock_outline_renderer,
+        memory_repository=mock_memory_repo,
+        profile_service=mock_profile_service,
+    )
+
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        review_depth=ReviewDepth.DEEP,
+    )
+    uc.execute(cmd)
+
+    # Empty patterns should NOT be saved to memory repository.
+    mock_memory_repo.save.assert_not_called()
+    call_args = mock_review_generator.generate.call_args[0][0]
+    assert call_args.codebase_patterns_text is None
+
+
+def test_execute_deep_depth_warns_when_memory_not_configured(
+    mock_indexing_service: MagicMock,
+    mock_repository: MagicMock,
+    mock_orchestrator: MagicMock,
+    mock_review_generator: MagicMock,
+    mock_noise_filter: MagicMock,
+    mock_publisher: MagicMock,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    from argus.domain.memory.value_objects import CodebaseOutline, FileOutlineEntry
+
+    mock_outline_renderer = MagicMock()
+    mock_outline_renderer.render.return_value = (
+        "# outline",
+        CodebaseOutline(
+            entries=[FileOutlineEntry(path=FilePath("main.py"), symbols=["main"])]
+        ),
+    )
+
+    uc = ReviewPullRequest(
+        indexing_service=mock_indexing_service,
+        repository=mock_repository,
+        orchestrator=mock_orchestrator,
+        review_generator=mock_review_generator,
+        noise_filter=mock_noise_filter,
+        publisher=mock_publisher,
+        outline_renderer=mock_outline_renderer,
+        # memory_repository and profile_service are None
+    )
+
+    cmd = ReviewPullRequestCommand(
+        repo_id="org/repo",
+        pr_number=42,
+        commit_sha=CommitSHA("abc123"),
+        diff="diff",
+        changed_files=[FilePath("file.py")],
+        file_contents={FilePath("file.py"): "x = 1"},
+        review_depth=ReviewDepth.DEEP,
+    )
+
+    import logging
+
+    with caplog.at_level(logging.WARNING):
+        uc.execute(cmd)
+
+    assert "memory components not configured" in caplog.text
+    call_args = mock_review_generator.generate.call_args[0][0]
+    assert call_args.codebase_patterns_text is None
+
+
 # =============================================================================
 # PR context passthrough
 # =============================================================================
