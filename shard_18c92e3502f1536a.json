@@ -125,14 +125,14 @@
           "name": "_execute_bootstrap",
           "kind": "function",
           "line_start": 94,
-          "line_end": 229,
+          "line_end": 231,
           "signature": "def _execute_bootstrap() -> None"
         },
         {
           "name": "_build_embeddings",
           "kind": "function",
-          "line_start": 232,
-          "line_end": 304,
+          "line_start": 234,
+          "line_end": 306,
           "signature": "def _build_embeddings("
         }
       ],

@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 8,
+  "version": 9,
   "outline": {
     "version": 0,
     "entries": [
@@ -876,6 +876,15 @@
       ]
     },
     {
+      "category": "error_handling",
+      "description": "The codebase implements a consistent retry mechanism for operations involving external dependencies, particularly for network requests, to enhance robustness against transient failures.",
+      "confidence": 0.8,
+      "examples": [
+        "_do_with_retry in GitHubClient",
+        "_embed_batch_with_retry in GoogleEmbeddingProvider"
+      ]
+    },
+    {
       "category": "style",
       "description": "The project consistently uses `StrEnum` and `IntEnum` for defining enumerations, providing type safety and clear representation for string and integer-backed enums.",
       "confidence": 0.7,
@@ -928,6 +937,15 @@
       ]
     },
     {
+      "category": "testing",
+      "description": "Test utility functions for constructing specific test data objects or configurations are consistently prefixed with `_make_`.",
+      "confidence": 0.7,
+      "examples": [
+        "_make_file_entry in tests/unit/application/test_review_pull_request.py",
+        "_make_config in tests/unit/infrastructure/test_retrieval/test_agentic.py"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -954,5 +972,5 @@
       ]
     }
   ],
-  "analyzed_at": "1370190b18ded0e3488d13828ac885973dba0bee"
+  "analyzed_at": "16242a00803fa2aa13071905eac1e63a61d9a795"
 }

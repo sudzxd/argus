@@ -14,224 +14,233 @@
         {
           "name": "_next_page_url",
           "kind": "function",
-          "line_start": 24,
-          "line_end": 28,
+          "line_start": 29,
+          "line_end": 33,
           "signature": "def _next_page_url(response"
         },
         {
           "name": "GitHubClient",
           "kind": "class",
-          "line_start": 39,
-          "line_end": 480,
+          "line_start": 44,
+          "line_end": 490,
           "signature": "class GitHubClient"
         },
         {
           "name": "get_pull_request",
           "kind": "method",
-          "line_start": 45,
-          "line_end": 51,
+          "line_start": 50,
+          "line_end": 56,
           "signature": "def get_pull_request(self, pr_number"
         },
         {
           "name": "get_pull_request_diff",
           "kind": "method",
-          "line_start": 53,
-          "line_end": 63,
+          "line_start": 58,
+          "line_end": 68,
           "signature": "def get_pull_request_diff(self, pr_number"
         },
         {
           "name": "get_file_content",
           "kind": "method",
-          "line_start": 65,
-          "line_end": 77,
+          "line_start": 70,
+          "line_end": 82,
           "signature": "def get_file_content(self, path"
         },
         {
           "name": "post_issue_comment",
           "kind": "method",
-          "line_start": 79,
-          "line_end": 86,
+          "line_start": 84,
+          "line_end": 91,
           "signature": "def post_issue_comment(self, pr_number"
         },
         {
           "name": "post_review",
           "kind": "method",
-          "line_start": 88,
-          "line_end": 105,
+          "line_start": 93,
+          "line_end": 110,
           "signature": "def post_review("
         },
         {
           "name": "get_repo_default_branch_sha",
           "kind": "method",
-          "line_start": 107,
-          "line_end": 123,
+          "line_start": 112,
+          "line_end": 128,
           "signature": "def get_repo_default_branch_sha(self) -> str"
         },
         {
           "name": "get_tree_recursive",
           "kind": "method",
-          "line_start": 125,
-          "line_end": 144,
+          "line_start": 130,
+          "line_end": 150,
           "signature": "def get_tree_recursive(self, sha"
         },
         {
           "name": "compare_commits",
           "kind": "method",
-          "line_start": 146,
-          "line_end": 169,
+          "line_start": 152,
+          "line_end": 175,
           "signature": "def compare_commits(self, base"
         },
         {
           "name": "get_check_runs",
           "kind": "method",
-          "line_start": 175,
-          "line_end": 188,
+          "line_start": 181,
+          "line_end": 194,
           "signature": "def get_check_runs(self, commit_sha"
         },
         {
           "name": "get_issue_comments",
           "kind": "method",
-          "line_start": 190,
-          "line_end": 199,
+          "line_start": 196,
+          "line_end": 205,
           "signature": "def get_issue_comments(self, pr_number"
         },
         {
           "name": "get_pr_review_comments",
           "kind": "method",
-          "line_start": 201,
-          "line_end": 210,
+          "line_start": 207,
+          "line_end": 216,
           "signature": "def get_pr_review_comments(self, pr_number"
         },
         {
           "name": "get_pr_commits",
           "kind": "method",
-          "line_start": 212,
-          "line_end": 221,
+          "line_start": 218,
+          "line_end": 227,
           "signature": "def get_pr_commits(self, pr_number"
         },
         {
           "name": "search_issues",
           "kind": "method",
-          "line_start": 223,
-          "line_end": 237,
+          "line_start": 229,
+          "line_end": 243,
           "signature": "def search_issues(self, query"
         },
         {
           "name": "get_ref_sha",
           "kind": "method",
-          "line_start": 243,
-          "line_end": 261,
+          "line_start": 249,
+          "line_end": 267,
           "signature": "def get_ref_sha(self, branch"
         },
         {
           "name": "get_commit_tree_sha",
           "kind": "method",
-          "line_start": 263,
-          "line_end": 277,
+          "line_start": 269,
+          "line_end": 283,
           "signature": "def get_commit_tree_sha(self, commit_sha"
         },
         {
           "name": "get_tree_entries_flat",
           "kind": "method",
-          "line_start": 279,
-          "line_end": 292,
+          "line_start": 285,
+          "line_end": 298,
           "signature": "def get_tree_entries_flat(self, tree_sha"
         },
         {
           "name": "get_blob_content",
           "kind": "method",
-          "line_start": 294,
-          "line_end": 307,
+          "line_start": 300,
+          "line_end": 313,
           "signature": "def get_blob_content(self, blob_sha"
         },
         {
           "name": "create_blob",
           "kind": "method",
-          "line_start": 309,
-          "line_end": 326,
+          "line_start": 315,
+          "line_end": 332,
           "signature": "def create_blob(self, content_b64"
         },
         {
           "name": "create_tree",
           "kind": "method",
-          "line_start": 328,
-          "line_end": 354,
+          "line_start": 334,
+          "line_end": 360,
           "signature": "def create_tree("
         },
         {
           "name": "create_commit",
           "kind": "method",
-          "line_start": 356,
-          "line_end": 378,
+          "line_start": 362,
+          "line_end": 384,
           "signature": "def create_commit("
         },
         {
           "name": "create_ref",
           "kind": "method",
-          "line_start": 380,
-          "line_end": 389,
+          "line_start": 386,
+          "line_end": 395,
           "signature": "def create_ref(self, ref"
         },
         {
           "name": "update_ref",
           "kind": "method",
-          "line_start": 391,
-          "line_end": 400,
+          "line_start": 397,
+          "line_end": 406,
           "signature": "def update_ref(self, ref"
         },
         {
           "name": "_get",
           "kind": "method",
-          "line_start": 406,
-          "line_end": 409,
+          "line_start": 412,
+          "line_end": 415,
           "signature": "def _get(self, path"
         },
         {
           "name": "_get_list",
           "kind": "method",
-          "line_start": 411,
-          "line_end": 420,
+          "line_start": 417,
+          "line_end": 426,
           "signature": "def _get_list(self, path"
         },
         {
           "name": "_post",
           "kind": "method",
-          "line_start": 422,
-          "line_end": 432,
+          "line_start": 428,
+          "line_end": 430,
           "signature": "def _post(self, url"
         },
         {
           "name": "_post_json",
           "kind": "method",
-          "line_start": 434,
-          "line_end": 447,
+          "line_start": 432,
+          "line_end": 438,
           "signature": "def _post_json(self, path"
         },
         {
           "name": "_patch",
           "kind": "method",
-          "line_start": 449,
-          "line_end": 461,
+          "line_start": 440,
+          "line_end": 445,
           "signature": "def _patch(self, path"
         },
         {
           "name": "_request",
           "kind": "method",
-          "line_start": 463,
-          "line_end": 474,
+          "line_start": 447,
+          "line_end": 448,
           "signature": "def _request(self, url"
+        },
+        {
+          "name": "_do_with_retry",
+          "kind": "method",
+          "line_start": 451,
+          "line_end": 484,
+          "signature": "def _do_with_retry("
         },
         {
           "name": "_headers",
           "kind": "method",
-          "line_start": 476,
-          "line_end": 480,
+          "line_start": 486,
+          "line_end": 490,
           "signature": "def _headers(self) -> dict[str, str]"
         }
       ],
       "imports": [
         "logging",
         "re",
+        "time",
+        "typing",
         "urllib.parse",
         "dataclasses",
         "typing",

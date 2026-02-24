@@ -110,59 +110,87 @@
           "signature": "def side_effect(prompt"
         },
         {
-          "name": "test_respects_max_iterations",
+          "name": "test_keeps_highest_scoring_item_per_source",
           "kind": "function",
           "line_start": 225,
-          "line_end": 240,
+          "line_end": 261,
+          "signature": "def test_keeps_highest_scoring_item_per_source() -> None"
+        },
+        {
+          "name": "SwitchingStrategy",
+          "kind": "class",
+          "line_start": 231,
+          "line_end": 237,
+          "signature": "class SwitchingStrategy"
+        },
+        {
+          "name": "retrieve",
+          "kind": "method",
+          "line_start": 232,
+          "line_end": 237,
+          "signature": "def retrieve("
+        },
+        {
+          "name": "side_effect",
+          "kind": "function",
+          "line_start": 250,
+          "line_end": 254,
+          "signature": "def side_effect(prompt"
+        },
+        {
+          "name": "test_respects_max_iterations",
+          "kind": "function",
+          "line_start": 264,
+          "line_end": 279,
           "signature": "def test_respects_max_iterations() -> None"
         },
         {
           "name": "test_empty_fallback_strategies_returns_empty",
           "kind": "function",
-          "line_start": 243,
-          "line_end": 256,
+          "line_start": 282,
+          "line_end": 295,
           "signature": "def test_empty_fallback_strategies_returns_empty() -> None"
         },
         {
           "name": "test_budget_stops_accumulating_items",
           "kind": "function",
-          "line_start": 259,
-          "line_end": 280,
+          "line_start": 298,
+          "line_end": 319,
           "signature": "def test_budget_stops_accumulating_items() -> None"
         },
         {
           "name": "test_budget_none_collects_all_items",
           "kind": "function",
-          "line_start": 283,
-          "line_end": 302,
+          "line_start": 322,
+          "line_end": 341,
           "signature": "def test_budget_none_collects_all_items() -> None"
         },
         {
           "name": "test_budget_stops_iterations_early",
           "kind": "function",
-          "line_start": 305,
-          "line_end": 326,
+          "line_start": 344,
+          "line_end": 365,
           "signature": "def test_budget_stops_iterations_early() -> None"
         },
         {
           "name": "test_last_llm_usage_tracks_accumulated_usage",
           "kind": "function",
-          "line_start": 329,
-          "line_end": 355,
+          "line_start": 368,
+          "line_end": 394,
           "signature": "def test_last_llm_usage_tracks_accumulated_usage() -> None"
         },
         {
           "name": "side_effect",
           "kind": "function",
-          "line_start": 343,
-          "line_end": 347,
+          "line_start": 382,
+          "line_end": 386,
           "signature": "def side_effect(prompt"
         },
         {
           "name": "test_last_llm_usage_resets_between_calls",
           "kind": "function",
-          "line_start": 358,
-          "line_end": 380,
+          "line_start": 397,
+          "line_end": 419,
           "signature": "def test_last_llm_usage_resets_between_calls() -> None"
         }
       ],
@@ -185,6 +213,7 @@
         "test_stops_when_needs_more_context_false",
         "test_iterates_when_needs_more_context_true",
         "test_deduplicates_items_by_source",
+        "test_keeps_highest_scoring_item_per_source",
         "test_respects_max_iterations",
         "test_empty_fallback_strategies_returns_empty",
         "test_budget_stops_accumulating_items",

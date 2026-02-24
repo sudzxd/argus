@@ -456,17 +456,24 @@
           "signature": "def test_assemble_partial_no_cross_shard_edges("
         },
         {
-          "name": "test_assemble_empty_shard_data",
+          "name": "test_assemble_partial_logs_dropped_edges",
           "kind": "function",
           "line_start": 267,
-          "line_end": 270,
+          "line_end": 281,
+          "signature": "def test_assemble_partial_logs_dropped_edges("
+        },
+        {
+          "name": "test_assemble_empty_shard_data",
+          "kind": "function",
+          "line_start": 284,
+          "line_end": 287,
           "signature": "def test_assemble_empty_shard_data() -> None"
         },
         {
           "name": "test_split_single_file",
           "kind": "function",
-          "line_start": 278,
-          "line_end": 294,
+          "line_start": 295,
+          "line_end": 311,
           "signature": "def test_split_single_file() -> None"
         }
       ],
@@ -489,6 +496,7 @@
         "test_assemble_full_round_trip",
         "test_assemble_partial_only_loads_requested",
         "test_assemble_partial_no_cross_shard_edges",
+        "test_assemble_partial_logs_dropped_edges",
         "test_assemble_empty_shard_data",
         "test_split_single_file"
       ],

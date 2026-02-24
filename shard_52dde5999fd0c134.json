@@ -327,10 +327,24 @@
           "signature": "def test_execute_deep_depth_includes_patterns("
         },
         {
+          "name": "test_execute_deep_depth_empty_patterns_not_saved",
+          "kind": "function",
+          "line_start": 452,
+          "line_end": 509,
+          "signature": "def test_execute_deep_depth_empty_patterns_not_saved("
+        },
+        {
+          "name": "test_execute_deep_depth_warns_when_memory_not_configured",
+          "kind": "function",
+          "line_start": 512,
+          "line_end": 559,
+          "signature": "def test_execute_deep_depth_warns_when_memory_not_configured("
+        },
+        {
           "name": "test_execute_passes_pr_context_to_review_request",
           "kind": "function",
-          "line_start": 457,
-          "line_end": 485,
+          "line_start": 567,
+          "line_end": 595,
           "signature": "def test_execute_passes_pr_context_to_review_request("
         }
       ],
@@ -362,6 +376,8 @@
         "test_execute_with_outline_renderer",
         "test_execute_quick_depth_skips_memory",
         "test_execute_deep_depth_includes_patterns",
+        "test_execute_deep_depth_empty_patterns_not_saved",
+        "test_execute_deep_depth_warns_when_memory_not_configured",
         "test_execute_passes_pr_context_to_review_request"
       ],
       "last_indexed": "",

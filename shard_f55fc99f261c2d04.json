@@ -173,7 +173,7 @@
           "name": "ReviewPullRequest",
           "kind": "class",
           "line_start": 88,
-          "line_end": 257,
+          "line_end": 263,
           "signature": "class ReviewPullRequest"
         },
         {
@@ -208,14 +208,14 @@
           "name": "_build_patterns_text",
           "kind": "method",
           "line_start": 228,
-          "line_end": 257,
+          "line_end": 263,
           "signature": "def _build_patterns_text("
         },
         {
           "name": "_render_patterns",
           "kind": "function",
-          "line_start": 260,
-          "line_end": 269,
+          "line_start": 266,
+          "line_end": 275,
           "signature": "def _render_patterns(patterns"
         }
       ],

@@ -37,36 +37,36 @@
         {
           "name": "_embed_batch_with_retry",
           "kind": "function",
-          "line_start": 24,
-          "line_end": 46,
+          "line_start": 25,
+          "line_end": 54,
           "signature": "def _embed_batch_with_retry("
         },
         {
           "name": "_call_embed_api",
           "kind": "function",
-          "line_start": 49,
-          "line_end": 88,
+          "line_start": 57,
+          "line_end": 96,
           "signature": "def _call_embed_api(api_key"
         },
         {
           "name": "GoogleEmbeddingProvider",
           "kind": "class",
-          "line_start": 92,
-          "line_end": 118,
+          "line_start": 100,
+          "line_end": 126,
           "signature": "class GoogleEmbeddingProvider"
         },
         {
           "name": "embed",
           "kind": "method",
-          "line_start": 98,
-          "line_end": 113,
+          "line_start": 106,
+          "line_end": 121,
           "signature": "def embed(self, texts"
         },
         {
           "name": "dimension",
           "kind": "method",
-          "line_start": 116,
-          "line_end": 118,
+          "line_start": 124,
+          "line_end": 126,
           "signature": "def dimension(self) -> int"
         }
       ],

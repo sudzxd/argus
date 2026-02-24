@@ -85,29 +85,57 @@
           "name": "test_get_tree_recursive_warns_on_truncation",
           "kind": "function",
           "line_start": 128,
-          "line_end": 141,
+          "line_end": 142,
           "signature": "def test_get_tree_recursive_warns_on_truncation("
+        },
+        {
+          "name": "test_get_tree_recursive_not_truncated",
+          "kind": "function",
+          "line_start": 145,
+          "line_end": 154,
+          "signature": "def test_get_tree_recursive_not_truncated(client"
         },
         {
           "name": "test_get_list_follows_pagination",
           "kind": "function",
-          "line_start": 149,
-          "line_end": 173,
+          "line_start": 162,
+          "line_end": 186,
           "signature": "def test_get_list_follows_pagination(client"
         },
         {
           "name": "test_get_list_single_page",
           "kind": "function",
-          "line_start": 176,
-          "line_end": 186,
+          "line_start": 189,
+          "line_end": 199,
           "signature": "def test_get_list_single_page(client"
         },
         {
           "name": "test_get_list_empty_response",
           "kind": "function",
-          "line_start": 189,
-          "line_end": 199,
+          "line_start": 202,
+          "line_end": 212,
           "signature": "def test_get_list_empty_response(client"
+        },
+        {
+          "name": "test_request_retries_on_429",
+          "kind": "function",
+          "line_start": 220,
+          "line_end": 241,
+          "signature": "def test_request_retries_on_429(client"
+        },
+        {
+          "name": "test_post_retries_on_429",
+          "kind": "function",
+          "line_start": 244,
+          "line_end": 264,
+          "signature": "def test_post_retries_on_429(client"
+        },
+        {
+          "name": "test_request_raises_after_exhausting_retries",
+          "kind": "function",
+          "line_start": 267,
+          "line_end": 287,
+          "signature": "def test_request_raises_after_exhausting_retries(client"
         }
       ],
       "imports": [
@@ -127,9 +155,13 @@
         "test_post_raises_publish_error_on_failure",
         "test_get_file_content_url_encodes_special_chars",
         "test_get_tree_recursive_warns_on_truncation",
+        "test_get_tree_recursive_not_truncated",
         "test_get_list_follows_pagination",
         "test_get_list_single_page",
-        "test_get_list_empty_response"
+        "test_get_list_empty_response",
+        "test_request_retries_on_429",
+        "test_post_retries_on_429",
+        "test_request_raises_after_exhausting_retries"
       ],
       "last_indexed": "",
       "summary": null

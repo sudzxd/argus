@@ -22,7 +22,7 @@
           "name": "AgenticRetrievalStrategy",
           "kind": "class",
           "line_start": 48,
-          "line_end": 156,
+          "line_end": 160,
           "signature": "class AgenticRetrievalStrategy"
         },
         {
@@ -36,21 +36,21 @@
           "name": "retrieve",
           "kind": "method",
           "line_start": 69,
-          "line_end": 115,
+          "line_end": 119,
           "signature": "def retrieve("
         },
         {
           "name": "_build_prompt",
           "kind": "method",
-          "line_start": 117,
-          "line_end": 133,
+          "line_start": 121,
+          "line_end": 137,
           "signature": "def _build_prompt("
         },
         {
           "name": "_execute_sub_queries",
           "kind": "method",
-          "line_start": 135,
-          "line_end": 156,
+          "line_start": 139,
+          "line_end": 160,
           "signature": "def _execute_sub_queries("
         }
       ],
