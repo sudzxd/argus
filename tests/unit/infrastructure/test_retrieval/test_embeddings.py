@@ -99,6 +99,25 @@ def test_google_embed_import_error_raises_config_error(mock_api: MagicMock) -> N
         provider.embed(["hello"])
 
 
+@patch("argus.infrastructure.retrieval.embeddings.google_embeddings.time.sleep")
+def test_google_backoff_cap_raises_after_budget_exhausted(
+    mock_sleep: MagicMock,
+) -> None:
+    from argus.infrastructure.retrieval.embeddings.google_embeddings import (
+        _embed_batch_with_retry,
+    )
+
+    # Every call raises a rate-limit error.
+    mock_client = MagicMock()
+    mock_client.models.embed_content.side_effect = RuntimeError("429 rate limited")
+
+    with pytest.raises(RuntimeError, match="429"):
+        _embed_batch_with_retry(mock_client, "model", ["hello"])
+
+    # Verify sleep was called (backoff happened before giving up).
+    assert mock_sleep.call_count >= 1
+
+
 # =============================================================================
 # OpenAI provider tests
 # =============================================================================

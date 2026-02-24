@@ -11,6 +11,11 @@ from argus.domain.context.value_objects import (
     Symbol,
     SymbolKind,
 )
+from argus.infrastructure.storage._serial_helpers import (
+    deserialize_edge,
+    deserialize_entry,
+    deserialize_symbol,
+)
 from argus.infrastructure.storage.serializer import deserialize, serialize
 from argus.shared.types import CommitSHA, FilePath, LineRange
 
@@ -102,3 +107,29 @@ def test_serialize_empty_map() -> None:
 
     assert len(restored) == 0
     assert restored.indexed_at == CommitSHA("empty")
+
+
+# =============================================================================
+# Deserializer error paths
+# =============================================================================
+
+
+def test_deserialize_entry_missing_path_raises() -> None:
+    with pytest.raises(KeyError):
+        deserialize_entry({"last_indexed": "abc"})
+
+
+def test_deserialize_symbol_missing_kind_raises() -> None:
+    with pytest.raises(KeyError):
+        deserialize_symbol({"name": "foo", "line_start": 1, "line_end": 5})
+
+
+def test_deserialize_edge_invalid_kind_raises() -> None:
+    with pytest.raises(ValueError, match="not_a_kind"):
+        deserialize_edge(
+            {
+                "source": "a.py",
+                "target": "b.py",
+                "kind": "not_a_kind",
+            }
+        )

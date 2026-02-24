@@ -9,7 +9,7 @@ from argus.domain.memory.value_objects import (
     PatternCategory,
     PatternEntry,
 )
-from argus.shared.types import FilePath
+from argus.shared.types import CommitSHA, FilePath
 
 
 def _make_outline() -> CodebaseOutline:
@@ -114,6 +114,35 @@ class TestProfileService:
         assert "Old pattern" in descs
         assert "Naming pattern" in descs
         assert "New arch pattern" in descs
+
+    def test_build_profile_passes_analyzed_at(self) -> None:
+        patterns = _make_patterns(2)
+        service = ProfileService(analyzer=FakeAnalyzer(patterns))
+        sha = CommitSHA("abc123")
+
+        memory = service.build_profile(
+            "org/repo", _make_outline(), "text", analyzed_at=sha
+        )
+
+        assert memory.analyzed_at == sha
+
+    def test_update_profile_passes_analyzed_at(self) -> None:
+        from argus.domain.memory.value_objects import CodebaseMemory
+
+        existing = CodebaseMemory(
+            repo_id="org/repo",
+            outline=_make_outline(),
+            patterns=(),
+            version=1,
+        )
+        service = ProfileService(analyzer=FakeAnalyzer([]))
+        sha = CommitSHA("def456")
+
+        memory = service.update_profile(
+            existing, _make_outline(), "text", analyzed_at=sha
+        )
+
+        assert memory.analyzed_at == sha
 
     def test_prune_and_cap_sorts_by_confidence(self) -> None:
         patterns = [
