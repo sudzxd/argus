@@ -18,6 +18,6 @@ Pure domain logic. Imports only from `shared/`. Defines protocols that infrastru
 
 - Never import from `infrastructure`, `application`, or `interfaces`.
 - Define interfaces as `Protocol` classes, not ABCs.
-- All value objects use `@dataclass(frozen=True)`.
+- All value objects use `@dataclass(frozen=True)` with `tuple[T, ...]` for collection fields (not `list`) to enforce deep immutability.
 - Domain services are pure functions/classes with no I/O.
 - `IndexingService.incremental_update()` mutates the `CodebaseMap` in-place and returns the same object. Callers must copy the map beforehand if the original must be preserved.

@@ -93,7 +93,7 @@ Scopes: `domain`, `infra`, `app`, `interfaces`, `shared`, `tests`, `ci`
 
 - Python 3.12+ type hints: `list[str]`, `T | None` (not `Optional[T]`)
 - `Protocol` over ABC for interfaces
-- `@dataclass(frozen=True)` for value objects, `pydantic.BaseModel` at boundaries only
+- `@dataclass(frozen=True)` for value objects with `tuple[T, ...]` for collection fields (not `list`), `pydantic.BaseModel` at boundaries only
 - Google-style docstrings on all public APIs
 - Test naming: `test_<component>_<scenario>_<expected>`
 - Line length: 88 (ruff enforced)

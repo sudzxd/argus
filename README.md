@@ -11,8 +11,8 @@
 <p align="center">
   <a href="https://github.com/sudzxd/argus/actions/workflows/ci.yml"><img src="https://github.com/sudzxd/argus/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <img src="https://img.shields.io/badge/python-3.12+-blue" alt="Python 3.12+">
-  <img src="https://img.shields.io/badge/tests-470-brightgreen" alt="Tests">
-  <img src="https://img.shields.io/badge/coverage-83%25-brightgreen" alt="Coverage">
+  <img src="https://img.shields.io/badge/tests-467-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/coverage-84%25-brightgreen" alt="Coverage">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
   <a href="https://sudzxd.github.io/argus/"><img src="https://img.shields.io/badge/docs-website-e8a838" alt="Website"></a>
   <a href="https://github.com/marketplace/actions/argus-pr-reviewer"><img src="https://img.shields.io/badge/marketplace-GitHub%20Actions-2088FF" alt="Marketplace"></a>

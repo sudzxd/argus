@@ -114,8 +114,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class FileEntry:
     path: FilePath
-    symbols: list[Symbol]
-    imports: list[FilePath]
+    symbols: tuple[Symbol, ...]
+    imports: tuple[FilePath, ...]
     summary: str | None = None
 
 # Boundary — pydantic
@@ -130,6 +130,7 @@ class ReviewCommentSchema(BaseModel):
 ```
 
 - `frozen=True` on value objects — immutability by default.
+- Use `tuple[T, ...]` (not `list[T]`) for collection fields in frozen dataclasses to enforce true immutability.
 - Pydantic at infrastructure boundaries only. Domain stays framework-free.
 
 ## Protocols Over ABCs

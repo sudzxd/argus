@@ -42,9 +42,9 @@ classDiagram
     }
     class FileEntry {
         +FilePath path
-        +list~Symbol~ symbols
-        +list~str~ imports
-        +list~str~ exports
+        +tuple~Symbol~ symbols
+        +tuple~FilePath~ imports
+        +tuple~str~ exports
     }
     class DependencyGraph {
         +add_edge(Edge)
@@ -355,7 +355,7 @@ src/argus/
 ## Design Principles
 
 - **The domain has no dependencies.** It defines interfaces; infrastructure implements them. The domain never imports from infrastructure, never calls an API, never reads a file.
-- **Value objects are immutable.** Once created, they don't change. New state means new objects.
+- **Value objects are immutable.** Once created, they don't change. New state means new objects. Collection fields use `tuple` (not `list`) in frozen dataclasses to enforce deep immutability.
 - **Side effects live at the boundary.** LLM calls, GitHub API calls, artifact uploads — all happen in infrastructure, orchestrated by application services.
 - **Retrieval is composable.** Strategies are independent and layered. Adding a new retrieval tier means implementing the strategy interface and registering it. Nothing else changes.
 - **Failure is explicit.** Typed exceptions with structured context flow upward. The application layer catches at use-case boundaries and decides whether to retry, degrade gracefully, or abort.

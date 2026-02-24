@@ -10,6 +10,7 @@ Concrete implementations of domain protocols. Imports from `domain/` and `shared
 |--------|-----------|-----|
 | `parsing/tree_sitter_parser.py` | `SourceParser` protocol | Tree-sitter AST parsing for 11 languages |
 | `parsing/chunker.py` | — | Splits source files into semantic `CodeChunk`s around symbols |
+| `storage/_serial_helpers.py` | — | Shared serialization helpers for entries, symbols, and edges (used by both `serializer.py` and `shard_serializer.py`) |
 | `storage/artifact_store.py` | `CodebaseMapRepository` protocol | Sharded JSON persistence (`ShardedArtifactStore`) with legacy flat format fallback (`FileArtifactStore`). `save_embedding_index()` returns `EmbeddingDescriptor` and uses model-keyed hash (`shard_id:model`) to prevent silent overwrites on model switch. |
 | `storage/git_branch_store.py` | — | `SelectiveGitBranchSync` (manifest-first pull, selective blob download, base_tree push) and `GitBranchSync` (legacy full pull/push). Orphan blob deletion uses `sha: None` (JSON null) in tree entries. |
 | `storage/memory_store.py` | `CodebaseMemoryRepository` protocol | JSON file persistence with `fcntl` file locking; `_deserialize()` runs inside the shared lock scope. Serializes `analyzed_at` field. |
