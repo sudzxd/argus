@@ -15,8 +15,8 @@ from argus.shared.types import FilePath, TokenCount
 class RetrievalQuery:
     """Encodes what context is needed for a PR review."""
 
-    changed_files: list[FilePath]
-    changed_symbols: list[str]
+    changed_files: tuple[FilePath, ...]
+    changed_symbols: tuple[str, ...]
     diff_text: str
 
 
@@ -34,7 +34,7 @@ class ContextItem:
 class RetrievalResult:
     """Ranked, budgeted context ready for the review generator."""
 
-    items: list[ContextItem]
+    items: tuple[ContextItem, ...]
 
     @property
     def total_tokens(self) -> TokenCount:

@@ -17,8 +17,8 @@ class ReviewSummary:
     """High-level assessment of a pull request."""
 
     description: str
-    risks: list[str]
-    strengths: list[str]
+    risks: tuple[str, ...]
+    strengths: tuple[str, ...]
     verdict: str
 
 
@@ -37,7 +37,7 @@ class CIStatus:
     """Aggregate CI status for a commit."""
 
     conclusion: str | None
-    checks: list[CheckRun]
+    checks: tuple[CheckRun, ...]
 
 
 @dataclass(frozen=True)
@@ -79,11 +79,11 @@ class PRContext:
     body: str
     author: str
     created_at: str
-    labels: list[str]
-    comments: list[PRComment]
+    labels: tuple[str, ...]
+    comments: tuple[PRComment, ...]
     ci_status: CIStatus
     git_health: GitHealth
-    related_items: list[RelatedItem]
+    related_items: tuple[RelatedItem, ...]
 
 
 @dataclass(frozen=True)
@@ -93,7 +93,7 @@ class ReviewRequest:
     diff_text: str
     context: RetrievalResult
     strictness: str = "normal"
-    ignored_paths: list[FilePath] = field(default_factory=list[FilePath])
+    ignored_paths: tuple[FilePath, ...] = field(default_factory=tuple)
     codebase_outline_text: str | None = None
     codebase_patterns_text: str | None = None
     pr_context: PRContext | None = None

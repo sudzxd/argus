@@ -76,11 +76,11 @@ class PRContextCollector:
             body=body,
             author=author,
             created_at=created_at,
-            labels=labels,
-            comments=comments,
+            labels=tuple(labels),
+            comments=tuple(comments),
             ci_status=ci_status,
             git_health=git_health,
-            related_items=related_items,
+            related_items=tuple(related_items),
         )
 
     def _extract_labels(self, pr_data: dict[str, object]) -> list[str]:
@@ -157,7 +157,7 @@ class PRContextCollector:
         else:
             overall = "pending"
 
-        return CIStatus(conclusion=overall, checks=checks)
+        return CIStatus(conclusion=overall, checks=tuple(checks))
 
     def _collect_comments(self, pr_number: int) -> list[PRComment]:
         comments: list[PRComment] = []

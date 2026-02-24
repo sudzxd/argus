@@ -388,8 +388,8 @@ def _maybe_build_embeddings(
             embeddings = provider.embed(texts)
             index = EmbeddingIndex(
                 shard_id=sid,
-                embeddings=embeddings,
-                chunk_ids=chunk_ids,
+                embeddings=tuple(tuple(e) for e in embeddings),
+                chunk_ids=tuple(chunk_ids),
                 dimension=provider.dimension,
                 model=cfg.embedding_model,
             )

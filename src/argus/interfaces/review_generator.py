@@ -256,8 +256,8 @@ class LLMReviewGenerator:
         """Convert pydantic output to domain Review entity."""
         summary = ReviewSummary(
             description=output.summary_description,
-            risks=output.summary_risks,
-            strengths=output.summary_strengths,
+            risks=tuple(output.summary_risks),
+            strengths=tuple(output.summary_strengths),
             verdict=output.summary_verdict,
         )
         comments = tuple(self._to_comment(c) for c in output.comments)

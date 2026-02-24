@@ -117,8 +117,8 @@ class ReviewPullRequest:
 
         # 2. Build retrieval query
         query = RetrievalQuery(
-            changed_files=cmd.changed_files,
-            changed_symbols=self._extract_changed_symbols(codebase_map, cmd),
+            changed_files=tuple(cmd.changed_files),
+            changed_symbols=tuple(self._extract_changed_symbols(codebase_map, cmd)),
             diff_text=cmd.diff,
         )
 

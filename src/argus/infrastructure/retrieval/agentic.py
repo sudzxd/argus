@@ -148,7 +148,7 @@ class AgenticRetrievalStrategy:
         for q in queries:
             sub_query = RetrievalQuery(
                 changed_files=original_query.changed_files,
-                changed_symbols=q.split(),
+                changed_symbols=tuple(q.split()),
                 diff_text=q,
             )
             for strategy in self.fallback_strategies:

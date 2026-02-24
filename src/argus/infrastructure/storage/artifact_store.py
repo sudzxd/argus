@@ -389,8 +389,10 @@ class ShardedArtifactStore:
                 indices.append(
                     EmbeddingIndex(
                         shard_id=ShardId(str(raw_data.get("shard_id", ""))),
-                        embeddings=cast(list[list[float]], embeddings_raw),
-                        chunk_ids=cast(list[str], chunk_ids_raw),
+                        embeddings=tuple(
+                            tuple(e) for e in cast(list[list[float]], embeddings_raw)
+                        ),
+                        chunk_ids=tuple(cast(list[str], chunk_ids_raw)),
                         dimension=int(str(raw_data.get("dimension", 0))),
                         model=str(raw_data.get("model", "")),
                     )

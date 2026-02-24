@@ -48,4 +48,4 @@ class ContextRanker:
                 selected.append(item)
                 remaining -= int(item.token_cost)
 
-        return RetrievalResult(items=selected)
+        return RetrievalResult(items=tuple(selected))

@@ -43,14 +43,14 @@ def review_request() -> ReviewRequest:
     return ReviewRequest(
         diff_text="--- a/foo.py\n+++ b/foo.py\n@@ -1,3 +1,4 @@\n+import os\n",
         context=RetrievalResult(
-            items=[
+            items=(
                 ContextItem(
                     source=FilePath("bar.py"),
                     content="def helper(): ...",
                     relevance_score=0.9,
                     token_cost=TokenCount(10),
                 ),
-            ]
+            )
         ),
     )
 
@@ -103,8 +103,8 @@ class TestLLMReviewGenerator:
         review, usage = generator.generate(review_request)
 
         assert review.summary.description == "Good changes overall."
-        assert review.summary.risks == ["Unused import"]
-        assert review.summary.strengths == ["Clean structure"]
+        assert review.summary.risks == ("Unused import",)
+        assert review.summary.strengths == ("Clean structure",)
         assert review.summary.verdict == "Approve with suggestions"
         assert len(review.comments) == 1
 

@@ -136,7 +136,7 @@ def test_collect_extracts_pr_metadata() -> None:
 
     assert ctx.title == "Fix auth timeout"
     assert ctx.author == "sudzxd"
-    assert ctx.labels == ["bug", "auth"]
+    assert ctx.labels == ("bug", "auth")
     assert "Fixes #42" in ctx.body
 
 
@@ -221,7 +221,7 @@ def test_collect_skips_related_by_default() -> None:
     collector = PRContextCollector(client=client)
     ctx = collector.collect(pr_number=1, head_sha="abc123")
 
-    assert ctx.related_items == []
+    assert ctx.related_items == ()
     client.search_issues.assert_not_called()
 
 

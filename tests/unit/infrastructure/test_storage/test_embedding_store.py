@@ -14,8 +14,8 @@ def test_save_and_load_embedding_index(tmp_path: Path) -> None:
 
     index = EmbeddingIndex(
         shard_id=sid,
-        embeddings=[[1.0, 0.0], [0.0, 1.0]],
-        chunk_ids=["src/utils/a.py:func_a", "src/utils/b.py:func_b"],
+        embeddings=((1.0, 0.0), (0.0, 1.0)),
+        chunk_ids=("src/utils/a.py:func_a", "src/utils/b.py:func_b"),
         dimension=2,
         model="test-model",
     )
@@ -27,11 +27,11 @@ def test_save_and_load_embedding_index(tmp_path: Path) -> None:
     loaded = store.load_embedding_indices({sid}, model="test-model")
     assert len(loaded) == 1
     assert loaded[0].shard_id == sid
-    assert loaded[0].embeddings == [[1.0, 0.0], [0.0, 1.0]]
-    assert loaded[0].chunk_ids == [
+    assert loaded[0].embeddings == ((1.0, 0.0), (0.0, 1.0))
+    assert loaded[0].chunk_ids == (
         "src/utils/a.py:func_a",
         "src/utils/b.py:func_b",
-    ]
+    )
     assert loaded[0].dimension == 2
     assert loaded[0].model == "test-model"
 
@@ -47,8 +47,8 @@ def test_save_embedding_index_returns_descriptor(tmp_path: Path) -> None:
     store = ShardedArtifactStore(storage_dir=tmp_path)
     index = EmbeddingIndex(
         shard_id=ShardId("lib"),
-        embeddings=[[1.0]],
-        chunk_ids=["lib/a.py:f"],
+        embeddings=((1.0,),),
+        chunk_ids=("lib/a.py:f",),
         dimension=1,
         model="my-model",
     )
@@ -68,15 +68,15 @@ def test_different_models_produce_different_blobs(tmp_path: Path) -> None:
 
     idx1 = EmbeddingIndex(
         shard_id=sid,
-        embeddings=[[1.0, 0.0]],
-        chunk_ids=["src/a.py:f"],
+        embeddings=((1.0, 0.0),),
+        chunk_ids=("src/a.py:f",),
         dimension=2,
         model="model-a",
     )
     idx2 = EmbeddingIndex(
         shard_id=sid,
-        embeddings=[[0.0, 1.0, 0.0]],
-        chunk_ids=["src/a.py:f"],
+        embeddings=((0.0, 1.0, 0.0),),
+        chunk_ids=("src/a.py:f",),
         dimension=3,
         model="model-b",
     )

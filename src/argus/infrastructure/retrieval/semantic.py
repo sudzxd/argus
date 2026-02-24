@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import math
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from argus.domain.context.value_objects import EmbeddingIndex
@@ -111,7 +112,7 @@ class SemanticRetrievalStrategy:
         return " ".join(parts)
 
 
-def _cosine_similarity(a: list[float], b: list[float]) -> float:
+def _cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:
     """Compute cosine similarity between two vectors."""
     dot = sum(x * y for x, y in zip(a, b, strict=True))
     norm_a = math.sqrt(sum(x * x for x in a))

@@ -126,8 +126,8 @@ class EmbeddingIndex:
     """Pre-computed embeddings for chunks in a shard."""
 
     shard_id: ShardId
-    embeddings: list[list[float]]
-    chunk_ids: list[str]  # "file:symbol_name"
+    embeddings: tuple[tuple[float, ...], ...]
+    chunk_ids: tuple[str, ...]  # "file:symbol_name"
     dimension: int
     model: str
 
