@@ -13,16 +13,18 @@ from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.domain.context.value_objects import (
     CrossShardEdge,
     Edge,
-    EdgeKind,
     ShardDescriptor,
     ShardedManifest,
     ShardId,
-    Symbol,
-    SymbolKind,
     shard_id_for,
 )
 from argus.infrastructure.constants import SerializerField as F
-from argus.shared.types import CommitSHA, FilePath, LineRange
+from argus.infrastructure.storage._serial_helpers import (
+    deserialize_edge,
+    deserialize_entry,
+    serialize_edge,
+    serialize_entry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +39,8 @@ def serialize_shard(
 ) -> str:
     """Serialize a single shard's entries and internal edges to JSON."""
     data: dict[str, object] = {
-        F.ENTRIES: [_serialize_entry(e) for e in sorted(entries, key=lambda e: e.path)],
-        F.EDGES: [_serialize_edge(e) for e in internal_edges],
+        F.ENTRIES: [serialize_entry(e) for e in sorted(entries, key=lambda e: e.path)],
+        F.EDGES: [serialize_edge(e) for e in internal_edges],
     }
     return json.dumps(data, indent=2)
 
@@ -59,11 +61,11 @@ def deserialize_shard(
 
     entries: list[FileEntry] = []
     for entry_data in raw.get(F.ENTRIES, []):
-        entries.append(_deserialize_entry(entry_data))
+        entries.append(deserialize_entry(entry_data))
 
     edges: list[Edge] = []
     for edge_data in raw.get(F.EDGES, []):
-        edges.append(_deserialize_edge(edge_data))
+        edges.append(deserialize_edge(edge_data))
 
     return entries, edges
 
@@ -185,74 +187,3 @@ def assemble_from_shards(
         )
 
     return codebase_map
-
-
-# =============================================================================
-# ENTRY / EDGE SERIALIZATION (reused from serializer.py patterns)
-# =============================================================================
-
-
-def _serialize_entry(entry: FileEntry) -> dict[str, object]:
-    return {
-        F.PATH: str(entry.path),
-        F.SYMBOLS: [_serialize_symbol(s) for s in entry.symbols],
-        F.IMPORTS: [str(p) for p in entry.imports],
-        F.EXPORTS: list(entry.exports),
-        F.LAST_INDEXED: str(entry.last_indexed),
-        F.SUMMARY: entry.summary,
-    }
-
-
-def _serialize_symbol(symbol: Symbol) -> dict[str, object]:
-    data: dict[str, object] = {
-        F.NAME: symbol.name,
-        F.KIND: symbol.kind.value,
-        F.LINE_START: symbol.line_range.start,
-        F.LINE_END: symbol.line_range.end,
-    }
-    if symbol.signature:
-        data[F.SIGNATURE] = symbol.signature
-    return data
-
-
-def _serialize_edge(edge: Edge) -> dict[str, str]:
-    return {
-        F.SOURCE: str(edge.source),
-        F.TARGET: str(edge.target),
-        F.KIND: edge.kind.value,
-    }
-
-
-def _deserialize_entry(data: dict[str, object]) -> FileEntry:
-    symbols = tuple(_deserialize_symbol(s) for s in data.get(F.SYMBOLS, []))  # type: ignore[union-attr]
-    imports = tuple(FilePath(str(p)) for p in data.get(F.IMPORTS, []))  # type: ignore[union-attr]
-    exports = tuple(str(e) for e in data.get(F.EXPORTS, []))  # type: ignore[union-attr]
-
-    return FileEntry(
-        path=FilePath(str(data[F.PATH])),
-        symbols=symbols,
-        imports=imports,
-        exports=exports,
-        last_indexed=CommitSHA(str(data[F.LAST_INDEXED])),
-        summary=data.get(F.SUMMARY),  # type: ignore[arg-type]
-    )
-
-
-def _deserialize_symbol(data: dict[str, object]) -> Symbol:
-    return Symbol(
-        name=str(data[F.NAME]),
-        kind=SymbolKind(str(data[F.KIND])),
-        line_range=LineRange(
-            start=int(data[F.LINE_START]),  # type: ignore[arg-type]
-            end=int(data[F.LINE_END]),  # type: ignore[arg-type]
-        ),
-        signature=str(data.get(F.SIGNATURE, "")),
-    )
-
-
-def _deserialize_edge(data: dict[str, object]) -> Edge:
-    return Edge(
-        source=FilePath(str(data[F.SOURCE])),
-        target=FilePath(str(data[F.TARGET])),
-        kind=EdgeKind(str(data[F.KIND])),
-    )

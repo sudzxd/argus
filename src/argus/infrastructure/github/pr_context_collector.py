@@ -224,7 +224,7 @@ class PRContextCollector:
                 now = datetime.now(UTC)
                 days_open = (now - created).days
             except ValueError:
-                pass
+                logger.debug("Could not parse created_at: %s", created_at)
 
         # Check for merge commits.
         has_merge_commits = False
