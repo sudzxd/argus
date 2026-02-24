@@ -23,3 +23,14 @@ def test_require_env_raises_on_empty(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TEST_VAR_EMPTY", "")
     with pytest.raises(ConfigurationError, match="TEST_VAR_EMPTY"):
         require_env("TEST_VAR_EMPTY")
+
+
+def test_require_env_raises_on_whitespace_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_VAR_WS", "   \t  ")
+    with pytest.raises(ConfigurationError, match="TEST_VAR_WS"):
+        require_env("TEST_VAR_WS")
+
+
+def test_require_env_strips_whitespace(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_VAR_PAD", "  hello  ")
+    assert require_env("TEST_VAR_PAD") == "hello"

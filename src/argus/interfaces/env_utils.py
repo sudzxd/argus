@@ -13,7 +13,7 @@ def require_env(name: str) -> str:
     Raises:
         ConfigurationError: If the variable is missing or empty.
     """
-    value = os.environ.get(name)
+    value = os.environ.get(name, "").strip()
     if not value:
         msg = f"Missing required environment variable: {name}"
         raise ConfigurationError(msg)

@@ -89,7 +89,7 @@ class TreeSitterParser:
         try:
             parser = Parser(ts_lang)
             tree = parser.parse(content.encode("utf-8", errors="replace"))
-        except Exception as e:
+        except (RuntimeError, OSError, ValueError, TypeError) as e:
             raise IndexingError(path, f"parse failed: {e}") from e
         root = tree.root_node
 

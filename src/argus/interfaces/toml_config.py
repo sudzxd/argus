@@ -230,3 +230,8 @@ def _validate_ranges(merged: dict[str, Any]) -> None:
     if not 0.0 <= threshold <= 1.0:
         msg = f"confidence_threshold must be between 0.0 and 1.0, got {threshold}"
         raise ConfigurationError(msg)
+
+    max_tokens = int(merged.get("max_tokens", 1))
+    if max_tokens <= 0:
+        msg = f"max_tokens must be positive, got {max_tokens}"
+        raise ConfigurationError(msg)

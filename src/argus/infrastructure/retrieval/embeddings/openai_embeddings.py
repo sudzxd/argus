@@ -18,6 +18,9 @@ def _call_embed_api(api_key: str, model: str, texts: list[str]) -> list[list[flo
 
     client = OpenAI(api_key=api_key)
     response = client.embeddings.create(model=model, input=texts)
+    if not response.data:
+        msg = "OpenAI embedding API returned empty response"
+        raise RuntimeError(msg)
     return [d.embedding for d in response.data]  # type: ignore[no-any-return]
 
 

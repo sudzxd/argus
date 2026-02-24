@@ -221,6 +221,28 @@ class TestValidation:
         with pytest.raises(ConfigurationError, match="confidence_threshold"):
             load_argus_config("review", project_root=tmp_path)
 
+    def test_load_max_tokens_zero_raises(self, tmp_path: Path) -> None:
+        _write_toml(
+            tmp_path,
+            """\
+            [tool.argus]
+            max_tokens = 0
+        """,
+        )
+        with pytest.raises(ConfigurationError, match="max_tokens"):
+            load_argus_config("review", project_root=tmp_path)
+
+    def test_load_max_tokens_negative_raises(self, tmp_path: Path) -> None:
+        _write_toml(
+            tmp_path,
+            """\
+            [tool.argus]
+            max_tokens = -100
+        """,
+        )
+        with pytest.raises(ConfigurationError, match="max_tokens"):
+            load_argus_config("review", project_root=tmp_path)
+
     def test_load_invalid_toml_raises(self, tmp_path: Path) -> None:
         (tmp_path / "pyproject.toml").write_text("{{invalid toml")
         with pytest.raises(ConfigurationError, match="Failed to parse"):

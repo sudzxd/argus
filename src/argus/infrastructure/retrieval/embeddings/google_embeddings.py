@@ -34,7 +34,9 @@ def _embed_batch_with_retry(
             return [e.values for e in result.embeddings]  # type: ignore[no-any-return]
         except (RuntimeError, ValueError, TypeError, OSError) as e:
             err_str = str(e)
-            if "429" in err_str and attempt < _MAX_RETRIES - 1:
+            if (
+                "429" in err_str or "RESOURCE_EXHAUSTED" in err_str
+            ) and attempt < _MAX_RETRIES - 1:
                 if elapsed + backoff > _MAX_TOTAL_BACKOFF:
                     logger.warning(
                         "Embedding retry budget exhausted (%.0fs elapsed)", elapsed
