@@ -152,70 +152,70 @@
           "name": "ProfileServicePort",
           "kind": "class",
           "line_start": 64,
-          "line_end": 79,
+          "line_end": 81,
           "signature": "class ProfileServicePort(Protocol)"
         },
         {
           "name": "build_profile",
           "kind": "method",
           "line_start": 67,
-          "line_end": 72,
+          "line_end": 73,
           "signature": "def build_profile("
         },
         {
           "name": "update_profile",
           "kind": "method",
-          "line_start": 74,
-          "line_end": 79,
+          "line_start": 75,
+          "line_end": 81,
           "signature": "def update_profile("
         },
         {
           "name": "ReviewPullRequest",
           "kind": "class",
-          "line_start": 88,
-          "line_end": 263,
+          "line_start": 90,
+          "line_end": 265,
           "signature": "class ReviewPullRequest"
         },
         {
           "name": "execute",
           "kind": "method",
-          "line_start": 111,
-          "line_end": 154,
+          "line_start": 113,
+          "line_end": 156,
           "signature": "def execute(self, cmd"
         },
         {
           "name": "_index_changes",
           "kind": "method",
-          "line_start": 156,
-          "line_end": 178,
+          "line_start": 158,
+          "line_end": 180,
           "signature": "def _index_changes(self, cmd"
         },
         {
           "name": "_extract_changed_symbols",
           "kind": "method",
-          "line_start": 180,
-          "line_end": 191,
+          "line_start": 182,
+          "line_end": 193,
           "signature": "def _extract_changed_symbols("
         },
         {
           "name": "_build_memory_context",
           "kind": "method",
-          "line_start": 193,
-          "line_end": 226,
+          "line_start": 195,
+          "line_end": 228,
           "signature": "def _build_memory_context("
         },
         {
           "name": "_build_patterns_text",
           "kind": "method",
-          "line_start": 228,
-          "line_end": 263,
+          "line_start": 230,
+          "line_end": 265,
           "signature": "def _build_patterns_text("
         },
         {
           "name": "_render_patterns",
           "kind": "function",
-          "line_start": 266,
-          "line_end": 275,
+          "line_start": 268,
+          "line_end": 277,
           "signature": "def _render_patterns(patterns"
         }
       ],

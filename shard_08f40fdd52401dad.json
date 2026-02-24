@@ -49,50 +49,50 @@
         {
           "name": "PatternAnalyzer",
           "kind": "class",
-          "line_start": 16,
-          "line_end": 33,
+          "line_start": 17,
+          "line_end": 34,
           "signature": "class PatternAnalyzer(Protocol)"
         },
         {
           "name": "analyze",
           "kind": "method",
-          "line_start": 19,
-          "line_end": 21,
+          "line_start": 20,
+          "line_end": 22,
           "signature": "def analyze(self, outline_text"
         },
         {
           "name": "analyze_incremental",
           "kind": "method",
-          "line_start": 23,
-          "line_end": 33,
+          "line_start": 24,
+          "line_end": 34,
           "signature": "def analyze_incremental("
         },
         {
           "name": "ProfileService",
           "kind": "class",
-          "line_start": 37,
-          "line_end": 102,
+          "line_start": 38,
+          "line_end": 108,
           "signature": "class ProfileService"
         },
         {
           "name": "build_profile",
           "kind": "method",
-          "line_start": 45,
-          "line_end": 68,
+          "line_start": 46,
+          "line_end": 72,
           "signature": "def build_profile("
         },
         {
           "name": "update_profile",
           "kind": "method",
-          "line_start": 70,
-          "line_end": 95,
+          "line_start": 74,
+          "line_end": 101,
           "signature": "def update_profile("
         },
         {
           "name": "_prune_and_cap",
           "kind": "method",
-          "line_start": 98,
-          "line_end": 102,
+          "line_start": 104,
+          "line_end": 108,
           "signature": "def _prune_and_cap(patterns"
         }
       ],
@@ -100,7 +100,8 @@
         "dataclasses",
         "typing",
         "argus.domain.memory.value_objects",
-        "argus.shared.constants"
+        "argus.shared.constants",
+        "argus.shared.types"
       ],
       "exports": [
         "PatternAnalyzer"

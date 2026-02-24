@@ -14,33 +14,34 @@
         {
           "name": "CodeChunk",
           "kind": "class",
-          "line_start": 17,
-          "line_end": 23,
+          "line_start": 18,
+          "line_end": 24,
           "signature": "class CodeChunk"
         },
         {
           "name": "Chunker",
           "kind": "class",
-          "line_start": 32,
-          "line_end": 74,
+          "line_start": 33,
+          "line_end": 75,
           "signature": "class Chunker"
         },
         {
           "name": "chunk",
           "kind": "method",
-          "line_start": 35,
-          "line_end": 65,
+          "line_start": 36,
+          "line_end": 66,
           "signature": "def chunk("
         },
         {
           "name": "_make_chunk",
           "kind": "method",
-          "line_start": 67,
-          "line_end": 74,
+          "line_start": 68,
+          "line_end": 75,
           "signature": "def _make_chunk(self, path"
         }
       ],
       "imports": [
+        "collections.abc",
         "dataclasses",
         "argus.domain.context.value_objects",
         "argus.infrastructure.constants",

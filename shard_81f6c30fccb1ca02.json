@@ -57,8 +57,8 @@
           "name": "_format_existing_patterns",
           "kind": "function",
           "line_start": 165,
-          "line_end": 170,
-          "signature": "def _format_existing_patterns(patterns"
+          "line_end": 172,
+          "signature": "def _format_existing_patterns("
         }
       ],
       "imports": [
@@ -84,7 +84,7 @@
           "name": "OutlineRenderer",
           "kind": "class",
           "line_start": 18,
-          "line_end": 112,
+          "line_end": 114,
           "signature": "class OutlineRenderer"
         },
         {
@@ -105,7 +105,7 @@
           "name": "_render_files",
           "kind": "method",
           "line_start": 74,
-          "line_end": 112,
+          "line_end": 114,
           "signature": "def _render_files("
         }
       ],

@@ -215,196 +215,197 @@
         {
           "name": "SymbolKind",
           "kind": "class",
-          "line_start": 24,
-          "line_end": 31,
+          "line_start": 27,
+          "line_end": 34,
           "signature": "class SymbolKind(StrEnum)"
         },
         {
           "name": "EdgeKind",
           "kind": "class",
-          "line_start": 34,
-          "line_end": 40,
+          "line_start": 37,
+          "line_end": 43,
           "signature": "class EdgeKind(StrEnum)"
         },
         {
           "name": "Symbol",
           "kind": "class",
-          "line_start": 49,
-          "line_end": 55,
+          "line_start": 52,
+          "line_end": 58,
           "signature": "class Symbol"
         },
         {
           "name": "Edge",
           "kind": "class",
-          "line_start": 59,
-          "line_end": 64,
+          "line_start": 62,
+          "line_end": 67,
           "signature": "class Edge"
         },
         {
           "name": "Checkpoint",
           "kind": "class",
-          "line_start": 68,
-          "line_end": 72,
+          "line_start": 71,
+          "line_end": 75,
           "signature": "class Checkpoint"
         },
         {
           "name": "DependencyGraph",
           "kind": "class",
-          "line_start": 81,
-          "line_end": 113,
+          "line_start": 84,
+          "line_end": 116,
           "signature": "class DependencyGraph"
         },
         {
           "name": "edges",
           "kind": "method",
-          "line_start": 87,
-          "line_end": 89,
+          "line_start": 90,
+          "line_end": 92,
           "signature": "def edges(self) -> frozenset[Edge]"
         },
         {
           "name": "add_edge",
           "kind": "method",
-          "line_start": 91,
-          "line_end": 93,
+          "line_start": 94,
+          "line_end": 96,
           "signature": "def add_edge(self, edge"
         },
         {
           "name": "dependents_of",
           "kind": "method",
-          "line_start": 95,
-          "line_end": 97,
+          "line_start": 98,
+          "line_end": 100,
           "signature": "def dependents_of(self, path"
         },
         {
           "name": "dependencies_of",
           "kind": "method",
-          "line_start": 99,
-          "line_end": 101,
+          "line_start": 102,
+          "line_end": 104,
           "signature": "def dependencies_of(self, path"
         },
         {
           "name": "remove_file",
           "kind": "method",
-          "line_start": 103,
-          "line_end": 105,
+          "line_start": 106,
+          "line_end": 108,
           "signature": "def remove_file(self, path"
         },
         {
           "name": "files",
           "kind": "method",
-          "line_start": 107,
-          "line_end": 113,
+          "line_start": 110,
+          "line_end": 116,
           "signature": "def files(self) -> set[FilePath]"
         },
         {
           "name": "EmbeddingIndex",
           "kind": "class",
-          "line_start": 122,
-          "line_end": 129,
+          "line_start": 125,
+          "line_end": 132,
           "signature": "class EmbeddingIndex"
         },
         {
           "name": "shard_id_for",
           "kind": "function",
-          "line_start": 132,
-          "line_end": 134,
+          "line_start": 135,
+          "line_end": 137,
           "signature": "def shard_id_for(path"
         },
         {
           "name": "ShardDescriptor",
           "kind": "class",
-          "line_start": 138,
-          "line_end": 144,
+          "line_start": 141,
+          "line_end": 147,
           "signature": "class ShardDescriptor"
         },
         {
           "name": "EmbeddingDescriptor",
           "kind": "class",
-          "line_start": 148,
-          "line_end": 154,
+          "line_start": 151,
+          "line_end": 157,
           "signature": "class EmbeddingDescriptor"
         },
         {
           "name": "CrossShardEdge",
           "kind": "class",
-          "line_start": 158,
-          "line_end": 165,
+          "line_start": 161,
+          "line_end": 168,
           "signature": "class CrossShardEdge"
         },
         {
           "name": "ShardedManifest",
           "kind": "class",
-          "line_start": 169,
-          "line_end": 344,
+          "line_start": 177,
+          "line_end": 367,
           "signature": "class ShardedManifest"
         },
         {
           "name": "shards_for_files",
           "kind": "method",
-          "line_start": 188,
-          "line_end": 190,
+          "line_start": 196,
+          "line_end": 198,
           "signature": "def shards_for_files(self, paths"
         },
         {
           "name": "adjacent_shards",
           "kind": "method",
-          "line_start": 192,
-          "line_end": 221,
+          "line_start": 200,
+          "line_end": 228,
           "signature": "def adjacent_shards("
         },
         {
           "name": "dirty_shards",
           "kind": "method",
-          "line_start": 223,
-          "line_end": 225,
+          "line_start": 230,
+          "line_end": 232,
           "signature": "def dirty_shards(self, changed_files"
         },
         {
           "name": "content_hash_for",
           "kind": "method",
-          "line_start": 227,
-          "line_end": 229,
+          "line_start": 234,
+          "line_end": 236,
           "signature": "def content_hash_for(self, entries_json"
         },
         {
           "name": "blob_name_for",
           "kind": "method",
-          "line_start": 231,
-          "line_end": 233,
+          "line_start": 238,
+          "line_end": 240,
           "signature": "def blob_name_for(self, content_hash"
         },
         {
           "name": "to_dict",
           "kind": "method",
-          "line_start": 235,
-          "line_end": 273,
+          "line_start": 242,
+          "line_end": 280,
           "signature": "def to_dict(self) -> dict[str, object]"
         },
         {
           "name": "to_json",
           "kind": "method",
-          "line_start": 275,
-          "line_end": 277,
+          "line_start": 282,
+          "line_end": 284,
           "signature": "def to_json(self) -> str"
         },
         {
           "name": "from_dict",
           "kind": "method",
-          "line_start": 280,
-          "line_end": 339,
+          "line_start": 287,
+          "line_end": 362,
           "signature": "def from_dict(cls, data"
         },
         {
           "name": "from_json",
           "kind": "method",
-          "line_start": 342,
-          "line_end": 344,
+          "line_start": 365,
+          "line_end": 367,
           "signature": "def from_json(cls, data"
         }
       ],
       "imports": [
         "hashlib",
         "json",
+        "logging",
         "collections",
         "dataclasses",
         "enum",

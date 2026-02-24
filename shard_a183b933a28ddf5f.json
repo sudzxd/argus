@@ -91,21 +91,21 @@
           "name": "NoiseFilter",
           "kind": "class",
           "line_start": 16,
-          "line_end": 39,
+          "line_end": 42,
           "signature": "class NoiseFilter"
         },
         {
           "name": "filter",
           "kind": "method",
           "line_start": 22,
-          "line_end": 36,
-          "signature": "def filter(self, comments"
+          "line_end": 39,
+          "signature": "def filter("
         },
         {
           "name": "_is_ignored",
           "kind": "method",
-          "line_start": 38,
-          "line_end": 39,
+          "line_start": 41,
+          "line_end": 42,
           "signature": "def _is_ignored(self, path"
         }
       ],

@@ -184,26 +184,27 @@
         {
           "name": "StructuralRetrievalStrategy",
           "kind": "class",
-          "line_start": 25,
-          "line_end": 83,
+          "line_start": 26,
+          "line_end": 84,
           "signature": "class StructuralRetrievalStrategy"
         },
         {
           "name": "retrieve",
           "kind": "method",
-          "line_start": 34,
-          "line_end": 77,
+          "line_start": 35,
+          "line_end": 78,
           "signature": "def retrieve("
         },
         {
           "name": "_build_content",
           "kind": "method",
-          "line_start": 79,
-          "line_end": 83,
+          "line_start": 80,
+          "line_end": 84,
           "signature": "def _build_content(self, path"
         }
       ],
       "imports": [
+        "collections.abc",
         "dataclasses",
         "argus.domain.context.entities",
         "argus.domain.retrieval.value_objects",

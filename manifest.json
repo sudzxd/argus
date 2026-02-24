@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "indexed_at": "16242a00803fa2aa13071905eac1e63a61d9a795",
+  "indexed_at": "9a17d602825521ecf5bbb55fde2bedd116906f9c",
   "shards": {
     "src/argus": {
       "directory": "src/argus",
@@ -11,8 +11,8 @@
     "src/argus/application": {
       "directory": "src/argus/application",
       "file_count": 4,
-      "content_hash": "f55fc99f261c2d04",
-      "blob_name": "shard_f55fc99f261c2d04.json"
+      "content_hash": "db07926b6f0dcb55",
+      "blob_name": "shard_db07926b6f0dcb55.json"
     },
     "src/argus/domain": {
       "directory": "src/argus/domain",
@@ -23,8 +23,8 @@
     "src/argus/domain/context": {
       "directory": "src/argus/domain/context",
       "file_count": 5,
-      "content_hash": "deeff775f5f5fe03",
-      "blob_name": "shard_deeff775f5f5fe03.json"
+      "content_hash": "4c3b57cb83ed712a",
+      "blob_name": "shard_4c3b57cb83ed712a.json"
     },
     "src/argus/domain/llm": {
       "directory": "src/argus/domain/llm",
@@ -35,8 +35,8 @@
     "src/argus/domain/memory": {
       "directory": "src/argus/domain/memory",
       "file_count": 4,
-      "content_hash": "f5804db3a5b35370",
-      "blob_name": "shard_f5804db3a5b35370.json"
+      "content_hash": "08f40fdd52401dad",
+      "blob_name": "shard_08f40fdd52401dad.json"
     },
     "src/argus/domain/retrieval": {
       "directory": "src/argus/domain/retrieval",
@@ -47,8 +47,8 @@
     "src/argus/domain/review": {
       "directory": "src/argus/domain/review",
       "file_count": 5,
-      "content_hash": "bcfd830958a34173",
-      "blob_name": "shard_bcfd830958a34173.json"
+      "content_hash": "a183b933a28ddf5f",
+      "blob_name": "shard_a183b933a28ddf5f.json"
     },
     "src/argus/infrastructure": {
       "directory": "src/argus/infrastructure",
@@ -71,20 +71,20 @@
     "src/argus/infrastructure/memory": {
       "directory": "src/argus/infrastructure/memory",
       "file_count": 3,
-      "content_hash": "1b4002049c48bd40",
-      "blob_name": "shard_1b4002049c48bd40.json"
+      "content_hash": "81f6c30fccb1ca02",
+      "blob_name": "shard_81f6c30fccb1ca02.json"
     },
     "src/argus/infrastructure/parsing": {
       "directory": "src/argus/infrastructure/parsing",
       "file_count": 3,
-      "content_hash": "898c962b95c8829f",
-      "blob_name": "shard_898c962b95c8829f.json"
+      "content_hash": "476443e5b9fcf1ee",
+      "blob_name": "shard_476443e5b9fcf1ee.json"
     },
     "src/argus/infrastructure/retrieval": {
       "directory": "src/argus/infrastructure/retrieval",
       "file_count": 5,
-      "content_hash": "98cc62a5787cb5cd",
-      "blob_name": "shard_98cc62a5787cb5cd.json"
+      "content_hash": "5b13df7b38de35d2",
+      "blob_name": "shard_5b13df7b38de35d2.json"
     },
     "src/argus/infrastructure/retrieval/embeddings": {
       "directory": "src/argus/infrastructure/retrieval/embeddings",
@@ -101,8 +101,8 @@
     "src/argus/interfaces": {
       "directory": "src/argus/interfaces",
       "file_count": 10,
-      "content_hash": "18c92e3502f1536a",
-      "blob_name": "shard_18c92e3502f1536a.json"
+      "content_hash": "20368e177d7d9e49",
+      "blob_name": "shard_20368e177d7d9e49.json"
     },
     "src/argus/shared": {
       "directory": "src/argus/shared",
@@ -149,8 +149,8 @@
     "tests/unit/domain/test_context": {
       "directory": "tests/unit/domain/test_context",
       "file_count": 7,
-      "content_hash": "e6749877ec20f4d5",
-      "blob_name": "shard_e6749877ec20f4d5.json"
+      "content_hash": "c1f98d9d6cf0ebb4",
+      "blob_name": "shard_c1f98d9d6cf0ebb4.json"
     },
     "tests/unit/domain/test_llm": {
       "directory": "tests/unit/domain/test_llm",
@@ -269,35 +269,11 @@
   },
   "cross_shard_edges": [],
   "embedding_indices": {
-    "src/argus/infrastructure/retrieval": {
-      "shard_id": "src/argus/infrastructure/retrieval",
+    "tests/unit/domain/test_review": {
+      "shard_id": "tests/unit/domain/test_review",
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
-      "blob_name": "94117f4110d32235_embeddings.json"
-    },
-    "src/argus/infrastructure/retrieval/embeddings": {
-      "shard_id": "src/argus/infrastructure/retrieval/embeddings",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "0616edddfec6afaf_embeddings.json"
-    },
-    "tests/unit/application": {
-      "shard_id": "tests/unit/application",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "4e583910e5a66e15_embeddings.json"
-    },
-    "src/argus/infrastructure/github": {
-      "shard_id": "src/argus/infrastructure/github",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "70e216ae46c91058_embeddings.json"
-    },
-    "src/argus/application": {
-      "shard_id": "src/argus/application",
-      "model": "local:all-MiniLM-L6-v2",
-      "dimension": 384,
-      "blob_name": "4787dc0110f5ad71_embeddings.json"
+      "blob_name": "7c018d98278edc0c_embeddings.json"
     },
     "src/argus/interfaces": {
       "shard_id": "src/argus/interfaces",
@@ -305,11 +281,23 @@
       "dimension": 384,
       "blob_name": "e58139a4b76be89b_embeddings.json"
     },
-    "tests/unit/infrastructure/test_github": {
-      "shard_id": "tests/unit/infrastructure/test_github",
+    "tests/unit/domain/test_context": {
+      "shard_id": "tests/unit/domain/test_context",
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
-      "blob_name": "aed1633b003290be_embeddings.json"
+      "blob_name": "73474af3022022b5_embeddings.json"
+    },
+    "src/argus/domain/memory": {
+      "shard_id": "src/argus/domain/memory",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "3883b5d82ad45313_embeddings.json"
+    },
+    "src/argus/domain/context": {
+      "shard_id": "src/argus/domain/context",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "aa2966cc5fe38b37_embeddings.json"
     },
     "tests/unit/infrastructure/test_storage": {
       "shard_id": "tests/unit/infrastructure/test_storage",
@@ -317,17 +305,83 @@
       "dimension": 384,
       "blob_name": "d0e437d0ba85dc53_embeddings.json"
     },
-    "src/argus/infrastructure/storage": {
-      "shard_id": "src/argus/infrastructure/storage",
+    "tests/unit/interfaces": {
+      "shard_id": "tests/unit/interfaces",
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
-      "blob_name": "d0db4055393add63_embeddings.json"
+      "blob_name": "ee38f10b971b7253_embeddings.json"
+    },
+    "src/argus/application": {
+      "shard_id": "src/argus/application",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "4787dc0110f5ad71_embeddings.json"
     },
     "tests/unit/infrastructure/test_retrieval": {
       "shard_id": "tests/unit/infrastructure/test_retrieval",
       "model": "local:all-MiniLM-L6-v2",
       "dimension": 384,
       "blob_name": "db6a4d5474993a52_embeddings.json"
+    },
+    "tests/unit/infrastructure/test_memory": {
+      "shard_id": "tests/unit/infrastructure/test_memory",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "d26b5239f637ed92_embeddings.json"
+    },
+    "src/argus/domain/review": {
+      "shard_id": "src/argus/domain/review",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "482e8e788dae5002_embeddings.json"
+    },
+    "tests/unit/domain/test_memory": {
+      "shard_id": "tests/unit/domain/test_memory",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "91874ae9f81f8571_embeddings.json"
+    },
+    "tests/unit/infrastructure/test_github": {
+      "shard_id": "tests/unit/infrastructure/test_github",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "aed1633b003290be_embeddings.json"
+    },
+    "tests/unit/infrastructure/test_parsing": {
+      "shard_id": "tests/unit/infrastructure/test_parsing",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "00d1d60c3cf42ff2_embeddings.json"
+    },
+    "src/argus/infrastructure/retrieval": {
+      "shard_id": "src/argus/infrastructure/retrieval",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "94117f4110d32235_embeddings.json"
+    },
+    "src/argus/infrastructure/memory": {
+      "shard_id": "src/argus/infrastructure/memory",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "ce68ce521b771f35_embeddings.json"
+    },
+    "src/argus/infrastructure/parsing": {
+      "shard_id": "src/argus/infrastructure/parsing",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "d24118dfdb640615_embeddings.json"
+    },
+    "src/argus/infrastructure/storage": {
+      "shard_id": "src/argus/infrastructure/storage",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "d0db4055393add63_embeddings.json"
+    },
+    "tests/unit/application": {
+      "shard_id": "tests/unit/application",
+      "model": "local:all-MiniLM-L6-v2",
+      "dimension": 384,
+      "blob_name": "4e583910e5a66e15_embeddings.json"
     }
   }
 }

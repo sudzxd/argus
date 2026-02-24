@@ -558,56 +558,70 @@
           "name": "test_adjacent_shards_1hop",
           "kind": "function",
           "line_start": 131,
-          "line_end": 139,
+          "line_end": 140,
           "signature": "def test_adjacent_shards_1hop("
+        },
+        {
+          "name": "test_adjacent_shards_follows_dependency_direction",
+          "kind": "function",
+          "line_start": 143,
+          "line_end": 151,
+          "signature": "def test_adjacent_shards_follows_dependency_direction("
         },
         {
           "name": "test_adjacent_shards_no_edges",
           "kind": "function",
-          "line_start": 142,
-          "line_end": 145,
+          "line_start": 154,
+          "line_end": 157,
           "signature": "def test_adjacent_shards_no_edges() -> None"
         },
         {
           "name": "test_adjacent_shards_excludes_start",
           "kind": "function",
-          "line_start": 148,
-          "line_end": 156,
+          "line_start": 160,
+          "line_end": 168,
           "signature": "def test_adjacent_shards_excludes_start("
         },
         {
           "name": "test_dirty_shards_returns_affected",
           "kind": "function",
-          "line_start": 159,
-          "line_end": 166,
+          "line_start": 171,
+          "line_end": 178,
           "signature": "def test_dirty_shards_returns_affected() -> None"
         },
         {
           "name": "test_manifest_round_trip",
           "kind": "function",
-          "line_start": 174,
-          "line_end": 185,
+          "line_start": 186,
+          "line_end": 197,
           "signature": "def test_manifest_round_trip(manifest_with_edges"
         },
         {
           "name": "test_manifest_round_trip_empty",
           "kind": "function",
-          "line_start": 188,
-          "line_end": 193,
+          "line_start": 200,
+          "line_end": 205,
           "signature": "def test_manifest_round_trip_empty() -> None"
         },
         {
           "name": "test_manifest_embedding_indices_round_trip",
           "kind": "function",
-          "line_start": 201,
-          "line_end": 217,
+          "line_start": 213,
+          "line_end": 229,
           "signature": "def test_manifest_embedding_indices_round_trip() -> None"
+        },
+        {
+          "name": "test_manifest_from_dict_skips_malformed_shards",
+          "kind": "function",
+          "line_start": 232,
+          "line_end": 263,
+          "signature": "def test_manifest_from_dict_skips_malformed_shards("
         },
         {
           "name": "test_manifest_from_dict_without_embedding_indices",
           "kind": "function",
-          "line_start": 220,
-          "line_end": 229,
+          "line_start": 266,
+          "line_end": 275,
           "signature": "def test_manifest_from_dict_without_embedding_indices() -> None"
         }
       ],
@@ -625,12 +639,14 @@
         "test_shards_for_files_maps_to_parent_dirs",
         "test_shards_for_files_multiple_dirs",
         "test_adjacent_shards_1hop",
+        "test_adjacent_shards_follows_dependency_direction",
         "test_adjacent_shards_no_edges",
         "test_adjacent_shards_excludes_start",
         "test_dirty_shards_returns_affected",
         "test_manifest_round_trip",
         "test_manifest_round_trip_empty",
         "test_manifest_embedding_indices_round_trip",
+        "test_manifest_from_dict_skips_malformed_shards",
         "test_manifest_from_dict_without_embedding_indices"
       ],
       "last_indexed": "",

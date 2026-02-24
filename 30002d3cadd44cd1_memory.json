@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 9,
+  "version": 10,
   "outline": {
     "version": 0,
     "entries": [
@@ -885,6 +885,24 @@
       ]
     },
     {
+      "category": "architecture",
+      "description": "The codebase uses dedicated modules or functions (often prefixed with `serialize_` and `deserialize_`) to handle the conversion of complex domain objects to and from a persistent format, centralizing this logic.",
+      "confidence": 0.8,
+      "examples": [
+        "src/argus/infrastructure/storage/serializer.py: serialize, deserialize, _serialize_entry, _deserialize_entry",
+        "src/argus/domain/context/value_objects.py: ShardedManifest.to_dict, ShardedManifest.from_dict"
+      ]
+    },
+    {
+      "category": "testing",
+      "description": "For components interacting with external systems or performing complex parsing (e.g., language parsers, API publishers), tests are highly granular, covering specific behaviors, edge cases, different input types, and error conditions in detail.",
+      "confidence": 0.8,
+      "examples": [
+        "tests/unit/infrastructure/test_parsing/test_tree_sitter_parser.py: test_parse_python_extracts_function",
+        "tests/unit/infrastructure/test_github/test_publisher.py: test_publish_with_comments_in_diff_uses_post_review"
+      ]
+    },
+    {
       "category": "style",
       "description": "The project consistently uses `StrEnum` and `IntEnum` for defining enumerations, providing type safety and clear representation for string and integer-backed enums.",
       "confidence": 0.7,
@@ -946,6 +964,15 @@
       ]
     },
     {
+      "category": "testing",
+      "description": "The codebase includes dedicated tests to ensure the correctness of serialization and deserialization logic, often verifying round-trip integrity, handling of empty or complex data, and graceful behavior with malformed input.",
+      "confidence": 0.7,
+      "examples": [
+        "tests/unit/domain/test_context/test_sharding.py: test_manifest_round_trip",
+        "tests/unit/domain/test_context/test_sharding.py: test_manifest_from_dict_skips_malformed_shards"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -972,5 +999,5 @@
       ]
     }
   ],
-  "analyzed_at": "16242a00803fa2aa13071905eac1e63a61d9a795"
+  "analyzed_at": "9a17d602825521ecf5bbb55fde2bedd116906f9c"
 }
