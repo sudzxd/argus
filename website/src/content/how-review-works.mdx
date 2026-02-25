@@ -25,12 +25,14 @@ When a pull request opens (or a new commit is pushed), Argus executes this pipel
 
 Argus uses four complementary retrieval strategies, each allocated a fraction of the retrieval token budget. They run independently and their results are merged by the Context Ranker.
 
-### Structural (40% of retrieval budget)
+### Structural (35% of retrieval budget)
 
 Walks the dependency graph stored in the codebase map. For each changed file, it collects:
 
 - **Direct dependents** (files that import/call the changed code) — scored at **0.9** relevance
 - **Direct dependencies** (files the changed code imports/calls) — scored at **0.8** relevance
+
+For each related file, it returns **symbol signatures** (actual function/class definitions from tree-sitter parsing), giving the review LLM the API shapes of dependencies — not just file names.
 
 This is deterministic and instant — no LLM or search index required. It answers "what else might break if this file changes?"
 
@@ -55,14 +57,16 @@ Key behaviors:
 
 This is optional — if no `embedding_model` is configured, this strategy contributes nothing and its budget is unused.
 
-### Agentic / LLM-Guided (10% of retrieval budget)
+### Agentic / LLM-Guided (15% of retrieval budget)
 
-An LLM examines the diff and already-retrieved context, then generates a `SearchPlan` — a structured output containing:
+An LLM agent with two tools explores the codebase autonomously:
 
-- `queries` — keyword search queries targeting symbols or concepts not yet covered
-- `needs_more_context` — whether another iteration would help
+- **`fetch_file(path)`** — reads a file's contents from the repository via GitHub API (capped at 10 fetches per review, large files truncated at ~15K chars)
+- **`search_code(query)`** — searches the codebase using BM25 keyword matching over the indexed code chunks
 
-The strategy iterates up to **3 times** (configurable via `MAX_AGENTIC_ITERATIONS`). Each iteration runs the search plan's queries against the codebase and feeds the results back for the next round.
+The agent receives the **codebase outline** (showing all files and their symbols) so it knows what exists. It reads the diff, reasons about what context matters, uses its tools to explore, and returns a list of relevant files with relevance scores and reasons.
+
+pydantic-ai handles the tool-calling loop internally — the agent decides when it has enough context and stops. This replaces the previous manual iteration approach with a more natural exploration pattern (similar to how a developer would browse a codebase).
 
 This is the most expensive strategy but catches context that pure structural and keyword approaches miss — for example, related configuration files, test fixtures, or cross-module patterns.
 
@@ -123,10 +127,10 @@ The retrieval budget is further divided among strategies:
 
 | Strategy | Share of Retrieval | Tokens (at 128k total) |
 |----------|-------------------|------------------------|
-| Structural | 40% | ~30,700 |
+| Structural | 35% | ~26,900 |
 | Lexical (BM25) | 30% | ~23,000 |
 | Semantic (embeddings) | 20% | ~15,400 |
-| Agentic (LLM-guided) | 10% | ~7,700 |
+| Agentic (LLM-guided) | 15% | ~11,500 |
 
 These splits are hardcoded defaults. If a strategy is disabled (e.g., no `embedding_model`), its budget allocation is unused — it doesn't redistribute to other strategies.
 
@@ -146,7 +150,7 @@ Imagine you open a PR that modifies `src/api/handlers.ts` — specifically the `
 **Semantic retrieval** (if configured) finds conceptually similar code:
 - `src/api/refund-handler.ts` — similar payment processing logic, different terminology
 
-**Agentic retrieval** (if enabled) — the LLM notices the diff adds error handling and generates queries for error handling patterns:
+**Agentic retrieval** (if enabled) — the LLM agent sees the codebase outline, notices the diff adds error handling, uses `search_code` to find error patterns, then `fetch_file` to read:
 - `src/middleware/error-boundary.ts` — the project's error handling middleware
 
 **Ranker** deduplicates (e.g., if both structural and lexical found `transactions.ts`, keeps the higher score), sorts by relevance, and fills the budget greedily.

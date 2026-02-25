@@ -115,10 +115,10 @@ flowchart LR
 
 **Strategies (layered, not competing):**
 
-1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Deterministic, instant, highest signal.
+1. **Structural retrieval** — Walks the dependency graph. Collects direct dependents, direct dependencies, and co-located files. Returns symbol signatures (function/class signatures from tree-sitter) for each related file, giving the review LLM actual API shapes. Deterministic, instant, highest signal.
 2. **Lexical retrieval** — BM25 sparse search over AST-chunked code. Handles identifier lookups and pattern matching. Useful when the structural graph doesn't capture a relationship.
 3. **Semantic retrieval** — Embedding-based cosine similarity against pre-computed indices. Captures conceptual relationships that structural and lexical strategies miss. Requires an embedding model to be configured (`embedding_model`). Supports Google, OpenAI, and local (sentence-transformers) providers. Validates dimension compatibility between query embeddings and stored indices — mismatches are logged and skipped.
-4. **Agentic retrieval** — The LLM itself acts as a retriever. It reads the diff, reasons about intent, and issues targeted queries against the other tiers. Most expensive, used adaptively.
+4. **Agentic retrieval** — An LLM agent with tools (`fetch_file` and `search_code`) explores the codebase autonomously. It receives the codebase outline, reads the diff, then uses its tools to fetch specific files via GitHub API and search code via BM25. The agent reasons about what it finds and identifies relevant files with relevance scores. Most expensive, used adaptively.
 
 **Context Budgeting:**
 

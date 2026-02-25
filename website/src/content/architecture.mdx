@@ -87,12 +87,12 @@ Uses `compare_commits` to detect changed files since the last indexed commit. On
 
 ## Retrieval Strategies
 
-Four strategies run independently and their results are merged by the Context Ranker. The total retrieval budget (60% of token budget) is split: structural 40%, lexical 30%, semantic 20%, agentic 10%.
+Four strategies run independently and their results are merged by the Context Ranker. The total retrieval budget (60% of token budget) is split: structural 35%, lexical 30%, semantic 20%, agentic 15%.
 
-- **Structural** (40%) — Walks the dependency graph from changed files. Dependents (what calls the changed code) are scored at 0.9 relevance; dependencies (what the changed code calls) at 0.8. Deterministic and instant.
+- **Structural** (35%) — Walks the dependency graph from changed files. Dependents (what calls the changed code) are scored at 0.9 relevance; dependencies (what the changed code calls) at 0.8. Returns symbol signatures (function/class definitions from tree-sitter) for each related file. Deterministic and instant.
 - **Lexical / BM25** (30%) — Sparse token-based search using BM25 ranking. Extracts keywords from the diff, excludes changed files from results, and uses dynamic k based on budget.
 - **Semantic** (20%, optional) — Embedding-based cosine similarity against pre-computed indices. Requires `embedding_model` to be configured. Validates dimension compatibility between query and stored embeddings — mismatches are skipped with a warning, never crash.
-- **Agentic** (10%, optional) — LLM generates a `SearchPlan` (structured output with `queries` + `needs_more_context`), iterates up to 3 times to find context that other strategies miss. Requires `enable_agentic: true`.
+- **Agentic** (15%, optional) — An LLM agent with `fetch_file` and `search_code` tools explores the codebase autonomously. It receives the codebase outline, reads the diff, then fetches specific files via GitHub API and searches code via BM25 to find context other strategies miss. Requires `enable_agentic: true`.
 
 See [How a Review Works](/argus/docs/how-review-works) for a detailed walkthrough with a concrete example.
 

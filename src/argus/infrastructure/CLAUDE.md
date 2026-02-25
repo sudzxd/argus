@@ -14,11 +14,11 @@ Concrete implementations of domain protocols. Imports from `domain/` and `shared
 | `storage/artifact_store.py` | `CodebaseMapRepository` protocol | Sharded JSON persistence (`ShardedArtifactStore`) with legacy flat format fallback (`FileArtifactStore`). `save_embedding_index()` returns `EmbeddingDescriptor` and uses model-keyed hash (`shard_id:model`) to prevent silent overwrites on model switch. |
 | `storage/git_branch_store.py` | — | `SelectiveGitBranchSync` (manifest-first pull, selective blob download, base_tree push) and `GitBranchSync` (legacy full pull/push). Orphan blob deletion uses `sha: None` (JSON null) in tree entries. |
 | `storage/memory_store.py` | `CodebaseMemoryRepository` protocol | JSON file persistence with `fcntl` file locking; `_deserialize()` runs inside the shared lock scope. Serializes `analyzed_at` field. |
-| `retrieval/structural.py` | `RetrievalStrategy` protocol | Graph-walk over `CodebaseMap` symbol dependencies |
+| `retrieval/structural.py` | `RetrievalStrategy` protocol | Graph-walk over `CodebaseMap` dependency graph; returns symbol signatures (not just export names) |
 | `retrieval/lexical.py` | `RetrievalStrategy` protocol | BM25 sparse retrieval using `bm25s` |
 | `retrieval/semantic.py` | `RetrievalStrategy` protocol | Embedding-based cosine similarity against pre-computed indices. Skips indices with dimension mismatch (logs warning) instead of crashing. |
 | `retrieval/embeddings/` | `EmbeddingProvider` protocol | Embedding providers: Google (`text-embedding-004`), OpenAI (`text-embedding-3-small`), local (`sentence-transformers`) |
-| `retrieval/agentic.py` | `RetrievalStrategy` protocol | LLM-guided iterative retrieval via pydantic-ai `Agent` |
+| `retrieval/agentic.py` | `RetrievalStrategy` protocol | LLM-guided codebase exploration via pydantic-ai `Agent` with `fetch_file` and `search_code` tools |
 | `llm_providers/factory.py` | — | `create_agent()` builds pydantic-ai `Agent` from `ModelConfig` |
 | `github/client.py` | — | GitHub REST API: diffs, file content, PR metadata, check runs, issue search, Git Data API |
 | `github/publisher.py` | `ReviewPublisher` protocol | Posts `Review` as inline PR comments at diff positions |
