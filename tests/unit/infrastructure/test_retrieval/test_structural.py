@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from argus.domain.context.entities import CodebaseMap, FileEntry
-from argus.domain.context.value_objects import Edge, EdgeKind
+from argus.domain.context.value_objects import Edge, EdgeKind, Symbol, SymbolKind
 from argus.domain.retrieval.value_objects import RetrievalQuery
 from argus.infrastructure.retrieval.structural import StructuralRetrievalStrategy
-from argus.shared.types import CommitSHA, FilePath, TokenCount
+from argus.shared.types import CommitSHA, FilePath, LineRange, TokenCount
 
 # =============================================================================
 # Helpers
@@ -182,7 +182,54 @@ def test_budget_none_returns_all_items() -> None:
     assert len(items) == 2
 
 
-def test_content_includes_exports() -> None:
+def test_content_includes_symbol_signatures() -> None:
+    cbm = CodebaseMap(indexed_at=CommitSHA("sha"))
+    cbm.upsert(
+        FileEntry(
+            path=FilePath("utils.py"),
+            symbols=(
+                Symbol(
+                    name="helper",
+                    kind=SymbolKind.FUNCTION,
+                    line_range=LineRange(1, 3),
+                    signature="def helper(x: int) -> str",
+                ),
+                Symbol(
+                    name="validate",
+                    kind=SymbolKind.FUNCTION,
+                    line_range=LineRange(5, 8),
+                    signature="def validate(data: dict) -> bool",
+                ),
+            ),
+            imports=(),
+            exports=("helper", "validate"),
+            last_indexed=CommitSHA("sha"),
+        )
+    )
+    cbm.upsert(_make_entry("main.py"))
+    cbm.graph.add_edge(
+        Edge(
+            source=FilePath("main.py"),
+            target=FilePath("utils.py"),
+            kind=EdgeKind.IMPORTS,
+        )
+    )
+
+    strategy = StructuralRetrievalStrategy(codebase_map=cbm)
+    query = RetrievalQuery(
+        changed_files=(FilePath("main.py"),),
+        changed_symbols=(),
+        diff_text="",
+    )
+
+    items = strategy.retrieve(query)
+    utils_item = next(i for i in items if i.source == FilePath("utils.py"))
+
+    assert "def helper(x: int) -> str" in utils_item.content
+    assert "def validate(data: dict) -> bool" in utils_item.content
+
+
+def test_content_falls_back_to_exports_without_symbols() -> None:
     cbm = CodebaseMap(indexed_at=CommitSHA("sha"))
     cbm.upsert(
         FileEntry(
@@ -204,8 +251,8 @@ def test_content_includes_exports() -> None:
 
     strategy = StructuralRetrievalStrategy(codebase_map=cbm)
     query = RetrievalQuery(
-        changed_files=[FilePath("main.py")],
-        changed_symbols=[],
+        changed_files=(FilePath("main.py"),),
+        changed_symbols=(),
         diff_text="",
     )
 
@@ -214,3 +261,43 @@ def test_content_includes_exports() -> None:
 
     assert "helper" in utils_item.content
     assert "validate" in utils_item.content
+
+
+def test_content_shows_kind_for_symbols_without_signature() -> None:
+    cbm = CodebaseMap(indexed_at=CommitSHA("sha"))
+    cbm.upsert(
+        FileEntry(
+            path=FilePath("utils.py"),
+            symbols=(
+                Symbol(
+                    name="MyClass",
+                    kind=SymbolKind.CLASS,
+                    line_range=LineRange(1, 10),
+                    signature="",
+                ),
+            ),
+            imports=(),
+            exports=(),
+            last_indexed=CommitSHA("sha"),
+        )
+    )
+    cbm.upsert(_make_entry("main.py"))
+    cbm.graph.add_edge(
+        Edge(
+            source=FilePath("main.py"),
+            target=FilePath("utils.py"),
+            kind=EdgeKind.IMPORTS,
+        )
+    )
+
+    strategy = StructuralRetrievalStrategy(codebase_map=cbm)
+    query = RetrievalQuery(
+        changed_files=(FilePath("main.py"),),
+        changed_symbols=(),
+        diff_text="",
+    )
+
+    items = strategy.retrieve(query)
+    utils_item = next(i for i in items if i.source == FilePath("utils.py"))
+
+    assert "class MyClass" in utils_item.content

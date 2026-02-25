@@ -232,10 +232,20 @@ def _execute_pipeline(config: ActionConfig) -> None:
     ]
 
     if config.enable_agentic:
+        agentic_outline_text: str | None = None
+        if config.review_depth != ReviewDepth.QUICK:
+            agentic_renderer = OutlineRenderer(
+                token_budget=DEFAULT_OUTLINE_TOKEN_BUDGET,
+            )
+            agentic_outline_text, _ = agentic_renderer.render_full(codebase_map)
+
         strategies.append(
             AgenticRetrievalStrategy(
                 config=model_config,
-                fallback_strategies=[strategies[1]],  # lexical as fallback
+                client=client,
+                ref=head_sha,
+                chunks=chunks,
+                outline_text=agentic_outline_text,
             )
         )
         strategy_budgets.append(

@@ -14,10 +14,10 @@ DEFAULT_GENERATION_BUDGET_RATIO = 0.4
 # RETRIEVAL BUDGET SPLITS (fraction of retrieval budget per tier)
 # =============================================================================
 
-STRUCTURAL_BUDGET_RATIO = 0.4
+STRUCTURAL_BUDGET_RATIO = 0.35
 LEXICAL_BUDGET_RATIO = 0.3
 SEMANTIC_BUDGET_RATIO = 0.2  # Reserved for future embedding-based retrieval
-AGENTIC_BUDGET_RATIO = 0.1
+AGENTIC_BUDGET_RATIO = 0.15
 
 # =============================================================================
 # INDEXING LIMITS
@@ -26,6 +26,9 @@ AGENTIC_BUDGET_RATIO = 0.1
 MAX_FILES_PER_INDEX_RUN = 5_000
 MAX_FILE_SIZE_BYTES = 1_000_000
 MAX_AGENTIC_ITERATIONS = 3
+MAX_AGENTIC_FILE_FETCHES = 10
+MAX_AGENTIC_FILE_CHARS = 15_000
+AGENTIC_SEARCH_RESULTS = 5
 
 # =============================================================================
 # REVIEW

@@ -11,7 +11,7 @@ from pydantic_ai.models.test import TestModel
 
 from argus.domain.llm.value_objects import ModelConfig
 from argus.infrastructure.llm_providers.factory import create_agent
-from argus.infrastructure.retrieval.agentic import SearchPlan
+from argus.infrastructure.retrieval.agentic import ExplorationResult
 from argus.interfaces.review_generator import ReviewOutput
 from argus.shared.types import TokenCount
 
@@ -139,45 +139,49 @@ def test_review_output_multiple_comments() -> None:
 
 
 # =============================================================================
-# SearchPlan — agentic retrieval schema
+# ExplorationResult — agentic retrieval schema
 # =============================================================================
 
 
-def test_search_plan_roundtrip_through_agent() -> None:
-    """SearchPlan schema works through real Agent.run_sync() with TestModel."""
+def test_exploration_result_roundtrip_through_agent() -> None:
+    """ExplorationResult schema works through real Agent.run_sync()."""
     model = TestModel(
         custom_output_args={
-            "queries": ["helper function", "database connection"],
-            "needs_more_context": True,
+            "relevant_files": [
+                {
+                    "path": "src/utils.py",
+                    "relevance_score": 0.9,
+                    "reason": "Contains helper used by changed code",
+                },
+            ],
         }
     )
     agent = create_agent(
         config=_make_config(),
-        output_type=SearchPlan,
+        output_type=ExplorationResult,
         system_prompt="You are a retrieval assistant.",
     )
 
     result = agent.run_sync("Find context for this diff.", model=model)
 
-    assert result.output.queries == ["helper function", "database connection"]
-    assert result.output.needs_more_context is True
+    assert len(result.output.relevant_files) == 1
+    assert result.output.relevant_files[0].path == "src/utils.py"
+    assert result.output.relevant_files[0].relevance_score == 0.9
 
 
-def test_search_plan_empty_queries() -> None:
-    """SearchPlan works with no queries (LLM decides no more context needed)."""
+def test_exploration_result_empty_files() -> None:
+    """ExplorationResult works with no relevant files found."""
     model = TestModel(
         custom_output_args={
-            "queries": [],
-            "needs_more_context": False,
+            "relevant_files": [],
         }
     )
     agent = create_agent(
         config=_make_config(),
-        output_type=SearchPlan,
+        output_type=ExplorationResult,
         system_prompt="You are a retrieval assistant.",
     )
 
     result = agent.run_sync("Find context for this diff.", model=model)
 
-    assert result.output.queries == []
-    assert result.output.needs_more_context is False
+    assert result.output.relevant_files == []

@@ -1,4 +1,4 @@
-"""Agentic retrieval strategy — LLM-guided context discovery via pydantic-ai."""
+"""Agentic retrieval — LLM-guided codebase exploration via pydantic-ai tools."""
 
 from __future__ import annotations
 
@@ -6,37 +6,194 @@ import logging
 
 from dataclasses import dataclass, field
 
+import bm25s
+
 from pydantic import BaseModel
-from pydantic_ai import Agent
+from pydantic_ai import Agent, RunContext
 
 from argus.domain.llm.value_objects import LLMUsage, ModelConfig
-from argus.domain.retrieval.strategies import RetrievalStrategy
 from argus.domain.retrieval.value_objects import ContextItem, RetrievalQuery
-from argus.infrastructure.llm_providers.factory import create_agent
-from argus.shared.constants import MAX_AGENTIC_ITERATIONS
+from argus.infrastructure.constants import CHARS_PER_TOKEN
+from argus.infrastructure.github.client import GitHubClient
+from argus.infrastructure.parsing.chunker import CodeChunk
+from argus.shared.constants import (
+    AGENTIC_SEARCH_RESULTS,
+    MAX_AGENTIC_FILE_CHARS,
+    MAX_AGENTIC_FILE_FETCHES,
+    MAX_AGENTIC_ITERATIONS,
+)
 from argus.shared.types import FilePath, TokenCount
 
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# STRUCTURED OUTPUT SCHEMA
+# TOOL DEPENDENCIES
 # =============================================================================
 
-SYSTEM_PROMPT = """\
-You are a code retrieval assistant. Given a diff and already-retrieved context,
-generate search queries to find additional relevant code in the repository.
 
-Respond with a list of keyword search queries and whether more context is needed.
-Each query should target specific symbols, function names, or concepts that
-appear in the diff but are not yet covered by the retrieved context.
+@dataclass
+class _AgenticDeps:
+    """Dependencies injected into agent tools at runtime."""
+
+    client: GitHubClient
+    ref: str
+    chunks: list[CodeChunk]
+    changed_files: set[FilePath]
+    fetched_files: dict[str, str] = field(default_factory=dict[str, str])
+    fetch_count: int = 0
+    max_fetches: int = MAX_AGENTIC_FILE_FETCHES
+    max_file_chars: int = MAX_AGENTIC_FILE_CHARS
+    _bm25_index: bm25s.BM25 | None = field(init=False, default=None)
+    _bm25_built: bool = field(init=False, default=False)
+
+    def get_bm25_index(self) -> bm25s.BM25 | None:
+        """Build and cache BM25 index over chunks on first access."""
+        if self._bm25_built:
+            return self._bm25_index
+        self._bm25_built = True
+        if not self.chunks:
+            return None
+        self._bm25_index = bm25s.BM25()
+        corpus = [chunk.content for chunk in self.chunks]
+        corpus_tokens = bm25s.tokenize(corpus, stopwords="en", show_progress=False)
+        self._bm25_index.index(corpus_tokens, show_progress=False)
+        return self._bm25_index
+
+
+# =============================================================================
+# STRUCTURED OUTPUT
+# =============================================================================
+
+
+class RelevantFile(BaseModel):
+    """A file the agent identified as relevant."""
+
+    path: str
+    relevance_score: float
+    reason: str
+
+
+class ExplorationResult(BaseModel):
+    """Structured output from the exploration agent."""
+
+    relevant_files: list[RelevantFile]
+
+
+# =============================================================================
+# TOOLS
+# =============================================================================
+
+
+def fetch_file(ctx: RunContext[_AgenticDeps], path: str) -> str:
+    """Fetch and read a file's contents from the repository.
+
+    Args:
+        ctx: Run context with dependencies.
+        path: File path to read (e.g. 'src/utils.py').
+
+    Returns:
+        File content (possibly truncated) or error message.
+    """
+    deps = ctx.deps
+
+    if deps.fetch_count >= deps.max_fetches:
+        return (
+            f"Error: fetch limit reached ({deps.max_fetches} files). "
+            "Use search_code instead."
+        )
+
+    if path in deps.fetched_files:
+        return deps.fetched_files[path]
+
+    try:
+        content = deps.client.get_file_content(FilePath(path), ref=deps.ref)
+    except Exception as e:
+        return f"Error fetching {path}: {e}"
+
+    if len(content) > deps.max_file_chars:
+        content = content[: deps.max_file_chars] + "\n... [truncated]"
+
+    deps.fetched_files[path] = content
+    deps.fetch_count += 1
+    return content
+
+
+def search_code(ctx: RunContext[_AgenticDeps], query: str) -> str:
+    """Search the codebase for code matching keywords via BM25.
+
+    Args:
+        ctx: Run context with dependencies.
+        query: Search query keywords.
+
+    Returns:
+        Formatted search results with file paths and code snippets.
+    """
+    deps = ctx.deps
+    index = deps.get_bm25_index()
+
+    if index is None:
+        return "No code chunks available for search."
+
+    query_tokens = bm25s.tokenize([query], stopwords="en", show_progress=False)
+    k = min(AGENTIC_SEARCH_RESULTS * 2, len(deps.chunks))
+    results, scores = index.retrieve(query_tokens, k=k, show_progress=False)
+
+    output_parts: list[str] = []
+    count = 0
+    for idx, score in zip(results[0], scores[0], strict=True):
+        score_val = float(score)
+        if score_val <= 0.0:
+            continue
+        chunk_idx = int(idx)
+        if chunk_idx < 0 or chunk_idx >= len(deps.chunks):
+            continue
+        chunk = deps.chunks[chunk_idx]
+        if chunk.source in deps.changed_files:
+            continue
+
+        snippet = chunk.content[:500]
+        if len(chunk.content) > 500:
+            snippet += "\n..."
+        output_parts.append(
+            f"## {chunk.source} ({chunk.symbol_name})\n```\n{snippet}\n```"
+        )
+        count += 1
+        if count >= AGENTIC_SEARCH_RESULTS:
+            break
+
+    if not output_parts:
+        return "No results found."
+
+    return "\n\n".join(output_parts)
+
+
+# =============================================================================
+# SYSTEM PROMPT
+# =============================================================================
+
+_BASE_SYSTEM_PROMPT = """\
+You are a code exploration agent helping review a pull request. Your job is to \
+find files in the repository that are relevant to understanding the changes.
+
+You have two tools:
+- `fetch_file(path)`: Read a file's contents from the repository.
+- `search_code(query)`: Search the codebase using keyword queries (BM25).
+
+Your approach:
+1. Study the diff to understand what changed.
+2. Use `search_code` to find code matching specific symbols, function names, \
+or concepts from the diff.
+3. Use `fetch_file` to read promising files identified by search or the \
+codebase outline.
+4. Focus on:
+   - Dependencies of changed code (imports, called functions)
+   - Similar or duplicate implementations
+   - Callers of changed APIs
+   - Files that might be affected by the changes
+5. Score each relevant file 0.0-1.0 based on how important it is for \
+reviewing the diff.
+6. Only include files you've actually examined via fetch_file or search_code.
 """
-
-
-class SearchPlan(BaseModel):
-    """Structured output from the agentic retrieval LLM."""
-
-    queries: list[str]
-    needs_more_context: bool
 
 
 # =============================================================================
@@ -46,115 +203,128 @@ class SearchPlan(BaseModel):
 
 @dataclass
 class AgenticRetrievalStrategy:
-    """LLM-guided iterative retrieval.
+    """LLM-guided codebase exploration with tools.
 
-    Uses a pydantic-ai Agent to generate search queries, delegates those
-    queries to fallback strategies, and iterates until the LLM decides
-    no more context is needed or max iterations are reached.
+    Uses a pydantic-ai Agent with fetch_file and search_code tools to
+    explore the codebase and identify files relevant to the PR diff.
     """
 
     config: ModelConfig
-    fallback_strategies: list[RetrievalStrategy]
-    max_iterations: int = MAX_AGENTIC_ITERATIONS
-    _agent: Agent[None, SearchPlan] = field(init=False, repr=False)
+    client: GitHubClient
+    ref: str
+    chunks: list[CodeChunk]
+    outline_text: str | None = None
+    max_file_fetches: int = MAX_AGENTIC_FILE_FETCHES
+    _agent: Agent[_AgenticDeps, ExplorationResult] = field(init=False, repr=False)
     last_llm_usage: LLMUsage = field(init=False, default_factory=LLMUsage)
 
     def __post_init__(self) -> None:
-        self._agent = create_agent(
-            config=self.config,
-            output_type=SearchPlan,
-            system_prompt=SYSTEM_PROMPT,
+        system_prompt = _BASE_SYSTEM_PROMPT
+        if self.outline_text:
+            system_prompt += (
+                "\n\nBelow is the codebase outline showing all files and "
+                "their symbols. Use this to identify which files to explore:"
+                f"\n\n{self.outline_text}"
+            )
+
+        self._agent = Agent(
+            model=self.config.model,
+            deps_type=_AgenticDeps,
+            output_type=ExplorationResult,
+            system_prompt=system_prompt,
+            tools=[fetch_file, search_code],
+            model_settings={
+                "max_tokens": int(self.config.max_tokens),
+                "temperature": self.config.temperature,
+            },
+            retries=MAX_AGENTIC_ITERATIONS,
         )
 
     def retrieve(
         self, query: RetrievalQuery, budget: TokenCount | None = None
     ) -> list[ContextItem]:
-        """Iteratively retrieve context using LLM-generated search queries."""
-        all_items: dict[FilePath, ContextItem] = {}
+        """Explore the codebase and retrieve relevant context items."""
         changed = set(query.changed_files)
-        accumulated_tokens = 0
         self.last_llm_usage = LLMUsage()
 
-        for iteration in range(self.max_iterations):
-            user_prompt = self._build_prompt(query, list(all_items.values()))
-            plan = self._agent.run_sync(user_prompt)
-            run_usage = plan.usage()
-            self.last_llm_usage = self.last_llm_usage + LLMUsage(
-                input_tokens=run_usage.input_tokens or 0,
-                output_tokens=run_usage.output_tokens or 0,
-                requests=run_usage.requests,
-            )
+        deps = _AgenticDeps(
+            client=self.client,
+            ref=self.ref,
+            chunks=self.chunks,
+            changed_files=changed,
+            max_fetches=self.max_file_fetches,
+        )
 
-            if not plan.output.queries:
-                logger.debug(
-                    "Agentic retrieval: no queries at iteration %d",
-                    iteration,
-                )
-                break
+        user_prompt = self._build_prompt(query)
 
-            new_items = self._execute_sub_queries(plan.output.queries, query, changed)
+        try:
+            result = self._agent.run_sync(user_prompt, deps=deps)
+        except Exception:
+            logger.warning("Agentic retrieval failed, returning empty results")
+            return []
 
-            budget_exhausted = False
-            for item in new_items:
-                existing = all_items.get(item.source)
-                if existing is not None:
-                    if existing.relevance_score >= item.relevance_score:
-                        continue
-                    # Replace with higher-scoring item; adjust token accounting.
-                    accumulated_tokens -= int(existing.token_cost)
+        run_usage = result.usage()
+        self.last_llm_usage = LLMUsage(
+            input_tokens=run_usage.input_tokens or 0,
+            output_tokens=run_usage.output_tokens or 0,
+            requests=run_usage.requests,
+        )
 
-                cost = int(item.token_cost)
-                if budget is not None and accumulated_tokens + cost > int(budget):
-                    budget_exhausted = True
-                    break
-                all_items[item.source] = item
-                accumulated_tokens += cost
+        return self._build_context_items(
+            result.output, deps.fetched_files, changed, budget
+        )
 
-            if budget_exhausted:
-                break
-
-            if not plan.output.needs_more_context:
-                break
-
-        return list(all_items.values())
-
-    def _build_prompt(
-        self,
-        query: RetrievalQuery,
-        retrieved_so_far: list[ContextItem],
-    ) -> str:
-        """Build the user prompt for the LLM."""
+    def _build_prompt(self, query: RetrievalQuery) -> str:
+        """Build the user prompt from the retrieval query."""
         parts = [f"## Diff\n```\n{query.diff_text}\n```"]
-
         if query.changed_symbols:
             parts.append(f"## Changed symbols\n{', '.join(query.changed_symbols)}")
-
-        if retrieved_so_far:
-            sources = [item.source for item in retrieved_so_far]
-            parts.append(f"## Already retrieved\n{', '.join(sources)}")
-
-        parts.append("Generate search queries to find additional relevant context.")
+        parts.append(
+            "Explore the codebase to find files relevant to reviewing this diff."
+        )
         return "\n\n".join(parts)
 
-    def _execute_sub_queries(
+    def _build_context_items(
         self,
-        queries: list[str],
-        original_query: RetrievalQuery,
+        exploration: ExplorationResult,
+        fetched_files: dict[str, str],
         changed: set[FilePath],
+        budget: TokenCount | None,
     ) -> list[ContextItem]:
-        """Run sub-queries through fallback strategies."""
+        """Convert exploration results to context items."""
         items: list[ContextItem] = []
+        accumulated_tokens = 0
 
-        for q in queries:
-            sub_query = RetrievalQuery(
-                changed_files=original_query.changed_files,
-                changed_symbols=tuple(q.split()),
-                diff_text=q,
+        sorted_files = sorted(
+            exploration.relevant_files,
+            key=lambda f: f.relevance_score,
+            reverse=True,
+        )
+
+        for relevant_file in sorted_files:
+            path = FilePath(relevant_file.path)
+            if path in changed:
+                continue
+
+            content = fetched_files.get(relevant_file.path)
+            if content is None:
+                continue
+
+            token_cost = TokenCount(max(1, len(content) // CHARS_PER_TOKEN))
+
+            if budget is not None and accumulated_tokens + int(token_cost) > int(
+                budget
+            ):
+                break
+
+            items.append(
+                ContextItem(
+                    source=path,
+                    content=content,
+                    relevance_score=relevant_file.relevance_score,
+                    token_cost=token_cost,
+                )
             )
-            for strategy in self.fallback_strategies:
-                sub_items = strategy.retrieve(sub_query)
-                for item in sub_items:
-                    if item.source not in changed:
-                        items.append(item)
+            accumulated_tokens += int(token_cost)
 
         return items

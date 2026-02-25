@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from dataclasses import dataclass
 
-from argus.domain.context.entities import CodebaseMap
+from argus.domain.context.entities import CodebaseMap, FileEntry
 from argus.domain.retrieval.value_objects import ContextItem, RetrievalQuery
 from argus.infrastructure.constants import CHARS_PER_TOKEN
 from argus.shared.types import FilePath, TokenCount
@@ -57,7 +56,7 @@ class StructuralRetrievalStrategy:
             if path not in self.codebase_map:
                 continue
             entry = self.codebase_map.get(path)
-            content = self._build_content(entry.path, entry.exports)
+            content = self._build_content(entry)
             token_cost = TokenCount(max(1, len(content) // CHARS_PER_TOKEN))
 
             if budget is not None and accumulated_tokens + int(token_cost) > int(
@@ -77,8 +76,14 @@ class StructuralRetrievalStrategy:
 
         return items
 
-    def _build_content(self, path: FilePath, exports: Sequence[str]) -> str:
-        if exports:
-            symbols = ", ".join(exports)
-            return f"# {path}\nExports: {symbols}"
-        return f"# {path}"
+    def _build_content(self, entry: FileEntry) -> str:
+        lines = [f"# {entry.path}"]
+        if entry.symbols:
+            for sym in entry.symbols:
+                if sym.signature:
+                    lines.append(f"  {sym.signature}")
+                else:
+                    lines.append(f"  {sym.kind.value} {sym.name}")
+        elif entry.exports:
+            lines.append(f"Exports: {', '.join(entry.exports)}")
+        return "\n".join(lines)
