@@ -1,6 +1,6 @@
 {
   "repo_id": "sudzxd/argus",
-  "version": 11,
+  "version": 12,
   "outline": {
     "version": 0,
     "entries": [
@@ -1026,6 +1026,14 @@
       ]
     },
     {
+      "category": "architecture",
+      "description": "The project centralizes global or shared constant values in a dedicated `shared/constants.py` module.",
+      "confidence": 0.7,
+      "examples": [
+        "src/argus/shared/constants.py"
+      ]
+    },
+    {
       "category": "style",
       "description": "Dataclasses frequently implement `__post_init__` for performing post-construction validation or additional initialization logic.",
       "confidence": 0.6,
@@ -1042,15 +1050,7 @@
         "src/argus/infrastructure/storage/artifact_store.py:_atomic_write_text",
         "src/argus/interfaces/sync_index.py:_execute"
       ]
-    },
-    {
-      "category": "testing",
-      "description": "Tests are organized using nested classes to group related test cases or scenarios for a specific component or functionality, improving readability and structure within larger test files.",
-      "confidence": 0.5,
-      "examples": [
-        "class TestLLMReviewGenerator containing class TestFormatPrContext"
-      ]
     }
   ],
-  "analyzed_at": "9c3b49407c07658eac67fbf57ebf035462c34b38"
+  "analyzed_at": "ea1bb10f65bac57287d229e29c69439ceace1c3d"
 }

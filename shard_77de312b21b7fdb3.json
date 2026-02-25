@@ -104,18 +104,18 @@
           "signature": "def test_review_output_multiple_comments() -> None"
         },
         {
-          "name": "test_search_plan_roundtrip_through_agent",
+          "name": "test_exploration_result_roundtrip_through_agent",
           "kind": "function",
           "line_start": 146,
-          "line_end": 163,
-          "signature": "def test_search_plan_roundtrip_through_agent() -> None"
+          "line_end": 169,
+          "signature": "def test_exploration_result_roundtrip_through_agent() -> None"
         },
         {
-          "name": "test_search_plan_empty_queries",
+          "name": "test_exploration_result_empty_files",
           "kind": "function",
-          "line_start": 166,
-          "line_end": 183,
-          "signature": "def test_search_plan_empty_queries() -> None"
+          "line_start": 172,
+          "line_end": 187,
+          "signature": "def test_exploration_result_empty_files() -> None"
         }
       ],
       "imports": [
@@ -131,8 +131,8 @@
         "test_review_output_roundtrip_through_agent",
         "test_review_output_empty_comments",
         "test_review_output_multiple_comments",
-        "test_search_plan_roundtrip_through_agent",
-        "test_search_plan_empty_queries"
+        "test_exploration_result_roundtrip_through_agent",
+        "test_exploration_result_empty_files"
       ],
       "last_indexed": "",
       "summary": null

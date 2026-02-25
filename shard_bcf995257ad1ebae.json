@@ -12,62 +12,102 @@
       "path": "src/argus/infrastructure/retrieval/agentic.py",
       "symbols": [
         {
-          "name": "SearchPlan",
+          "name": "_AgenticDeps",
           "kind": "class",
           "line_start": 35,
-          "line_end": 39,
-          "signature": "class SearchPlan(BaseModel)"
+          "line_end": 60,
+          "signature": "class _AgenticDeps"
+        },
+        {
+          "name": "get_bm25_index",
+          "kind": "method",
+          "line_start": 49,
+          "line_end": 60,
+          "signature": "def get_bm25_index(self) -> bm25s.BM25 | None"
+        },
+        {
+          "name": "RelevantFile",
+          "kind": "class",
+          "line_start": 68,
+          "line_end": 73,
+          "signature": "class RelevantFile(BaseModel)"
+        },
+        {
+          "name": "ExplorationResult",
+          "kind": "class",
+          "line_start": 76,
+          "line_end": 79,
+          "signature": "class ExplorationResult(BaseModel)"
+        },
+        {
+          "name": "fetch_file",
+          "kind": "function",
+          "line_start": 87,
+          "line_end": 118,
+          "signature": "def fetch_file(ctx"
+        },
+        {
+          "name": "search_code",
+          "kind": "function",
+          "line_start": 121,
+          "line_end": 167,
+          "signature": "def search_code(ctx"
         },
         {
           "name": "AgenticRetrievalStrategy",
           "kind": "class",
-          "line_start": 48,
-          "line_end": 160,
+          "line_start": 205,
+          "line_end": 330,
           "signature": "class AgenticRetrievalStrategy"
         },
         {
           "name": "__post_init__",
           "kind": "method",
-          "line_start": 62,
-          "line_end": 67,
+          "line_start": 221,
+          "line_end": 241,
           "signature": "def __post_init__(self) -> None"
         },
         {
           "name": "retrieve",
           "kind": "method",
-          "line_start": 69,
-          "line_end": 119,
+          "line_start": 243,
+          "line_end": 275,
           "signature": "def retrieve("
         },
         {
           "name": "_build_prompt",
           "kind": "method",
-          "line_start": 121,
-          "line_end": 137,
-          "signature": "def _build_prompt("
+          "line_start": 277,
+          "line_end": 285,
+          "signature": "def _build_prompt(self, query"
         },
         {
-          "name": "_execute_sub_queries",
+          "name": "_build_context_items",
           "kind": "method",
-          "line_start": 139,
-          "line_end": 160,
-          "signature": "def _execute_sub_queries("
+          "line_start": 287,
+          "line_end": 330,
+          "signature": "def _build_context_items("
         }
       ],
       "imports": [
         "logging",
         "dataclasses",
+        "bm25s",
         "pydantic",
         "pydantic_ai",
         "argus.domain.llm.value_objects",
-        "argus.domain.retrieval.strategies",
         "argus.domain.retrieval.value_objects",
-        "argus.infrastructure.llm_providers.factory",
+        "argus.infrastructure.constants",
+        "argus.infrastructure.github.client",
+        "argus.infrastructure.parsing.chunker",
         "argus.shared.constants",
         "argus.shared.types"
       ],
       "exports": [
-        "SearchPlan"
+        "RelevantFile",
+        "ExplorationResult",
+        "fetch_file",
+        "search_code"
       ],
       "last_indexed": "",
       "summary": null
@@ -185,27 +225,26 @@
         {
           "name": "StructuralRetrievalStrategy",
           "kind": "class",
-          "line_start": 26,
-          "line_end": 84,
+          "line_start": 25,
+          "line_end": 89,
           "signature": "class StructuralRetrievalStrategy"
         },
         {
           "name": "retrieve",
           "kind": "method",
-          "line_start": 35,
-          "line_end": 78,
+          "line_start": 34,
+          "line_end": 77,
           "signature": "def retrieve("
         },
         {
           "name": "_build_content",
           "kind": "method",
-          "line_start": 80,
-          "line_end": 84,
-          "signature": "def _build_content(self, path"
+          "line_start": 79,
+          "line_end": 89,
+          "signature": "def _build_content(self, entry"
         }
       ],
       "imports": [
-        "collections.abc",
         "dataclasses",
         "argus.domain.context.entities",
         "argus.domain.retrieval.value_objects",

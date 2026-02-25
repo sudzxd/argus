@@ -22,42 +22,42 @@
           "name": "_execute_pipeline",
           "kind": "function",
           "line_start": 84,
-          "line_end": 382,
+          "line_end": 392,
           "signature": "def _execute_pipeline(config"
         },
         {
           "name": "_fetch_files_parallel",
           "kind": "function",
-          "line_start": 388,
-          "line_end": 423,
+          "line_start": 398,
+          "line_end": 433,
           "signature": "def _fetch_files_parallel("
         },
         {
           "name": "_load_event",
           "kind": "function",
-          "line_start": 426,
-          "line_end": 435,
+          "line_start": 436,
+          "line_end": 445,
           "signature": "def _load_event(event_path"
         },
         {
           "name": "_extract_pr_number",
           "kind": "function",
-          "line_start": 438,
-          "line_end": 451,
+          "line_start": 448,
+          "line_end": 461,
           "signature": "def _extract_pr_number(event"
         },
         {
           "name": "_extract_head_sha",
           "kind": "function",
-          "line_start": 454,
-          "line_end": 470,
+          "line_start": 464,
+          "line_end": 480,
           "signature": "def _extract_head_sha(event"
         },
         {
           "name": "_extract_changed_files",
           "kind": "function",
-          "line_start": 473,
-          "line_end": 484,
+          "line_start": 483,
+          "line_end": 494,
           "signature": "def _extract_changed_files(diff"
         }
       ],
